@@ -1,3 +1,7 @@
 # Schnällschte Jegenstorfer
 
-Anmelden, durchführen, Ranglisten erstellen... 
+* Anmelden
+* Durchführen ...  :runner:
+* Ranglisten erstellen
+
+
