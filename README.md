@@ -1,1 +1,3 @@
-# sj
+# Schnällschte Jegenstorfer
+
+Anmelden, durchführen, Ranglisten erstellen... 
