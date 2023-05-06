@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}<title>SJ - Teilnehmer</title>{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Members</h1>
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Erstellt</th>
+                            <th scope="col">Geändert</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Startnummer</th>
+                            <th scope="col">Vorname</th>
+                            <th scope="col">Nachname</th>
+                            <th scope="col">Geburtsjahr</th>
+                            <th scope="col">Geschlecht</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Telefon</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for x in mymembers %}
+                            <tr>
+                                <td>{{ x.created_at | date:"d.m.Y, H:m" }}</td>
+                                <td>{{ x.updated_at | date:"d.m.Y, H:m:s" }}</td>
+                                <td>
+                                    <a href="edit/{{ x.uuid }}">{{ forloop.counter }}</a>
+                                </td>
+                                <td>{{ x.startnum }}</td>
+                                <td>{{ x.firstname }}</td>
+                                <td>{{ x.lastname }}</td>
+                                <td>{{ x.byear }}</td>
+                                <td>{{ x.gender }}</td>
+                                <td>{{ x.email }}</td>
+                                <td>{{ x.phone }}</td>
+                                <td>{{ x.state }}</td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm" href="edit/{{ x.uuid }}" role="button">anpassen</a>
+                                    <a class="btn btn-danger btn-sm"
+                                       href="delete/{{ x.uuid }}"
+                                       role="button">löschen</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </form>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- <div class="container">
+	<div class="row">
+		<div class="col">
+
+			<p>
+				<a href="add/">TeilnehmerIn hinzufügen</a>
+			</p>
+			<p>
+				<a href="run/">Laufeinteilung</a>
+			</p>
+			<p>
+				<a href="results/">Resultate erfassen</a>
+			</p>
+		</div>
+	</div>
+</div> -->
+{% endblock %}

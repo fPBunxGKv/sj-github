@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    <!-- Tabelle mit eingeteilten Läufen -->
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Lauf #</th>
+                            {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% regroup runs by run_nr as new_runs %}
+                        {% for x in new_runs %}
+                            <tr>
+                                <td class="align-middle">
+                                    <!-- <b><a href="addresults/{{ x.grouper }}">{{ x.grouper }}</a></b> -->
+                                    <a class="btn btn-primary btn-sm"
+                                       href="addresults/{{ x.grouper }}"
+                                       role="button"><b>{{ x.grouper }}</b></a>
+                                </td>
+                                {% for line in num_lines %}
+                                    <td>
+                                        {% for y in x.list %}
+                                            {% spaceless %}
+                                                {% if line|add:"1" == y.line_nr %}
+                                                    {% if y.result <= 0 %}
+                                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                        <br>
+                                                        ({{ y.fk_sj_users.startnum }})
+                                                        <br>
+                                                        {{ y.result_category }} ({{ y.fk_sj_users.byear }})
+                                                        <br>
+                                                        Status: {{ y.state }}
+                                                        <br>
+                                                        <p style="color:red">
+                                                            <b>Zeit: ---</b>
+                                                        </p>
+                                                    {% endif %}
+                                                    {% if y.result > 0 %}
+                                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                        <br>
+                                                        ({{ y.fk_sj_users.startnum }})
+                                                        <br>
+                                                        {{ y.result_category }} ({{ y.fk_sj_users.byear }})
+                                                        <br>
+                                                        Status: {{ y.state }}
+                                                        <br>
+                                                        <p style="color:blue">
+                                                            <b>Zeit: {{ y.result | stringformat:'0.2f' }}</b>
+                                                        </p>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endspaceless %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

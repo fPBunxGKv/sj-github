@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        {% load static %}
+
+        <link rel="stylesheet"
+              type="text/css"
+              href="{% static 'bootstrap523/css/bootstrap.css' %}"/>
+        
+        <script src="{% static 'bootstrap523/js/bootstrap.min.js' %}"></script>      
+
+        <link rel="shortcut icon"
+              type="image/png"
+              href="{% static 'favicon.ico' %}"/>
+
+
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        {% block title %}<title>SJ - Home</title>{% endblock %}
+    </head>
+    <body>
+        {% block sidebar %}<!-- insert default navigation text for every page -->{% endblock %}
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <button type="button"
+                        class="navbar-toggler"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
+                            <a href="{% url 'users' %}" class="nav-item nav-link">Teilnehmer</a>
+                            <a href="{% url 'add' %}" class="nav-item nav-link">TeilnehmerIn erfassen</a>
+                            <a href="{% url 'run' %}" class="nav-item nav-link">Laufeinteilung</a>
+                            <a href="{% url 'results' %}" class="nav-item nav-link">Zeiterfassung</a>
+                            <a href="{% url 'ranking' %}" class="nav-item nav-link">Ranglisten</a>
+                            <a href="{% url 'administration' %}" class="nav-item nav-link">Admin</a>
+                        </div>
+                        <div class="navbar-nav ms-auto">
+                            <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                        {% else %}
+                            <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
+                            {% if event_info.reg_open %}
+                                <a href="{% url 'register_new' %}" class="nav-item nav-link">Anmeldung</a>
+                            {% endif %}
+                            <a href="{% url 'ranking' %}" class="nav-item nav-link">Ranglisten</a>
+                        </div>
+                        <div class="navbar-nav ms-auto">
+                            <a href="{% url 'login' %}" class="nav-item nav-link">Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    {% block content %}<!-- default content text (typically empty) -->{% endblock %}
+</body>
+</html>

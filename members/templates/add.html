@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    <!-- if usergourp == admin -->
+    {# Display a form #}
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row justify-content-center align-items-center h-100">
+                <div class="col-12 col-lg-9 col-xl-7">
+                    <div class="card shadow-2-strong card-registration" style="border-radius: 15px">
+                         {% load static %}
+                         <img src="{% static 'banner_sj_anmeldung.jpg' %}" class="card-img-top">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">
+                                <b>{{ event_info.name | default:"" }}</b> Anmeldung
+                            </h3>
+                            {% if temprequest == 'edit' %}
+                                <form action="updaterecord/{{ member.uuid }}" method="post">
+                                {% else %}
+                                    <form action="addrecord/" method="post">
+                                    {% endif %}
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-outline">
+                                                <input type="text"
+                                                       name="fname"
+                                                       id="fname"
+                                                       class="form-control form-control-lg"
+                                                       value='{{ member.firstname | default:"" }}'
+                                                       required/>
+                                                <label class="form-label" for="fname">Vorname *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-outline">
+                                                <input type="text"
+                                                       name="lname"
+                                                       id="lname"
+                                                       class="form-control form-control-lg"
+                                                       value='{{ member.lastname | default:"" }}'
+                                                       required/>
+                                                <label class="form-label" for="lname">Nachname *</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4 d-flex align-items-center">
+                                            <div class="form-outline w-100">
+                                                <input type="number"
+                                                       class="form-control form-control-lg"
+                                                       name="byear"
+                                                       id="byear"
+                                                       value='{{ member.byear | default:"" }}'
+                                                       required/>
+                                                <label for="byear" class="form-label">Jahrgang *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <h6 class="mb-2 pb-1">Geschlecht *</h6>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="gender"
+                                                       id="femaleGender"
+                                                       value="W"
+                                                       {% if member.gender == 'W' %} checked{% endif %}/>
+                                                <label class="form-check-label" for="femaleGender">weiblich</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="gender"
+                                                       id="maleGender"
+                                                       value="M"
+                                                       {% if member.gender == 'M' %} checked{% endif %}/>
+                                                <label class="form-check-label" for="maleGender">männlich</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4 pb-2">
+                                            <div class="form-outline">
+                                                <input type="email"
+                                                       name="uemail"
+                                                       id="uemail"
+                                                       class="form-control form-control-lg"
+                                                       value='{{ member.email | default:"" }}'
+                                                       required/>
+                                                <label class="form-label" for="uemail">Email *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4 pb-2">
+                                            <div class="form-outline">
+                                                <input type="tel"
+                                                       name="phone"
+                                                       id="phone"
+                                                       class="form-control form-control-lg"
+                                                       value='{{ member.phone | default:"" }}'/>
+                                                <label class="form-label" for="phone">Telefon</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4 pb-2">
+                                            <div class="form-outline">
+                                                <input type="text"
+                                                       name="city"
+                                                       id="city"
+                                                       class="form-control form-control-lg"
+                                                       value='{{ member.city | default:"" }}'
+                                                       required/>
+                                                <label class="form-label" for="city">Ort *</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="state"
+                                                       id="stateYes"
+                                                       value="yes"
+                                                       {% if member.state == 'yes' %} checked{% endif %}/>
+                                                <label class="form-check-label" for="stateYes">Ich bin dabei</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="state"
+                                                       id="stateNo"
+                                                       value="no"
+                                                       {% if member.state == 'no' %} checked{% endif %}/>
+                                                <label class="form-check-label" for="stateNo">Ich kann diesmal nicht</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="state"
+                                                       id="stateDel"
+                                                       value="del"
+                                                       {% if member.state == 'del' %} checked{% endif %}/>
+                                                <label class="form-check-label" for="stateNo">Meine Daten unwiderruflich löschen</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 pt-2">
+                                        <input class="btn btn-primary btn-lg" type="submit" value="Absenden" />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endblock %}

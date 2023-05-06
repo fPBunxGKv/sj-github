@@ -8,12 +8,12 @@
 - [ ] Testen des Druckers: TM-T88II
 
 ## Drucker
----
 Getestet mit:  
  - EPSON TM-T20II
 
 ## Installation
----
+- Getestet mit Python 3.10.6
+
 Python virtual enviroment erstellen
 ```bash
 sudo apt install python3.10-venv

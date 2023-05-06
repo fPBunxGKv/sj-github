@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    {% load static %}
+    <div class="container-fluid">
+        <div class="row" align="center">
+            <div class="col align="center">
+                <br>
+                <img src="{% static 'logo_211x211.png' %}" width="auto" height="auto">
+                <br>
+                <br>
+                <h1>{{ event_info.name }}</h1>
+                <h5>{{ event_info.date | date:"d. F Y" }}</h5>
+            </div>
+        </div>
+    </div>
+{% endblock %}

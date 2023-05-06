@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    <section class="vh-20 gradient-custom">
+        <div class="container py-5 h-20">
+            <form action="addrun/" method="post">
+                {% csrf_token %}
+                <!-- --------------------------------------------------- -->
+                <div class="row mb-3">
+                    {% if num_lines > 4 %}
+                        <div class="col-sm-1 mb-2">
+                        {% else %}
+                            <div class="col-sm-1 mb-1">
+                            {% endif %}
+                            <div class="form-outline">
+                                <input id="runnr"
+                                       name="run_nr"
+                                       type="hidden"
+                                       value="{{ run_max | add:'1' | default:'1' }}"/>
+                                <b># {{ run_max | add:"1" | default:"1" }}</b>
+                            </div>
+                        </div>
+                        {% for line in num_lines %}
+                            {% if num_lines > 4 %}
+                                <div class="col-sm-1 mb-2">
+                                {% else %}
+                                    <div class="col-sm-2 mb-2">
+                                    {% endif %}
+                                    <div class="form-outline">
+                                        <input type="number"
+                                               id="addline{{ line | add:'1' }}"
+                                               name="addline{{ line | add:'1' }}"
+                                               value=""
+                                               class="form-control form-control-sm">
+                                        <label class="form-label" for="addline{{ line | add:'1' }}">Bahn {{ line | add:"1" }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="col-sm-1 mb-2">
+                                <div>
+                                    <input class="btn btn-primary btn-sm" type="submit" value="Submit" />
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Tabelle mit eingeteilten Läufen -->
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <table class="table table-striped table-hover caption-top">
+                                <caption><b>Eingeteilte Läufe</b></caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Lauf #</th>
+                                        {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% regroup runs by run_nr as new_runs %}
+                                    {% for x in new_runs %}
+                                        <tr>
+                                            {% if forloop.counter < 3 %}
+                                                <td class="align-middle">
+
+                                                    <a class="btn btn-primary btn-sm"
+                                                       href="edit/{{ x.grouper }}"
+                                                       role="button"><b>{{ x.grouper }}</b></a>
+                                                </td>
+                                            {% else %}
+                                                <td class="align-middle">
+                                                    <b>{{ x.grouper }}</b>
+                                                </td>
+                                            {% endif %}
+                                            {% for line in num_lines %}
+                                                <td>
+                                                    {% for y in x.list %}
+                                                        {% if line|add:"1" == y.line_nr %}
+                                                            <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                            <br>
+                                                            ({{ y.fk_sj_users.startnum }})
+                                                            <br>
+                                                            {{ y.fk_sj_users.byear }} / {{ y.result_category }}
+                                                            <br>
+                                                            Status: {{ y.state }}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        {% endblock %}

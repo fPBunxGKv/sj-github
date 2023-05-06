@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    <section class="vh-20 gradient-custom">
+        <div class="container py-5 h-20">
+            <h4 class="mb-4 pb-2 pb-md-0 mb-md-5">{{ pagetitle }}</h4>
+            <form action="updaterun/{{ runid.id }}" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-sm-2 mb-2">
+                        <div class="form-outline">
+                            <input id="runnr" name="number" type="number" value={{ runid.id }} class="form-control form-control-sm" readonly/>
+                            <label class="form-label" for="runnr">#</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 mb-2">
+                        <div class="form-outline">
+                            <input type="number" id="addline1" name="addline1" value={{ runid.line1 }} 	 class="form-control form-control-sm">
+                            <label class="form-label" for="addline1">Bahn 1</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 mb-2">
+                        <div class="form-outline">
+                            <input type="number" id="addline2" name="addline2" value={{ runid.line2 }} class="form-control form-control-sm">
+                            <label class="form-label" for="addline2">Bahn 2</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 mb-2">
+                        <div class="form-outline">
+                            <input type="number" id="addline3" name="addline3" value={{ runid.line3 }} class="form-control form-control-sm">
+                            <label class="form-label" for="addline3">Bahn 3</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 mb-2">
+                        <div class="form-outline">
+                            <input type="number" id="addline4" name="addline4" value={{ runid.line4 }} class="form-control form-control-sm">
+                            <label class="form-label" for="addline4">Bahn 4</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-1 mb-4">
+                        <div>
+                            <input class="btn btn-primary btn-sm" type="submit" value="Submit" />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}

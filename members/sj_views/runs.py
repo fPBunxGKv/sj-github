@@ -1,0 +1,290 @@
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse, HttpResponseRedirect
+from django.template import loader
+from django.urls import reverse
+
+from django.forms import Form, IntegerField
+
+from django.db.models import Max
+
+from ..models import sj_users
+from ..models import sj_events
+from ..models import sj_results
+
+from random import seed
+from random import randint
+from array import array
+
+# Python imports
+import random
+from datetime import date
+
+import logging
+
+logger = logging.getLogger(__name__)
+debug_level = 1
+
+# ToDo: funktion doppelt (in views.py und in runs.py)
+def get_event_info():
+    active_event = sj_events.objects.filter(event_active=True).values('id','event_name','event_date','event_reg_open','event_num_lines')
+    return {
+            "id": active_event[0]['id'],
+            "name": active_event[0]['event_name'],
+            "date": active_event[0]['event_date'],
+            "reg_open": active_event[0]['event_reg_open'],
+            # "reg_start": active_event[0]['event_reg_start'],
+            # "reg_end": active_event[0]['event_reg_end'],
+            "lines": active_event[0]['event_num_lines']
+            }
+
+def calc_cat(u_gender, u_byear, event_year):
+    """ Berechnet die Kategorie
+
+    Uebergabe:
+        Geschlecht
+        Geburtsjahr
+        Anlass Jahr
+
+        ToDo:
+            - "Formel" in DB abbilden
+            -
+    """
+    u_age = event_year - u_byear
+    # print('Kategorie berechnen, Gender:', u_gender, 'u_byear:', u_byear, 'u_age:', u_age, 'event_year:', event_year)
+    mstring = str(u_age)
+    match mstring:
+        case '0' | '1' | '2' | '3' | '4' | '5':
+            cat_n =  '05'
+        case '6':
+            cat_n =  '06'
+        case '7':
+            cat_n =  '07'
+        case '8':
+            cat_n =  '08'
+        case '9':
+            cat_n =  '09'
+        case '10':
+            cat_n =  '10'
+        case '11':
+            cat_n =  '11'
+        case '12' | '13':
+            cat_n =  '12/13'
+        case '14' | '15':
+            cat_n =  '14/15'
+        case _:
+            cat_n =  '16/Open'
+    return str(u_gender + cat_n)
+
+# Wahr wenn doppelte Einträge in einem Array vorhanden sind
+def test_dup_user(lines):
+    a_lines = set(lines)
+    contains_duplicates = len(lines) != len(a_lines)
+
+    return contains_duplicates
+
+@login_required
+def run(request):
+    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+    event_id = event_info['id']
+
+    # Bereits erfasste Läufe abfragen, letzter gespeicherter Lauf ermitteln
+    run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
+
+    runs_all_data = sj_results.objects.prefetch_related('fk_sj_events').filter(fk_sj_events=event_id).order_by('-run_nr','line_nr')
+
+    template = loader.get_template('run.html')
+    context = {
+        'runs' : runs_all_data,
+        'run_max' : run_max['run_nr__max'],
+        'num_lines' : range(num_lines),
+        'pagetitle' : 'SJ - Laufeinteilung',
+    }
+    return HttpResponse(template.render(context, request))
+
+
+# --- ChatGPT ---
+# ToDo: dynamisch auf Anzahl Bahnen (num_lines)
+# Eine class für AddRunForm / EditRunForm (template muss auch angepasst werden)
+
+class AddRunForm(Form):
+    run_nr = IntegerField()
+    addline1 = IntegerField(required=False)
+    addline2 = IntegerField(required=False)
+    addline3 = IntegerField(required=False)
+    addline4 = IntegerField(required=False)
+    addline5 = IntegerField(required=False)
+    addline6 = IntegerField(required=False)
+    addline7 = IntegerField(required=False)
+    addline8 = IntegerField(required=False)
+
+@login_required
+def addrun(request):
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+
+    form = AddRunForm(request.POST or None)
+    
+    if form.is_valid():
+        run_num = form.cleaned_data['run_nr']
+        lines = [form.cleaned_data[f'addline{i+1}'] or 0 for i in range(num_lines)]
+
+        users = sj_users.objects.filter(startnum__in=lines, state='yes')
+        user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
+
+        results = []
+        for i, startnum in enumerate(lines):
+            if startnum != 0:
+                if startnum in user_data:
+                    id, byear, gender = user_data[startnum]
+                    result_category = calc_cat(gender, byear, event_info['date'].year)
+                    results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+
+        sj_results.objects.bulk_create(results)
+
+    return HttpResponseRedirect(reverse('run'))
+
+@login_required
+def editrun(request, id):
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+
+# nur zum editieren anzeigen falls noch keine Resulate vorhanden sind, sonst zurück auf Übersicht Zeiterfassung
+    num_results_in_run = sj_results.objects.filter(run_nr=id, state = 'RQR').count()
+
+    if (debug_level>=2): print('{} Resultate in Lauf Nummer {}'.format(num_results_in_run, id))
+
+    if num_results_in_run > 0:
+        return HttpResponseRedirect(reverse('run'))
+    else:
+        run_x_data = sj_results.objects.select_related().filter(run_nr=id)
+
+        line_infos = {
+            n: { } for n in range(1, int(num_lines) + 1)
+        }
+
+        for result in run_x_data:
+            line_infos[result.line_nr] = {
+                **result.__dict__,
+                **result.fk_sj_users.__dict__
+            }
+            run_num = result.run_nr
+
+        template = loader.get_template('run_edit.html')
+        context = {
+            'pagetitle' : 'SJ - Lauf bearbeiten',
+            'num_lines' : range(1, int(num_lines) + 1),
+            'run_num': run_num,
+            'line_infos': line_infos,
+        }
+        return HttpResponse(template.render(context, request))
+
+# --- ChatGPT ---
+# ToDo: dynamisch auf Anzahl Bahnen (num_lines)
+class UpdateRunForm(Form):
+    run_num = IntegerField()
+    edit_run1 = IntegerField(required=False)
+    edit_run2 = IntegerField(required=False)
+    edit_run3 = IntegerField(required=False)
+    edit_run4 = IntegerField(required=False)
+    edit_run5 = IntegerField(required=False)
+    edit_run6 = IntegerField(required=False)
+    edit_run7 = IntegerField(required=False)
+    edit_run8 = IntegerField(required=False)
+
+# --- ChatGPT optimiert updaterun---
+@login_required
+def updaterun(request):
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+
+    form = UpdateRunForm(request.POST or None)
+
+    if form.is_valid():
+        run_num = form.cleaned_data['run_num']
+        lines = [form.cleaned_data[f'edit_run{i+1}'] or 0 for i in range(num_lines)]
+
+        sj_results.objects.filter(run_nr=run_num).delete()
+
+        users = sj_users.objects.filter(startnum__in=lines, state='yes')
+        user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
+
+        results = []
+
+        # ToDo: Verhindern das mehrfach die gleiche Startnummer pro Lauf eingegeben werden kann
+        for i, startnum in enumerate(lines):
+            if startnum != 0:
+                if startnum in user_data:
+                    id, byear, gender = user_data[startnum]
+                    result_category = calc_cat(gender, byear, event_info['date'].year)
+                    results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+
+        sj_results.objects.bulk_create(results)
+
+        return HttpResponseRedirect(reverse('run'))
+
+    return render(request, 'update_run.html', {'form': form})
+
+### RESULTATE ###
+# Resultate und Laufliste anzeigen
+
+
+
+### add testdata
+# ToDo: auf Admin Page einfügen und nur möglich falls beim aktuellen Event noch keine Laufeinteilung / Resultate vorhanden sind.
+@login_required
+def addrun_testdata(request, add_lines):
+
+    try:
+        num_runs = add_lines
+    except:
+        num_runs = 1
+
+    event_info = get_event_info()
+
+    run_max = sj_results.objects.filter(fk_sj_events=event_info['id']).aggregate(Max('run_nr'))
+    seed()
+
+    print('-------------------', len(run_max) )
+    print('-------------------', run_max['run_nr__max'] )
+
+    if len(run_max) > 0 and run_max['run_nr__max']:
+        run_max_1 = run_max['run_nr__max']
+    else:
+        run_max_1 = 1
+
+    for i in range(run_max_1 + 1, num_runs + run_max_1 + 1):
+        for j in range(1, event_info['lines'] + 1):
+            startnummer = randint(1, 319)
+            print('Laufnr:',i,'Bahn:',j,'Startnummer:',startnummer)
+
+            user_data = sj_users.objects.filter(startnum = startnummer).values('byear','gender')
+            # Kategorie erstellen
+            # Uebergabe: Geschlecht, Geburtsjahr, Anlass-Jahr
+            result_category = calc_cat(user_data[0]['gender'], int(user_data[0]['byear']), int(event_info['date'].strftime("%Y")))
+
+            # Lauf mit Läufern in sj_results eintragen
+            if (i + 2) < (num_runs + run_max_1 + 1):
+                result_add_run = sj_results(run_nr = i,
+                                            line_nr = j,
+                                            state = 'RQR', # Set for qualification run
+                                            result_category = result_category,
+                                            fk_sj_users = sj_users.objects.get(startnum = startnummer),
+                                            fk_sj_events = sj_events.objects.get(event_active = True),
+                                            result = round(random.uniform(9,12), 2),
+                                            )
+            else:
+                result_add_run = sj_results(run_nr = i,
+                                            line_nr = j,
+                                            state = 'SQR', # Set for qualification run
+                                            result_category = result_category,
+                                            fk_sj_users = sj_users.objects.get(startnum = startnummer),
+                                            fk_sj_events = sj_events.objects.get(event_active = True),
+                                            result = -1,
+                                            )
+
+            result_add_run.save()
+
+    return HttpResponseRedirect(reverse('run'))

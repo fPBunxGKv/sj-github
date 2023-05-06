@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    <!-- Tabelle mit eingeteilten Läufen -->
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <table class="table table-fixed table-striped table-hover ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Lauf #</th>
+                            {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% regroup runs by run_nr as new_runs %}
+                        <form action="saveresults/" method="post">
+                            {% csrf_token %}
+                            {% for x in new_runs %}
+                                <tr>
+                                    <td class="align-middle">
+                                        <b>{{ x.grouper }}
+                                            <br>
+                                            <input type="hidden" name="run_num" value="{{ x.grouper }}">
+                                            <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                                        </b>
+                                    </td>
+                                    {% for line in num_lines %}
+                                        <td>
+                                            {% for y in x.list %}
+                                                {% if line|add:"1" == y.line_nr %}
+                                                    {% if y.result <= 0 %}
+                                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                        <br>
+                                                        {{ y.fk_sj_users.byear }} / {{ y.result_category }}
+                                                        <br>
+                                                        Status: {{ y.state }}
+                                                        <br>
+                                                        <input type="number"
+                                                               id="add_res"
+                                                               name="add_res{{ line | add:'1' }}"
+                                                               value=""
+                                                               step="0.01"
+                                                               class="form-control form-control-sm">
+                                                    </td>
+                                                {% endif %}
+                                                {% if y.result > 0 %}
+                                                    <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                    <br>
+                                                    {{ y.fk_sj_users.byear }} / {{ y.result_category }}
+                                                    <br>
+                                                    Status: {{ y.state }}
+                                                    <br>
+                                                    <input type="number"
+                                                           id="add_res"
+                                                           name="add_res{{ line | add:'1' }}"
+                                                           value="{{ y.result }}"
+                                                           step="0.01"
+                                                           class="form-control form-control-sm">
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock %}
