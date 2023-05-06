@@ -41,8 +41,8 @@ class sj_results(models.Model):
     RESULT_STATE = (
         ('SQR', 'set for qualy run'),
         ('RQR', 'result qualy run'),
-        ('SFN', 'set for final run'),
-        ('RFN', 'result final run'),
+        ('SFR', 'set for final run'),
+        ('RFR', 'result final run'),
         ('DNF', 'did not finish'),
     )
 
