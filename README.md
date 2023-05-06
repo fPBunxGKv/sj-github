@@ -65,7 +65,8 @@ http://localhost:8000/admin/
 Ausloggen
 - jetzt solltest du auf der "Homepage" vom SJ sein.
 - einloggen mit dem erstellten Admin user
-
+---
+# Notizen
 ### Port 8000 Proxy
 Um mit FQDN auf WSL zuzugreifen
 ```bash
