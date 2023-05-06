@@ -8,7 +8,7 @@ __pycache__
 db.sqlite3
 
 # static files
-static/
+members/static/
 
 # Env
 .env
