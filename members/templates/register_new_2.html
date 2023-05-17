@@ -1,19 +1,35 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
-    {# Display a form #}
+{% load static %}
+
+{% load bootstrap5 %}
+
+{# Display a form #}
+    
     <section class="vh-100 gradient-custom">
         <div class="container py-5 h-100">
             <div class="row justify-content-center align-items-center h-100">
                 <div class="col-12 col-lg-9 col-xl-7">
                     <div class="card shadow-2-strong card-registration"
                          style="border-radius: 15px">
-                        {% load static %}
+                        
                         <img src="{% static 'banner_sj_anmeldung.jpg' %}" class="card-img-top">
                         <div class="card-body p-4 p-md-5">
                             <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">
                                 <b>{{ event_info.name | default:"" }}</b> Anmeldung (neu)
                             </h3>
+
+                            <form action="" method="post" class="form">
+                                {% csrf_token %}
+                               
+                                {% bootstrap_form form %}
+                                {% buttons %}
+                                    <button type="submit" class="btn btn-primary">Absenden</button>
+                                {% endbuttons %}
+                            </form>
+
+                            {{ form.non_field_errors }}
                             {% if temprequest == 'edit' %}
                                 <form action="updaterecord/{{ member.uuid }}" method="post">
                                 {% else %}
@@ -23,8 +39,9 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-4">
                                             <div class="form-outline">
-                                                {{ form.firstname }}
-                                                <label class="form-label">{{ form.firstname.label }} *</label>
+                                                {% bootstrap_field form.firstname %}
+
+
                                             </div>
                                         </div>
                                         <div class="col-md-6 mb-4">
@@ -44,13 +61,15 @@
                                             </div>
                                         </div>
                                         <div class="col-md-6 mb-4">
-                                                <h6 class="mb-2 pb-1">{{ form.gender.label }} *</h6>
-                                                {% for radio in form.gender %}
+                                            {{ form.gender }}
+                                            <h6 class="mb-2 pb-1">{{ form.gender.label }} *</h6>
+
+                                                <!-- {% for radio in RadioSelect %}
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="gender">
                                                         {{ radio }}
                                                     </div>
-                                                {% endfor %}
+                                                {% endfor %} -->
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6 mb-4 pb-2">

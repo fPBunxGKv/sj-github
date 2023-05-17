@@ -1,9 +1,10 @@
 from django import forms
 from .models import sj_users
+from django.core.exceptions import ValidationError
 
 # create a ModelForm
 class RegisterUserForm(forms.ModelForm):
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['phone'].required = False
@@ -31,7 +32,11 @@ class RegisterUserForm(forms.ModelForm):
                 'class': 'form-control form-control-lg',
                 'required': True,
                 }),
-            'gender': forms.Select(attrs={'class': 'form-control', 'required': True, 'type': 'radio'}),
+            'gender': forms.Select(attrs={
+                'class': 'form-control',
+                'required': True,
+                'type': 'radio',
+                }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-outline',
                 'class': 'form-control form-control-lg',
@@ -58,4 +63,20 @@ class RegisterUserForm(forms.ModelForm):
             'city' : 'Ort',
         }
     def clean(self):
-            data = self.cleaned_data
+        #data = self.cleaned_data
+        cleaned_data = super().clean()
+
+        # Prüfen, ob Vor- und Nachname Buchstaben enthalten
+        firstname = cleaned_data.get('firstname')
+        if not firstname.isalpha():
+            self._errors['firstname'] = self.error_class(["Im Vornamen sind nur Buchstaben erlaubt."])
+
+        lastname = cleaned_data.get('lastname')
+        if not lastname.isalpha():
+            self._errors['lastname'] = self.error_class(["Im Nachname sind nur Buchstaben erlaubt."])
+            
+        
+        return cleaned_data
+
+
+

@@ -76,11 +76,24 @@ def register_new(request):
             lastname = form.cleaned_data["lastname"]
 
             print("Daten sind OK!", firstname, lastname)
-            #form.save()
+            seed()
+            i = 1
+            while i < 3:
+                startngen = randint(100000, 999999)
+                member_tst_startnr = sj_users.objects.filter(startnum=startngen)
+                if len(member_tst_startnr) < 1:
+                    obj = form.save(commit=False)
+                    obj.startnum=startngen
+                    obj.save()
+                    break
+                i += 1
+
+
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
-            return render(request, "danke.html")
+            #return render(request, index)
+            return HttpResponseRedirect(reverse('index'))
             # return HttpResponseRedirect("/thanks/")
 
         # if a GET (or any other method) we'll create a blank form

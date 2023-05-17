@@ -12,6 +12,13 @@ class sj_users(models.Model):
         ('W', 'weiblich'),
         ('M', 'männlich'),
     )
+    
+    STATE = (
+        ('YES', 'Ich bin dabei'),
+        ('NO', 'Ich kann diesmal leider nicht'),
+        ('DEL', 'Bitte meine Daten löschen'),
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
@@ -23,7 +30,7 @@ class sj_users(models.Model):
     phone = models.CharField(max_length=50, default='')
     city = models.CharField(max_length=50, default='')
     startnum = models.IntegerField(null=False, default=0)
-    state = models.CharField(max_length=10, default='')
+    state = models.CharField(max_length=10, choices=GENDER, default='')
 
     def __str__(self):
         return f"{self.lastname}, {self.firstname}"
