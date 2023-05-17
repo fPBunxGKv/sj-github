@@ -8,18 +8,25 @@ from django.contrib import admin
 # StartNummer unique=True
 # Datenschutzerklärung akzeptiert
 class sj_users(models.Model):
+    GENDER = (
+        ('W', 'weiblich'),
+        ('M', 'männlich'),
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     firstname = models.CharField(max_length=50)
     lastname = models.CharField(max_length=50)
     byear = models.IntegerField(default=0)
-    gender = models.CharField(max_length=1, default='')
+    gender = models.CharField(max_length=1, choices=GENDER, default='')
     email = models.CharField(max_length=50, default='')
     phone = models.CharField(max_length=50, default='')
     city = models.CharField(max_length=50, default='')
     startnum = models.IntegerField(null=False, default=0)
     state = models.CharField(max_length=10, default='')
+
+    def __str__(self):
+        return f"{self.lastname}, {self.firstname}"
 
 # Anlaesse
 class sj_events(models.Model):

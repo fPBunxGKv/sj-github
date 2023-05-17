@@ -15,6 +15,8 @@ from .models import sj_users
 from .models import sj_events
 from .models import sj_results
 
+from .forms import RegisterUserForm
+
 from random import seed
 from random import randint
 from array import array
@@ -63,11 +65,51 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def register_new(request):
-    template = loader.get_template('register_new.html')
+    # if this is a POST request we need to process the form data
+    print('vor if post')
+    if request.method == "POST":
+        # create a form instance and populate it with data from the request:
+        form = RegisterUserForm(request.POST or None)
+        # check whether it's valid:
+        if form.is_valid():
+            firstname = form.cleaned_data["firstname"]
+            lastname = form.cleaned_data["lastname"]
+
+            print("Daten sind OK!", firstname, lastname)
+            #form.save()
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
+            return render(request, "danke.html")
+            # return HttpResponseRedirect("/thanks/")
+
+        # if a GET (or any other method) we'll create a blank form
+    else:
+        print("Daten nicht OK!!!")
+        form = RegisterUserForm()
+        
+    #template = loader.get_template('register_new_2.html')
+    print(form.errors)
+
     context = {
-        'pagetitle' : 'SJ - Anmeldung'
+        'pagetitle' : 'SJ - Anmeldung',
+        'form' : form,
     }
-    return HttpResponse(template.render(context, request))
+    return render(request, "register_new_2.html", context)
+    #return HttpResponse(template.render(context, request))
+
+
+
+# def register_new(request):
+#     template = loader.get_template('test_forms.html')
+#     template = loader.get_template('register_new.html')
+#     template = loader.get_template('register_new_2.html')
+#     form = RegisterUserForm()
+#     context = {
+#         'pagetitle' : 'SJ - Anmeldung',
+#         'form' : form
+#     }
+#     return HttpResponse(template.render(context, request))
 
 def register_edit(request, id):
     if sj_users.objects.filter(uuid=id).count() > 0:
