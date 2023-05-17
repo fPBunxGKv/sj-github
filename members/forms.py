@@ -76,7 +76,7 @@ class RegisterUserForm(forms.ModelForm):
         # Prüfen, ob Vor- und Nachname Buchstaben enthalten
         firstname = cleaned_data.get('firstname')
         if not firstname.isalpha():
-            self._errors['firstname'] = self.error_class(["Im Vornamen sind nur Buchstaben erlaubt."])
+            self._errors['firstname'] = self.error_class(["Im Vorname sind nur Buchstaben erlaubt."])
 
         lastname = cleaned_data.get('lastname')
         if not lastname.isalpha():
