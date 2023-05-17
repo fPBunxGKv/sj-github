@@ -13,7 +13,7 @@ class RegisterUserForm(forms.ModelForm):
     class Meta:
         model = sj_users
         fields = [
-            'firstname', 'lastname', 'byear', 'gender', 'email', 'phone', 'city'
+            'firstname', 'lastname', 'byear', 'gender', 'email', 'phone', 'city', 'state'
         ]
         
         widgets = {
@@ -51,6 +51,12 @@ class RegisterUserForm(forms.ModelForm):
                 'class': 'form-control form-control-lg',
                 'required': True,
                 }),
+            'state': forms.Select(attrs={
+                'class': 'form-control',
+                'required': True,
+                #'type': 'radio',
+                }),
+
         }
 
         labels = {
@@ -61,6 +67,7 @@ class RegisterUserForm(forms.ModelForm):
             'email' : 'E-Mail',
             'phone' : 'Telefon',
             'city' : 'Ort',
+            'state' : 'An/Abmelden',
         }
     def clean(self):
         #data = self.cleaned_data
