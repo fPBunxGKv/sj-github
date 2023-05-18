@@ -1,6 +1,6 @@
 ## Doku
-[Anmelde Prozess](docs/drawio/SJ_Anmeldung_Ablauf-Anmeldung.drawio.svg)
-[Mail Versand](docs/drawio/SJ_Anmeldung_Ablauf-Mailversand.drawio.svg)
+[Anmelde Prozess](docs/drawio/SJ_Anmeldung_Ablauf-Anmeldung.drawio.svg)  
+[Mail Versand](docs/drawio/SJ_Anmeldung_Ablauf-Mailversand.drawio.svg)  
 ...  
 
 ## Datenbank
