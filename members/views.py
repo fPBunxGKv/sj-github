@@ -66,33 +66,40 @@ def index(request):
 
 def register_new(request):
     # if this is a POST request we need to process the form data
-    print('vor if post')
     if request.method == "POST":
         # create a form instance and populate it with data from the request:
         form = RegisterUserForm(request.POST or None)
         # check whether it's valid:
         if form.is_valid():
-            firstname = form.cleaned_data["firstname"]
-            lastname = form.cleaned_data["lastname"]
-
-            print("Daten sind OK!", firstname, lastname)
+            # generate a unic startnumber
             seed()
-            i = 1
-            while i < 3:
-                startngen = randint(100000, 999999)
-                member_tst_startnr = sj_users.objects.filter(startnum=startngen)
-                if len(member_tst_startnr) < 1:
-                    obj = form.save(commit=False)
-                    obj.startnum=startngen
-                    obj.save()
-                    break
-                i += 1
+            # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
+            print(form.cleaned_data["firstname"])
+            user_exists = sj_users.objects.filter(
+                firstname = form.cleaned_data["firstname"], 
+                lastname = form.cleaned_data["lastname"],
+                byear = form.cleaned_data["byear"],
+                ).count()
+            
+            print(user_exists)
+            if (user_exists) > 1:
+                # update existing user
+                print("found user width same first-/lastname/birthyear")
+            else:
+                # add new user
+                i = 1
+                while i < 3:
+                    startngen = randint(100000, 999999)
+                    user_tst_startnr = sj_users.objects.filter(startnum=startngen)
+                    if len(user_tst_startnr) < 1:
+                        obj = form.save(commit=False)
+                        obj.startnum = startngen
+                        obj.save()
+                        break
+                    i += 1
+                # ToDo: send email
 
-
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            #return render(request, index)
+            # show thankyou page
             return HttpResponseRedirect(reverse('index'))
             # return HttpResponseRedirect("/thanks/")
 
@@ -110,19 +117,6 @@ def register_new(request):
     }
     return render(request, "register_new_2.html", context)
     #return HttpResponse(template.render(context, request))
-
-
-
-# def register_new(request):
-#     template = loader.get_template('test_forms.html')
-#     template = loader.get_template('register_new.html')
-#     template = loader.get_template('register_new_2.html')
-#     form = RegisterUserForm()
-#     context = {
-#         'pagetitle' : 'SJ - Anmeldung',
-#         'form' : form
-#     }
-#     return HttpResponse(template.render(context, request))
 
 def register_edit(request, id):
     if sj_users.objects.filter(uuid=id).count() > 0:

@@ -1,6 +1,7 @@
 from django import forms
 from .models import sj_users
 from django.core.exceptions import ValidationError
+from bootstrap5.widgets import RadioSelectButtonGroup
 
 # create a ModelForm
 class RegisterUserForm(forms.ModelForm):
@@ -32,10 +33,13 @@ class RegisterUserForm(forms.ModelForm):
                 'class': 'form-control form-control-lg',
                 'required': True,
                 }),
-            'gender': forms.Select(attrs={
-                'class': 'form-control',
+            #'gender': forms.Select(attrs={
+            'gender': RadioSelectButtonGroup(attrs={
+                # 'class': 'form-control',
+                'class': 'form-check',
+                'label' : "Geschlecht",
                 'required': True,
-                'type': 'radio',
+                #'type': 'radio',
                 }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-outline',
