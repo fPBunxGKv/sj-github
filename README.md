@@ -50,6 +50,11 @@ Admin User erstellen
 python manage.py createsuperuser
 ```
 
+Initialer Event in die DB laden
+```bash
+python manage.py loaddata sj_events.json
+```
+
 Django test Server starten
 ```bash
 python manage.py runserver
