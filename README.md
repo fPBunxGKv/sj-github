@@ -5,7 +5,7 @@
 - Die besten 4 pro Kategorie kommen in den Final  
 
 ### ToDo
-[RoDo.md](ToDo.md)
+[ToDo.md](ToDo.md)
 
 ## Installation
 - Getestet mit Python 3.10.6
