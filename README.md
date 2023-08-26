@@ -7,6 +7,9 @@
 ### ToDo
 [ToDo.md](ToDo.md)
 
+### Ideen
+[ideas.md](ideas.md)
+
 ## Installation
 - Getestet mit Python 3.10.6
 
