@@ -15,6 +15,7 @@
 
 ## Anmeldung
 - [ ] Daten prüfen
+- [ ] Doppelte Anmeldungen erkennen (Name,Vorname,Jahrgang,...)
 ...  
 
 ## Event
@@ -24,10 +25,20 @@
 - [ ] Nach den Vorläufen die Finalläufe generieren
     - [ ] Vorläufe sperren
     - [ ] Für die besten vier pro Kategorie ein "Resultat" mit status SFR
+
+## Auswertung
+- [ ] Ranglisten für das aktive Event generieren
 - [ ] Ranglisten pro Event und nicht nur für aktuelles
 ...  
 
 ## Admin Seite
 - [ ] Benutzer / Gruppen Verwaltung
+- [ ] TeilnehmerIn anmelden -> Bestätigungs-Mail auslösen
 - [ ] Event Verwaltung
+- Ranglisten
+    - [ ] evtl. an alle TeilnehmerInnen mailen
+    - [ ] Email Adressen aller TeilnehmerInnen ausgeben für Abschlussmail (oder direkt aus der Webpage personalisiert)
 ...  
+
+# Version 2
+- [ ] Mandantenfähig
