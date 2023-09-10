@@ -16,12 +16,19 @@
 ## Anmeldung
 - [ ] Daten prüfen
 - [ ] Doppelte Anmeldungen erkennen (Name,Vorname,Jahrgang,...)
+- [ ] Life suche über alle User -> Laufzettel drucken
 ...  
 
 ## Event
 - [ ] Drucken der Laufzettel / Zettel für Wäscheleine
     - [ ] Drucker Typ: Epson TM-T88II
-    - [ ] Drucker Typ: EPSON TM-T20II
+    - [ ] Drucker Typ: EPSON TM-T20II  
+
+- [ ] Nur X Vorläufe zulassen (schon bei der Einteilung am Start)
+- [ ] 2x gleiche Startnummer pro Lauf nicht zulassen (doppel scan)
+- [ ] bisherige Zeiten beim Zeiterfassen anzeigen
+- [ ] 
+
 - [ ] Nach den Vorläufen die Finalläufe generieren
     - [ ] Vorläufe sperren
     - [ ] Für die besten vier pro Kategorie ein "Resultat" mit status SFR
@@ -41,4 +48,11 @@
 ...  
 
 # Version 2
+- [ ] Helfer Management
+    - DB Schema?
+    - Anfragen per Mail, mit Bestätigungslink Ja/Nein
+    - Einsatzplan generieren
+    - Bestätigen per Mail
+
+# Version 2.1
 - [ ] Mandantenfähig
