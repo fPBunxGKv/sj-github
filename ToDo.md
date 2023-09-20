@@ -48,6 +48,8 @@
 ...  
 
 # Version 2
+- [ ] Stoppen mitrdem Mobile (Browser im fullscreen)
+.  - regisrtieren via unique QR Code pro Bahn
 - [ ] Helfer Management
     - DB Schema?
     - Anfragen per Mail, mit Bestätigungslink Ja/Nein
