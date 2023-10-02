@@ -10,6 +10,9 @@ db.sqlite3
 # static files
 members/static/
 
+#local tests files/snippets
+00-tests/
+
 # Env
 .env
 myvenv/

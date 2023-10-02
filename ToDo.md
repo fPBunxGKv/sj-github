@@ -3,10 +3,13 @@
 [Mail Versand](docs/drawio/SJ_Anmeldung_Ablauf-Mailversand.drawio.svg)  
 ...  
 
-## Datenbank
+## Entwicklung
+### Datenbank
 - [ ] SQLite - oder andere?
 - [ ] Schema i.o.?
 ...  
+### Printing
+[python-escpos](https://python-escpos.readthedocs.io/en/latest/index.html)
 
 ## Installation
 - sj_event anlegen falls noch keines vorhanden ist
@@ -25,7 +28,7 @@
     - [ ] Drucker Typ: EPSON TM-T20II  
 
 - [ ] Nur X Vorläufe zulassen (schon bei der Einteilung am Start)
-- [ ] 2x gleiche Startnummer pro Lauf nicht zulassen (doppel scan)
+- [x] 2x gleiche Startnummer pro Lauf nicht zulassen (doppel scan)
 - [ ] bisherige Zeiten beim Zeiterfassen anzeigen
 - [ ] 
 
@@ -48,8 +51,8 @@
 ...  
 
 # Version 2
-- [ ] Stoppen mitrdem Mobile (Browser im fullscreen)
-.  - regisrtieren via unique QR Code pro Bahn
+- [ ] Stoppen mit dem Mobile (Browser im fullscreen)
+    - regisrtieren via unique QR Code pro Bahn
 - [ ] Helfer Management
     - DB Schema?
     - Anfragen per Mail, mit Bestätigungslink Ja/Nein

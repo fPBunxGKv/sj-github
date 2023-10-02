@@ -78,8 +78,18 @@ def calc_cat(u_gender, u_byear, event_year):
 
 # Wahr wenn doppelte Einträge in einem Array vorhanden sind
 def test_dup_user(lines):
-    a_lines = set(lines)
-    contains_duplicates = len(lines) != len(a_lines)
+    contains_duplicates = False
+    hold_single = []
+    hold_double = []
+
+    for num in lines:
+        if num in hold_single:
+            hold_double.append(num)
+        elif num != 0:
+            hold_single.append(num)
+
+    if len(hold_double)>0:
+        contains_duplicates = True
 
     return contains_duplicates
 
@@ -131,18 +141,23 @@ def addrun(request):
         run_num = form.cleaned_data['run_nr']
         lines = [form.cleaned_data[f'addline{i+1}'] or 0 for i in range(num_lines)]
 
-        users = sj_users.objects.filter(startnum__in=lines, state='yes')
-        user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
+        # Prüfen auf doppelte Startnummer in einem Lauf
+        if test_dup_user(lines):
+            print('Doppelte Einträge in Laufeinteilung - Lauf wird nicht erfasst:', lines)
 
-        results = []
-        for i, startnum in enumerate(lines):
-            if startnum != 0:
-                if startnum in user_data:
-                    id, byear, gender = user_data[startnum]
-                    result_category = calc_cat(gender, byear, event_info['date'].year)
-                    results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+        else:
+            users = sj_users.objects.filter(startnum__in=lines, state='yes')
+            user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
 
-        sj_results.objects.bulk_create(results)
+            results = []
+            for i, startnum in enumerate(lines):
+                if startnum != 0:
+                    if startnum in user_data:
+                        id, byear, gender = user_data[startnum]
+                        result_category = calc_cat(gender, byear, event_info['date'].year)
+                        results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+
+            sj_results.objects.bulk_create(results)
 
     return HttpResponseRedirect(reverse('run'))
 
@@ -206,30 +221,31 @@ def updaterun(request):
         run_num = form.cleaned_data['run_num']
         lines = [form.cleaned_data[f'edit_run{i+1}'] or 0 for i in range(num_lines)]
 
-        sj_results.objects.filter(run_nr=run_num).delete()
-
         users = sj_users.objects.filter(startnum__in=lines, state='yes')
         user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
 
         results = []
 
-        # ToDo: Verhindern das mehrfach die gleiche Startnummer pro Lauf eingegeben werden kann
-        for i, startnum in enumerate(lines):
-            if startnum != 0:
-                if startnum in user_data:
-                    id, byear, gender = user_data[startnum]
-                    result_category = calc_cat(gender, byear, event_info['date'].year)
-                    results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+        # ToDo: Fehlermeldung zurückgeben
+        if test_dup_user(lines):
+            print('Doppelte Einträge in Laufeinteilung - Lauf wird nicht updated:', lines)
 
-        sj_results.objects.bulk_create(results)
+        else:
+            # aktueller lauf löschen
+            sj_results.objects.filter(run_nr=run_num).delete()
+
+            for i, startnum in enumerate(lines):
+                if startnum != 0:
+                    if startnum in user_data:
+                        id, byear, gender = user_data[startnum]
+                        result_category = calc_cat(gender, byear, event_info['date'].year)
+                        results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+
+            sj_results.objects.bulk_create(results)
 
         return HttpResponseRedirect(reverse('run'))
 
     return render(request, 'update_run.html', {'form': form})
-
-### RESULTATE ###
-# Resultate und Laufliste anzeigen
-
 
 
 ### add testdata
