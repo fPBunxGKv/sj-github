@@ -1,7 +1,8 @@
 from django import forms
 from .models import sj_users
 from django.core.exceptions import ValidationError
-from bootstrap5.widgets import RadioSelectButtonGroup
+import re
+from datetime import date
 
 # create a ModelForm
 class RegisterUserForm(forms.ModelForm):
@@ -19,27 +20,22 @@ class RegisterUserForm(forms.ModelForm):
         
         widgets = {
             'firstname': forms.TextInput(attrs={
-                'class': 'form-outline',
-                'class': 'form-control form-control-lg',
+                # 'class': 'form-outline',
+                # 'class': 'form-control form-control-lg',
                 'required': True,
                 }),
             'lastname': forms.TextInput(attrs={
-                'class': 'form-outline',
-                'class': 'form-control form-control-lg',
+                # 'class': 'form-outline',
+                # 'class': 'form-control form-control-lg',
                 'required': True,
                 }),
             'byear': forms.NumberInput(attrs={
-                'class': 'form-outline',
-                'class': 'form-control form-control-lg',
+                # 'class': 'form-control',
                 'required': True,
                 }),
-            #'gender': forms.Select(attrs={
-            'gender': RadioSelectButtonGroup(attrs={
-                # 'class': 'form-control',
-                'class': 'form-check',
-                'label' : "Geschlecht",
+            'gender': forms.Select(attrs={
+                'class': 'form-control',
                 'required': True,
-                #'type': 'radio',
                 }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-outline',
@@ -58,34 +54,41 @@ class RegisterUserForm(forms.ModelForm):
             'state': forms.Select(attrs={
                 'class': 'form-control',
                 'required': True,
-                #'type': 'radio',
                 }),
 
         }
 
         labels = {
-            'firstname': "Vorname",
-            'lastname': "Nachname",
-            'byear' : 'Jahrgang',
-            'gender' : 'Geschlecht',
-            'email' : 'E-Mail',
+            'firstname': "Vorname *",
+            'lastname': "Nachname *",
+            'byear' : 'Jahrgang *',
+            'gender' : 'Geschlecht *',
+            'email' : 'E-Mail *',
             'phone' : 'Telefon',
-            'city' : 'Ort',
-            'state' : 'An/Abmelden',
+            'city' : 'Ort *',
+            'state' : 'An/Abmelden *',
         }
     def clean(self):
         #data = self.cleaned_data
         cleaned_data = super().clean()
 
         # Prüfen, ob Vor- und Nachname Buchstaben enthalten
+        NAME_REGEX = "^[a-zA-ZäöüÄÖÜßéàè]+(?:[- ][a-zA-ZäöüÄÖÜßéàè]+)*$"
+        
         firstname = cleaned_data.get('firstname')
-        if not firstname.isalpha():
-            self._errors['firstname'] = self.error_class(["Im Vorname sind nur Buchstaben erlaubt."])
+        if not re.match(NAME_REGEX, firstname):
+            self._errors['firstname'] = self.error_class(["Im Vorname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."])
 
         lastname = cleaned_data.get('lastname')
-        if not lastname.isalpha():
-            self._errors['lastname'] = self.error_class(["Im Nachname sind nur Buchstaben erlaubt."])
-            
+        if not re.match(NAME_REGEX, lastname):
+            self._errors['lastname'] = self.error_class(["Im Nachname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."])
+        
+        # Gültige Jahrgänge (aktuelles Jahr minus maxAge)
+        maxAge = 100
+
+        byear = cleaned_data.get('byear')
+        if byear not in range(date.today().year-maxAge, date.today().year):
+            self._errors['byear'] = self.error_class(["Das Geburtsjahr muss zwischen " + str(date.today().year-maxAge) + " und " +str(date.today().year) + " liegen."])
         
         return cleaned_data
 

@@ -3,7 +3,13 @@
 {% block content %}
 {% load static %}
 
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
+
+{% bootstrap_css %}
+
+{% bootstrap_javascript %}
+
+{% bootstrap_messages %}
 
 {# Display a form #}
     
@@ -20,89 +26,19 @@
                                 <b>{{ event_info.name | default:"" }}</b> Anmeldung (neu)
                             </h3>
 
-                            <form action="" method="post" class="form">
+                            <form action='' method="POST" >
                                 {% csrf_token %}
-                               
-                                {% bootstrap_form form %}
-                                
-                                {% buttons %}
-                                    <button type="submit" class="btn btn-primary">Absenden</button>
-                                {% endbuttons %}
+                                {% bootstrap_form form layout='floating' exclude='phone'%}
+
+                                {% bootstrap_button button_type="submit" content="Absenden" %}
+                                {% bootstrap_button button_type="reset" content="Abbrechen" %}
+
                             </form>
 
-                            {{ form.non_field_errors }}
-                            {% if temprequest == 'edit' %}
-                                <form action="updaterecord/{{ member.uuid }}" method="post">
-                                {% else %}
-                                    <form action = "" method = "post">
-                                    {% endif %}
-                                    {% csrf_token %}
-                                    <div class="row">
-                                        <div class="col-md-6 mb-4">
-                                            <div class="form-outline">
-                                                {% bootstrap_field form.firstname %}
-
-
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-4">
-                                            <div class="form-outline">
-                                                {{ form.lastname }}
-                                                <label class="form-label">{{ form.lastname.label }} *</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-4 d-flex align-items-center">
-                                            <div class="form-outline w-100">
-                                                <div class="form-outline">
-                                                    {{ form.byear }}
-                                                    <label class="form-label">{{ form.byear.label }} *</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-4">
-                                            {{ form.gender }}
-                                            <h6 class="mb-2 pb-1">{{ form.gender.label }} *</h6>
-
-                                                <!-- {% for radio in RadioSelect %}
-                                                    <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="gender">
-                                                        {{ radio }}
-                                                    </div>
-                                                {% endfor %} -->
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-4 pb-2">
-                                                <div class="form-outline">
-                                                    {{ form.email }}
-                                                    <label class="form-label">{{ form.email.label }} *</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-4 pb-2">
-                                                <div class="form-outline">
-                                                    {{ form.phone }}
-                                                    <label class="form-label">{{ form.phone.label }}</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-4 pb-2">
-                                                <div class="form-outline">
-                                                    {{ form.city }}
-                                                    <label class="form-label">{{ form.city.label }} *</label>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 mb-4"></div>
-                                        </div>
-                                        <div class="mt-4 pt-2">
-                                            <input class="btn btn-primary btn-lg" type="submit" value="Absenden" />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
-        {% endblock %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

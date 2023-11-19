@@ -1,11 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.urls import reverse
 
 from django.db.models import Min
-# from django.db.models import Max
 from django.db.models import Count
 
 from django.db.models import F, Window
@@ -24,9 +23,8 @@ from scipy.stats import rankdata
 
 from .sj_views.runs import run, addrun, editrun, updaterun, addrun_testdata
 
-# import random
 from datetime import *
-# import numpy as np
+import uuid
 
 
 # ToDo: logging / debugging vereinheitlichen/verbessern
@@ -35,6 +33,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 debug_level = 1
+
+def is_valid_uuid(value):
+    try:
+        uuid.UUID(str(value))
+        return True, uuid.UUID(str(value))
+    except ValueError:
+        return False, ''
+
+def sendmail(state='na',firstmane='na',email='na', value=''):
+    print("Will send Email from:", value, state, firstmane, email)
 
 # ToDo: funktion doppelt (in views.py und in runs.py)
 def get_event_info():
@@ -54,6 +62,7 @@ def get_event_info():
             "lines": active_event['event_num_lines']
             }
 
+# ---------- Pages ----------
 def index(request):
     event_info = get_event_info()
 
@@ -79,12 +88,14 @@ def register_new(request):
                 firstname = form.cleaned_data["firstname"], 
                 lastname = form.cleaned_data["lastname"],
                 byear = form.cleaned_data["byear"],
+                gender = form.cleaned_data["gender"],
                 ).count()
             
-            print(user_exists)
-            if (user_exists) > 1:
+            if (user_exists) >= 1:
                 # update existing user
                 print("found user width same first-/lastname/birthyear")
+                print("Number of existing Users:", user_exists)
+                sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
             else:
                 # add new user
                 i = 1
@@ -97,48 +108,70 @@ def register_new(request):
                         obj.save()
                         break
                     i += 1
+                sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
                 # ToDo: send email
 
             # show thankyou page
             return HttpResponseRedirect(reverse('index'))
             # return HttpResponseRedirect("/thanks/")
-
-        # if a GET (or any other method) we'll create a blank form
+    # if a GET (or any other method) we'll create a blank form
     else:
-        print("Daten nicht OK!!!")
         form = RegisterUserForm()
-        
-    #template = loader.get_template('register_new_2.html')
-    print(form.errors)
 
     context = {
         'pagetitle' : 'SJ - Anmeldung',
         'form' : form,
     }
+
     return render(request, "register_new_2.html", context)
     #return HttpResponse(template.render(context, request))
 
 def register_edit(request, id):
-    if sj_users.objects.filter(uuid=id).count() > 0:
+    isUUID, id = is_valid_uuid(id)
 
-        member = sj_users.objects.get(uuid=id)
-        if member.state != 'del':
-            context = {
-                'pagetitle' : 'SJ - Anmeldung Edit',
-                'temprequest' : 'edit',
-                'member': member,
-            }
+    if isUUID:
+        if sj_users.objects.filter(uuid=id).count() > 0:
+            member = sj_users.objects.get(uuid=id)
 
-            template = loader.get_template('register_edit.html')
-            return HttpResponse(template.render(context, request))
+            if member.state != 'del':
+                form = RegisterUserForm(instance=member)
         else:
-            return HttpResponseRedirect(reverse('register_new'))
+            form = RegisterUserForm()
+            print("xxxxxxxxxxx")
+            return HttpResponseRedirect('/register/')
     else:
-        template = loader.get_template('register_new.html')
-        context = {
-            'pagetitle' : 'SJ - Anmeldung'
-        }
-        return HttpResponse(template.render(context, request))
+        form = RegisterUserForm()
+        print("---------------")
+        return HttpResponseRedirect('/register/')
+
+    context = {
+        'pagetitle' : 'SJ - Anmeldung',
+        'form' : form,
+    }
+
+    return render(request, "register_new_2.html", context)
+
+
+    # if sj_users.objects.filter(uuid=id).count() > 0:
+
+    #     member = sj_users.objects.get(uuid=id)
+    #     if member.state != 'del':
+    #         context = {
+    #             'pagetitle' : 'SJ - Anmeldung Edit',
+    #             'temprequest' : 'edit',
+    #             'member': member,
+    #         }
+
+    #         template = loader.get_template('register_edit.html')
+    #         return HttpResponse(template.render(context, request))
+    #     else:
+    #         return HttpResponseRedirect(reverse('register_new'))
+    # else:
+    #     template = loader.get_template('register_new.html')
+    #     context = {
+    #         'pagetitle' : 'SJ - Anmeldung'
+    #     }
+    #     return HttpResponse(template.render(context, request))
 
 @login_required
 def users(request):
