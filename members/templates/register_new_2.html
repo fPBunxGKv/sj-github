@@ -22,9 +22,13 @@
                         
                         <img src="{% static 'banner_sj_anmeldung.jpg' %}" class="card-img-top">
                         <div class="card-body p-4 p-md-5">
-                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">
-                                <b>{{ event_info.name | default:"" }}</b> Anmeldung (neu)
+                            {# <h2 align="center" class="mb-4 pb-2 pb-md-0 mb-md-5">Anmeldung</h2> #}
+                            <h3 align="center" class="mb-4 pb-2 pb-md-0 mb-md-5">
+                                <b>{{ event_info.name | default:"" }}</b>
                             </h3>
+                            <h5 align="center" class="mb-4 pb-2 pb-md-0 mb-md-5">
+                                 <b>{{ event_info.date | date:"l, d. F Y" | default:"" }}</b>
+                            </h5>
 
                             <form action='' method="POST" >
                                 {% csrf_token %}

@@ -120,6 +120,7 @@ def register_new(request):
 
     context = {
         'pagetitle' : 'SJ - Anmeldung',
+        'event_info': get_event_info(),
         'form' : form,
     }
 
@@ -146,6 +147,7 @@ def register_edit(request, id):
 
     context = {
         'pagetitle' : 'SJ - Anmeldung',
+        'event_info': get_event_info(),
         'form' : form,
     }
 
