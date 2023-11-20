@@ -148,7 +148,7 @@ def register_new(request,id=''):
             '''
             if sj_users.objects.filter(uuid=id).count() > 0:
                 member = sj_users.objects.get(uuid=id)
-                print("---- found UUID in string > redirect ----")
+                print("---- found UUID in string (register) -> redirect ----")
 
                 if member.state != 'del':
                     form = RegisterUserForm(instance=member)
