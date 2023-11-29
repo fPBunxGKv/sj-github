@@ -74,7 +74,6 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def register_new(request,id=''):
-    # if this is a POST request we need to process the form data
     print("ID in reg_new:",id)
 
     isUUID, id = is_valid_uuid(id)
@@ -82,13 +81,14 @@ def register_new(request,id=''):
     if isUUID:
         ''' 
         If we get a valid UUID out of a string and userdata not with state "del",
-        then redirect to django readi url with UUID
+        then redirect to django url with UUID
         else to an empty form.
         '''
         if sj_users.objects.filter(uuid=id).count() < 1:
             print("redirect vor POST")
             return HttpResponseRedirect('/register/')
 
+    # if this is a POST request we need to process the form data
     if request.method == "POST":
         print("in POST")
         # create a form instance and populate it with data from the request:
@@ -98,25 +98,26 @@ def register_new(request,id=''):
             # If we have a valid UUID with data -> update this record
             if isUUID:
                 print("update record for UUID:", id)
-
-
+                member = sj_users.objects.get(uuid=id)
+                form = RegisterUserForm(request.POST, instance=member)
+                form.save()
                 # send status email to the user
                 sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
 
             else:
                 # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
                 print(form.cleaned_data["firstname"])
+
                 user_exists = sj_users.objects.filter(
                     firstname = form.cleaned_data["firstname"], 
                     lastname = form.cleaned_data["lastname"],
                     byear = form.cleaned_data["byear"],
                     gender = form.cleaned_data["gender"],
-                    ).count()
-                
-                if (user_exists) >= 1:
-                    # update existing user
-                    print("found user width same first-/lastname/birthyear")
-                    print("Number of existing Users:", user_exists)
+                    )
+                if (user_exists.count()) >= 1:
+                    member = sj_users.objects.get(uuid=user_exists[0].uuid)
+                    form = RegisterUserForm(request.POST, instance=member)
+                    form.save()
                     sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
                 else:
                     # add new user
@@ -133,11 +134,11 @@ def register_new(request,id=''):
                             break
                         i += 1
                     sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
-                    # ToDo: send email
 
             # show thankyou page
             return HttpResponseRedirect(reverse('index'))
             # return HttpResponseRedirect("/thanks/")
+
     # if a GET (or any other method) we'll create a blank form
     else:
         if isUUID:
@@ -148,7 +149,6 @@ def register_new(request,id=''):
             '''
             if sj_users.objects.filter(uuid=id).count() > 0:
                 member = sj_users.objects.get(uuid=id)
-                print("---- found UUID in string (register) -> redirect ----")
 
                 if member.state != 'del':
                     form = RegisterUserForm(instance=member)
@@ -164,7 +164,7 @@ def register_new(request,id=''):
     return render(request, "register_new_2.html", context)
     #return HttpResponse(template.render(context, request))
 
-def register_string(id):
+def register_string(request, id):
     isUUID, id = is_valid_uuid(id)
 
     if isUUID:
@@ -180,28 +180,6 @@ def register_string(id):
 
     return HttpResponseRedirect('/register/')
 
-
-
-    # if sj_users.objects.filter(uuid=id).count() > 0:
-
-    #     member = sj_users.objects.get(uuid=id)
-    #     if member.state != 'del':
-    #         context = {
-    #             'pagetitle' : 'SJ - Anmeldung Edit',
-    #             'temprequest' : 'edit',
-    #             'member': member,
-    #         }
-
-    #         template = loader.get_template('register_edit.html')
-    #         return HttpResponse(template.render(context, request))
-    #     else:
-    #         return HttpResponseRedirect(reverse('register_new'))
-    # else:
-    #     template = loader.get_template('register_new.html')
-    #     context = {
-    #         'pagetitle' : 'SJ - Anmeldung'
-    #     }
-    #     return HttpResponse(template.render(context, request))
 
 @login_required
 def users(request):
@@ -368,11 +346,11 @@ def edit(request, id):
         return HttpResponse(template.render(context, request))
 
 # ToDo: falls resultate vorhanden - Kategorie prüfen / updaten
-'''
-Benutzerdaten updaten
-Update Userdata
-'''
 def updaterecord(request, id):
+    '''
+    Benutzerdaten updaten
+    Update Userdata
+    '''
     fname = request.POST['fname']
     lname = request.POST['lname']
     byear = request.POST['byear']
