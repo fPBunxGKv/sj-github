@@ -42,7 +42,7 @@ def is_valid_uuid(value):
         return False, ''
 
 def sendmail(state='na',firstmane='na',email='na', value=''):
-    print("Will send Email from:", value, state, firstmane, email)
+    print("Will send Email for:", value, state, firstmane, email)
 
 # ToDo: funktion doppelt (in views.py und in runs.py)
 def get_event_info():
@@ -136,7 +136,7 @@ def register_new(request,id=''):
                     sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
 
             # show thankyou page
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('thankyou'))
             # return HttpResponseRedirect("/thanks/")
 
     # if a GET (or any other method) we'll create a blank form
@@ -150,8 +150,12 @@ def register_new(request,id=''):
             if sj_users.objects.filter(uuid=id).count() > 0:
                 member = sj_users.objects.get(uuid=id)
 
-                if member.state != 'del':
+                if member.state == 'YES':
+                    return HttpResponseRedirect(reverse('thankyou'))
+                elif member.state != 'DEL':
                     form = RegisterUserForm(instance=member)
+            else:
+                form = RegisterUserForm()
         else:
             form = RegisterUserForm()
 
@@ -159,10 +163,9 @@ def register_new(request,id=''):
         'pagetitle' : 'SJ - Anmeldung',
         'event_info': get_event_info(),
         'form' : form,
-    }
-
+        }
+    
     return render(request, "register_new_2.html", context)
-    #return HttpResponse(template.render(context, request))
 
 def register_string(request, id):
     isUUID, id = is_valid_uuid(id)
@@ -179,6 +182,17 @@ def register_string(request, id):
                 return HttpResponseRedirect('/register/'+ str(id))
 
     return HttpResponseRedirect('/register/')
+
+def thankyou(request):
+    print("IN THANKYOU")
+    event_info = get_event_info()
+
+    template = loader.get_template('thankyou.html')
+    context = {
+        'event_info': event_info,
+        'pagetitle' : 'SJ - Danke'
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @login_required
