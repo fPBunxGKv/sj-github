@@ -80,7 +80,7 @@ def register_new(request,id=''):
 
     if isUUID:
         ''' 
-        If we get a valid UUID out of a string and userdata not with state "del",
+        If we get a valid UUID out of a string and userdata not with state "DEL",
         then redirect to django url with UUID
         else to an empty form.
         '''
@@ -143,7 +143,7 @@ def register_new(request,id=''):
     else:
         if isUUID:
             ''' 
-            If we get a valid UUID out of a string and userdata not with state "del",
+            If we get a valid UUID out of a string and userdata not with state "DEL",
             then redirect to django register url with UUID
             else to an empty form.
             '''
@@ -172,13 +172,13 @@ def register_string(request, id):
 
     if isUUID:
         ''' 
-        If we get a valid UUID out of a string and userdata not with state "del",
+        If we get a valid UUID out of a string and userdata not with state "DEL",
         then redirect to django registers url with UUID
         else to an empty form.
         '''
         if sj_users.objects.filter(uuid=id).count() > 0:
             member = sj_users.objects.get(uuid=id)
-            if member.state != 'del':
+            if member.state != 'DEL':
                 return HttpResponseRedirect('/register/'+ str(id))
 
     return HttpResponseRedirect('/register/')
@@ -345,7 +345,7 @@ def edit(request, id):
     member = sj_users.objects.get(uuid=id)
     #template = loader.get_template('edit.html')
     template = loader.get_template('add.html')
-    if member.state != 'del':
+    if member.state != 'DEL':
         context = {
             'pagetitle' : 'SJ - TeilnehmerIn bearbeiten',
             'temprequest' : 'edit',

@@ -140,14 +140,16 @@ def addrun(request):
     if form.is_valid():
         run_num = form.cleaned_data['run_nr']
         lines = [form.cleaned_data[f'addline{i+1}'] or 0 for i in range(num_lines)]
+        print("Lines:",lines)
 
         # Prüfen auf doppelte Startnummer in einem Lauf
         if test_dup_user(lines):
             print('Doppelte Einträge in Laufeinteilung - Lauf wird nicht erfasst:', lines)
 
         else:
-            users = sj_users.objects.filter(startnum__in=lines, state='yes')
+            users = sj_users.objects.filter(startnum__in=lines, state='YES')
             user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
+            print(user_data)
 
             results = []
             for i, startnum in enumerate(lines):
@@ -221,7 +223,7 @@ def updaterun(request):
         run_num = form.cleaned_data['run_num']
         lines = [form.cleaned_data[f'edit_run{i+1}'] or 0 for i in range(num_lines)]
 
-        users = sj_users.objects.filter(startnum__in=lines, state='yes')
+        users = sj_users.objects.filter(startnum__in=lines, state='YES')
         user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
 
         results = []
