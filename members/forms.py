@@ -1,8 +1,45 @@
 from django import forms
-from .models import sj_users
+from .models import sj_users,sj_results
 from django.core.exceptions import ValidationError
 import re
 from datetime import date
+
+
+class RegisterRunsForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    # specify the name of model to use
+    class Meta:
+        model = sj_results
+        fields = [
+            'fk_sj_users', 'fk_sj_events', 'run_nr', 'line_nr', 'result', 'result_category', 'state'
+        ]
+
+    def clean(self):
+        #data = self.cleaned_data
+        cleaned_data = super().clean()
+
+        # # Prüfen, ob Vor- und Nachname Buchstaben enthalten
+        # NAME_REGEX = "^[a-zA-ZäöüÄÖÜßéàè]+(?:[- ][a-zA-ZäöüÄÖÜßéàè]+)*$"
+        
+        # firstname = cleaned_data.get('firstname')
+        # if not re.match(NAME_REGEX, firstname):
+        #     self._errors['firstname'] = self.error_class(["Im Vorname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."])
+
+        # lastname = cleaned_data.get('lastname')
+        # if not re.match(NAME_REGEX, lastname):
+        #     self._errors['lastname'] = self.error_class(["Im Nachname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."])
+        
+        # # Gültige Jahrgänge (aktuelles Jahr minus maxAge)
+        # maxAge = 100
+
+        # byear = cleaned_data.get('byear')
+        # if byear not in range(date.today().year-maxAge, date.today().year):
+        #     self._errors['byear'] = self.error_class(["Das Geburtsjahr muss zwischen " + str(date.today().year-maxAge) + " und " +str(date.today().year) + " liegen."])
+        
+        return cleaned_data
 
 # create a ModelForm
 class RegisterUserForm(forms.ModelForm):

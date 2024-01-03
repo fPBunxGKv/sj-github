@@ -144,7 +144,7 @@ def register_new(request,id=''):
         if isUUID:
             ''' 
             If we get a valid UUID out of a string and userdata not with state "del",
-            then redirect to django readi url with UUID
+            then redirect to django register url with UUID
             else to an empty form.
             '''
             if sj_users.objects.filter(uuid=id).count() > 0:
@@ -173,7 +173,7 @@ def register_string(request, id):
     if isUUID:
         ''' 
         If we get a valid UUID out of a string and userdata not with state "del",
-        then redirect to django ready url with UUID
+        then redirect to django registers url with UUID
         else to an empty form.
         '''
         if sj_users.objects.filter(uuid=id).count() > 0:
