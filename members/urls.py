@@ -7,7 +7,9 @@ urlpatterns = [
             path('', views.index, name='index'),
 
             path('register/', views.register_new, name='register_new'),
-            path('register/<uuid:id>/', views.register_edit, name='register_edit'),
+            path('register/<uuid:id>/', views.register_new, name='register_new'),
+            path('register/<str:id>/', views.register_string, name='register_string'),
+            path('thankyou/', views.thankyou, name='thankyou'),
 
             path('users/', views.users, name='users'),
             path('users/edit/<uuid:id>', views.edit, name='edit'),

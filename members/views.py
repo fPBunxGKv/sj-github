@@ -1,11 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.urls import reverse
 
 from django.db.models import Min
-# from django.db.models import Max
 from django.db.models import Count
 
 from django.db.models import F, Window
@@ -15,6 +14,8 @@ from .models import sj_users
 from .models import sj_events
 from .models import sj_results
 
+from .forms import RegisterUserForm
+
 from random import seed
 from random import randint
 from array import array
@@ -22,9 +23,8 @@ from scipy.stats import rankdata
 
 from .sj_views.runs import run, addrun, editrun, updaterun, addrun_testdata
 
-# import random
 from datetime import *
-# import numpy as np
+import uuid
 
 
 # ToDo: logging / debugging vereinheitlichen/verbessern
@@ -33,6 +33,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 debug_level = 1
+
+def is_valid_uuid(value):
+    try:
+        uuid.UUID(str(value))
+        return True, uuid.UUID(str(value))
+    except ValueError:
+        return False, ''
+
+def sendmail(state='na',firstmane='na',email='na', value=''):
+    print("Will send Email for:", value, state, firstmane, email)
 
 # ToDo: funktion doppelt (in views.py und in runs.py)
 def get_event_info():
@@ -52,6 +62,7 @@ def get_event_info():
             "lines": active_event['event_num_lines']
             }
 
+# ---------- Pages ----------
 def index(request):
     event_info = get_event_info()
 
@@ -62,34 +73,127 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
-def register_new(request):
-    template = loader.get_template('register_new.html')
+def register_new(request,id=''):
+    print("ID in reg_new:",id)
+
+    isUUID, id = is_valid_uuid(id)
+
+    if isUUID:
+        ''' 
+        If we get a valid UUID out of a string and userdata not with state "del",
+        then redirect to django url with UUID
+        else to an empty form.
+        '''
+        if sj_users.objects.filter(uuid=id).count() < 1:
+            print("redirect vor POST")
+            return HttpResponseRedirect('/register/')
+
+    # if this is a POST request we need to process the form data
+    if request.method == "POST":
+        print("in POST")
+        # create a form instance and populate it with data from the request:
+        form = RegisterUserForm(request.POST or None)
+        # check whether it's valid:
+        if form.is_valid():
+            # If we have a valid UUID with data -> update this record
+            if isUUID:
+                print("update record for UUID:", id)
+                member = sj_users.objects.get(uuid=id)
+                form = RegisterUserForm(request.POST, instance=member)
+                form.save()
+                # send status email to the user
+                sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
+
+            else:
+                # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
+                print(form.cleaned_data["firstname"])
+
+                user_exists = sj_users.objects.filter(
+                    firstname = form.cleaned_data["firstname"], 
+                    lastname = form.cleaned_data["lastname"],
+                    byear = form.cleaned_data["byear"],
+                    gender = form.cleaned_data["gender"],
+                    )
+                if (user_exists.count()) >= 1:
+                    member = sj_users.objects.get(uuid=user_exists[0].uuid)
+                    form = RegisterUserForm(request.POST, instance=member)
+                    form.save()
+                    sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
+                else:
+                    # add new user
+                    # generate a unic startnumber
+                    seed()
+                    i = 1
+                    while i < 10:
+                        startngen = randint(100000, 999999)
+                        user_tst_startnr = sj_users.objects.filter(startnum=startngen)
+                        if len(user_tst_startnr) < 1:
+                            obj = form.save(commit=False)
+                            obj.startnum = startngen
+                            obj.save()
+                            break
+                        i += 1
+                    sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
+
+            # show thankyou page
+            return HttpResponseRedirect(reverse('thankyou'))
+            # return HttpResponseRedirect("/thanks/")
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        if isUUID:
+            ''' 
+            If we get a valid UUID out of a string and userdata not with state "del",
+            then redirect to django register url with UUID
+            else to an empty form.
+            '''
+            if sj_users.objects.filter(uuid=id).count() > 0:
+                member = sj_users.objects.get(uuid=id)
+
+                if member.state == 'YES':
+                    return HttpResponseRedirect(reverse('thankyou'))
+                elif member.state != 'DEL':
+                    form = RegisterUserForm(instance=member)
+            else:
+                form = RegisterUserForm()
+        else:
+            form = RegisterUserForm()
+
     context = {
-        'pagetitle' : 'SJ - Anmeldung'
+        'pagetitle' : 'SJ - Anmeldung',
+        'event_info': get_event_info(),
+        'form' : form,
+        }
+    
+    return render(request, "register_new_2.html", context)
+
+def register_string(request, id):
+    isUUID, id = is_valid_uuid(id)
+
+    if isUUID:
+        ''' 
+        If we get a valid UUID out of a string and userdata not with state "del",
+        then redirect to django registers url with UUID
+        else to an empty form.
+        '''
+        if sj_users.objects.filter(uuid=id).count() > 0:
+            member = sj_users.objects.get(uuid=id)
+            if member.state != 'del':
+                return HttpResponseRedirect('/register/'+ str(id))
+
+    return HttpResponseRedirect('/register/')
+
+def thankyou(request):
+    print("IN THANKYOU")
+    event_info = get_event_info()
+
+    template = loader.get_template('thankyou.html')
+    context = {
+        'event_info': event_info,
+        'pagetitle' : 'SJ - Danke'
     }
     return HttpResponse(template.render(context, request))
 
-def register_edit(request, id):
-    if sj_users.objects.filter(uuid=id).count() > 0:
-
-        member = sj_users.objects.get(uuid=id)
-        if member.state != 'del':
-            context = {
-                'pagetitle' : 'SJ - Anmeldung Edit',
-                'temprequest' : 'edit',
-                'member': member,
-            }
-
-            template = loader.get_template('register_edit.html')
-            return HttpResponse(template.render(context, request))
-        else:
-            return HttpResponseRedirect(reverse('register_new'))
-    else:
-        template = loader.get_template('register_new.html')
-        context = {
-            'pagetitle' : 'SJ - Anmeldung'
-        }
-        return HttpResponse(template.render(context, request))
 
 @login_required
 def users(request):
@@ -256,11 +360,11 @@ def edit(request, id):
         return HttpResponse(template.render(context, request))
 
 # ToDo: falls resultate vorhanden - Kategorie prüfen / updaten
-'''
-Benutzerdaten updaten
-Update Userdata
-'''
 def updaterecord(request, id):
+    '''
+    Benutzerdaten updaten
+    Update Userdata
+    '''
     fname = request.POST['fname']
     lname = request.POST['lname']
     byear = request.POST['byear']

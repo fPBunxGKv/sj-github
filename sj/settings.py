@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'bootstrap5',
+    'bootstrap5',
+    'django_bootstrap5',
     'members.apps.MembersConfig',
-    # 'dbview',
 ]
 
 MIDDLEWARE = [
