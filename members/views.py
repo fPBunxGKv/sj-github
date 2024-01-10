@@ -390,6 +390,7 @@ def updaterecord(request, id):
 
 # Rangliste
 def ranking(request):
+    event_info = get_event_info()
     # print('Ranking Request')
     active_event = sj_events.objects.filter(event_active=True).values('id', 'event_num_lines')
     event_id = active_event[0]['id']
@@ -468,6 +469,7 @@ def ranking(request):
 
     context = {
         'pagetitle' : 'SJ - Rangliste',
+        'event_info': event_info,
         'results_per_cat' : results_per_cat,
         'result_best_all' : result_best_all,
         'categories' : dist_cat,
