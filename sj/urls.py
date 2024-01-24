@@ -20,6 +20,5 @@ from django.contrib.auth import views
 
 urlpatterns = [
     path('', include('members.urls')),
-    path('members/', include('members.urls')),
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
 ]

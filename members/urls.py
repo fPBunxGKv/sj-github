@@ -38,5 +38,4 @@ urlpatterns = [
 
             # Administration
             path('administration/', views.administration, name='administration'),
-
             ]
