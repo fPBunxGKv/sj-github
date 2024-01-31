@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html lang="de">
     <head>
-        {% load static %}
-
-        <link rel="stylesheet"
-              type="text/css"
-              href="{% static 'bootstrap523/css/bootstrap.css' %}"/>
+        {% load django_bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+        {% bootstrap_messages %}
         
-        <script src="{% static 'bootstrap523/js/bootstrap.min.js' %}"></script>      
-
+        {% load static %}
         <link rel="shortcut icon"
               type="image/png"
               href="{% static 'favicon.ico' %}"/>
-
 
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         {% block title %}<title>SJ - Home</title>{% endblock %}
     </head>
+
     <body>
         {% block sidebar %}<!-- insert default navigation text for every page -->{% endblock %}
         <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
