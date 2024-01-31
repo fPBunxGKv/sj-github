@@ -26,6 +26,7 @@ from .sj_views.runs import run, addrun, editrun, updaterun, addrun_testdata
 from datetime import *
 import uuid
 
+from escpos.printer import Network, Dummy
 
 # ToDo: logging / debugging vereinheitlichen/verbessern
 
@@ -43,6 +44,26 @@ def is_valid_uuid(value):
 
 def sendmail(state='na',firstmane='na',email='na', value=''):
     print("Will send Email for:", value, state, firstmane, email)
+
+def print_paper(printer_ip='192.168.1.99', template='default'):
+    print(f"Templatename: { template }")
+    # test if logo file is present
+    
+    # init printer
+    p = Network(printer_ip)
+    d = Dummy()
+
+    # create ESC/POS for the print job, this should go really fast
+    d.text("This is my image:\n")
+    d.image("funny_cat.png")
+    d.cut()
+
+    # send code to printer
+    p._raw(d.output)
+
+
+
+
 
 # ToDo: funktion doppelt (in views.py und in runs.py)
 def get_event_info():
@@ -197,11 +218,13 @@ def thankyou(request):
 
 @login_required
 def users(request):
-    mymembers = sj_users.objects.all().values().order_by('firstname','lastname')
+    mymembers = sj_users.objects.all().exclude(state='DEL').values().order_by('firstname','lastname')
     template = loader.get_template('users_show.html')
+    
     context = {
         'mymembers': mymembers,
-    }
+        }
+    
     return HttpResponse(template.render(context, request))
 
 
@@ -280,6 +303,19 @@ def saveresults(request):
 
         if lines[i] != -1:
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1)
+
+            previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id).aggregate(Min('result'))['result__min']
+
+            print(f"{result_add_res.fk_sj_users}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+            
+            if lines[i] < previous_min:
+                print(" - Zettel für Wäscheleine drucken!")
+                print_paper()
+            else:
+                print(" - Leider keine neue Bestzeit!")
+
+
+
             result_add_res.state = 'RQR'
             result_add_res.result = lines[i]
             result_add_res.save()
@@ -334,9 +370,28 @@ def addrecord(request):
 
 @login_required
 def delete(request, id):
+    ''' 
+    Delete all data of a user if he has no results in the database.
+    Else just overwrite first/lastname with "***" and only keep ranking/result
+    relevant values. 
+    Set state to DEL.
+    '''
     member = sj_users.objects.get(uuid=id)
-    member.delete()
-    return HttpResponseRedirect(reverse('index'))
+    
+    if sj_results.objects.filter(fk_sj_users=member.id).count() < 1:
+        print(" - No results, delete the member")
+        member.delete()
+    else:
+        print(" - Member has results, keep but clean it")
+        member.firstname = '***'
+        member.lastname = '***'
+        member.email = ''
+        member.phone = ''
+        member.city = ''
+        member.state = 'DEL'
+        member.save()
+
+    return HttpResponseRedirect(reverse('users'))
 
 @login_required
 def edit(request, id):
@@ -448,7 +503,7 @@ def ranking(request):
                 print(r)
             print('-'*20)
 
-# Query Resultate pro Kategorie
+# Query Resultate über alle Kategorien
     result_best_all=list(sj_results.objects.filter(
             fk_sj_events=event_id,
             state='RQR',

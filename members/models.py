@@ -70,3 +70,6 @@ class sj_results(models.Model):
     result = models.FloatField(null=False, default=-1)
     result_category = models.CharField(null=False, default='', max_length=3)
     state = models.CharField(max_length=3, null=False, choices=RESULT_STATE, default='DNF')
+
+# Printer configuration
+    # IP-Address, logo, paper (54mm, 80mm), what for (run, registration, ...)
