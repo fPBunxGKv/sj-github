@@ -45,21 +45,31 @@ def is_valid_uuid(value):
 def sendmail(state='na',firstmane='na',email='na', value=''):
     print("Will send Email for:", value, state, firstmane, email)
 
-def print_paper(printer_ip='192.168.1.99', template='default'):
-    print(f"Templatename: { template }")
+def print_paper(user_data, run_time, printer_ip='172.20.30.170', template='default'):
+    print(f"Print-Templatename: { template }")
     # test if logo file is present
     
     # init printer
     p = Network(printer_ip)
     d = Dummy()
+    # Font, align, etc. settings
+    #d.set_with_default(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=False, flip=False, double_width=False, double_height=False, custom_size=False)
+    d.set(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=True, flip=False, double_width=True, double_height=True, custom_size=False)
 
     # create ESC/POS for the print job, this should go really fast
-    d.text("This is my image:\n")
-    d.image("funny_cat.png")
+    #d.image("funny_cat.png")
+    d.textln(user_data.firstname)
+    d.text(f"{user_data.lastname}\n")
+    d.ln(1)
+
+    d.text(f"--  {run_time:2.2f}  --\n")
+    d.ln(2)
+    d.barcode(str(user_data.startnum), 'CODE39', height=64, width=3, pos='BELOW', font='A', align_ct=True, function_type=None, check=True, force_software=False)
     d.cut()
 
     # send code to printer
     p._raw(d.output)
+    p.buzzer(times=2, duration=4)
 
 
 
@@ -310,7 +320,11 @@ def saveresults(request):
             
             if lines[i] < previous_min:
                 print(" - Zettel für Wäscheleine drucken!")
-                print_paper()
+                # get userdata to print
+                print(f"Vorname: {result_add_res.fk_sj_users}")
+                print_paper(result_add_res.fk_sj_users,  lines[i])
+                
+                
             else:
                 print(" - Leider keine neue Bestzeit!")
 
