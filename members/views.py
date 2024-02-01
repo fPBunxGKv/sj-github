@@ -208,10 +208,11 @@ def results(request):
 def addresults(request, id):
     # DEBUG
     if (debug_level >= 2): print('ADD-RESULTS --> request / ID:', id)
+
     # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
-    active_event = sj_events.objects.filter(event_active=True).values('id', 'event_num_lines')
-    event_id = active_event[0]['id']
-    num_lines = active_event[0]['event_num_lines']
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+    event_id = event_info['id']
 
     # Bereits erfasste Läufe abfragen, letzter gespeicherter Lauf ermitteln
     runs_all_data = sj_results.objects.select_related().filter(fk_sj_events=event_id,run_nr=id).order_by('-run_nr','line_nr')
@@ -229,11 +230,10 @@ def saveresults(request):
     # DEBUG
     if (debug_level >= 2): print('SAVE-RESULTS --> request')
 
-    active_event = sj_events.objects.filter(event_active=True).values('id', 'event_num_lines')
-    event_id = active_event[0]['id']
-
-    #ToDo - NUMBER of Results per RUN.... Nicht num_lines
-    num_lines = active_event[0]['event_num_lines']
+    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+    event_id = event_info['id']
 
     lines=array('f', [])
     lines = [0] * num_lines
@@ -401,10 +401,10 @@ def updaterecord(request, id):
 
 # Rangliste
 def ranking(request):
+
+    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
-    # print('Ranking Request')
-    active_event = sj_events.objects.filter(event_active=True).values('id', 'event_num_lines')
-    event_id = active_event[0]['id']
+    event_id = event_info['id']
 
 # Kategorien mit Resultaten auslesen
     dist_cat = sj_results.objects.filter(
