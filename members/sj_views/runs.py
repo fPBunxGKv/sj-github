@@ -22,21 +22,11 @@ from datetime import date
 
 import logging
 
+from ..sj_utils import get_event_info
+
+
 logger = logging.getLogger(__name__)
 debug_level = 1
-
-# ToDo: funktion doppelt (in views.py und in runs.py)
-def get_event_info():
-    active_event = sj_events.objects.filter(event_active=True).values('id','event_name','event_date','event_reg_open','event_num_lines')
-    return {
-            "id": active_event[0]['id'],
-            "name": active_event[0]['event_name'],
-            "date": active_event[0]['event_date'],
-            "reg_open": active_event[0]['event_reg_open'],
-            # "reg_start": active_event[0]['event_reg_start'],
-            # "reg_end": active_event[0]['event_reg_end'],
-            "lines": active_event[0]['event_num_lines']
-            }
 
 def calc_cat(u_gender, u_byear, event_year):
     """ Berechnet die Kategorie

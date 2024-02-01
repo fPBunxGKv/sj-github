@@ -26,72 +26,14 @@ from .sj_views.runs import run, addrun, editrun, updaterun, addrun_testdata
 from datetime import *
 import uuid
 
-from escpos.printer import Network, Dummy
+from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info
+
 
 # ToDo: logging / debugging vereinheitlichen/verbessern
-
 import logging
 logger = logging.getLogger(__name__)
 
 debug_level = 1
-
-def is_valid_uuid(value):
-    try:
-        uuid.UUID(str(value))
-        return True, uuid.UUID(str(value))
-    except ValueError:
-        return False, ''
-
-def sendmail(state='na',firstmane='na',email='na', value=''):
-    print("Will send Email for:", value, state, firstmane, email)
-
-def print_paper(user_data, run_time, printer_ip='172.20.30.170', template='default'):
-    print(f"Print-Templatename: { template }")
-    # test if logo file is present
-    
-    # init printer
-    p = Network(printer_ip)
-    d = Dummy()
-    # Font, align, etc. settings
-    #d.set_with_default(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=False, flip=False, double_width=False, double_height=False, custom_size=False)
-    d.set(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=True, flip=False, double_width=True, double_height=True, custom_size=False)
-
-    # create ESC/POS for the print job, this should go really fast
-    #d.image("funny_cat.png")
-    d.textln(user_data.firstname)
-    d.text(f"{user_data.lastname}\n")
-    d.ln(1)
-
-    d.text(f"--  {run_time:2.2f}  --\n")
-    d.ln(2)
-    d.barcode(str(user_data.startnum), 'CODE39', height=64, width=3, pos='BELOW', font='A', align_ct=True, function_type=None, check=True, force_software=False)
-    d.cut()
-
-    # send code to printer
-    p._raw(d.output)
-    p.buzzer(times=2, duration=4)
-
-
-
-
-
-# ToDo: funktion doppelt (in views.py und in runs.py)
-def get_event_info():
-    active_event = sj_events.objects.filter(event_active=True).values('id','event_name','event_date','event_reg_start','event_reg_end','event_reg_open','event_num_lines').first()
-
-    if active_event['event_reg_start'].date() <= datetime.now().date() <= active_event['event_reg_end'].date():
-        reg_open = True
-    else:
-        reg_open = False
-
-    return {
-            "id": active_event['id'],
-            "name": active_event['event_name'],
-            "date": active_event['event_date'],
-            "reg_open": reg_open,
-            # "reg_open": active_event['event_reg_open'],
-            "lines": active_event['event_num_lines']
-            }
 
 # ---------- Pages ----------
 def index(request):
@@ -312,7 +254,7 @@ def saveresults(request):
         if (debug_level >= 2): print('SAVE-RESULTS --> request, run-num =', num, ', lines', i, ':', lines[i])
 
         if lines[i] != -1:
-            result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1)
+            result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
             previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id).aggregate(Min('result'))['result__min']
 
@@ -322,7 +264,7 @@ def saveresults(request):
                 print(" - Zettel für Wäscheleine drucken!")
                 # get userdata to print
                 print(f"Vorname: {result_add_res.fk_sj_users}")
-                print_paper(result_add_res.fk_sj_users,  lines[i])
+                print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
                 
                 
             else:
