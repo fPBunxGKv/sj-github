@@ -5,6 +5,22 @@ import re
 from datetime import date
 
 
+class ResultForm(forms.ModelForm):
+    class Meta:
+        model = sj_results
+        fields = [
+            'fk_sj_users', 'fk_sj_events', 'run_nr', 'line_nr', 'result', 'result_category', 'state'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+
+    def clean(self):
+        #data = self.cleaned_data
+        cleaned_data = super().clean()
+        return cleaned_data
+
 class RegisterRunsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):

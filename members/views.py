@@ -11,9 +11,10 @@ from django.db.models import F, Window
 from django.db.models.functions import Rank
 
 from .models import sj_users
-from .models import sj_events
 from .models import sj_results
 
+from django.forms import formset_factory
+from .forms import ResultForm
 from .forms import RegisterUserForm
 
 from random import seed
@@ -182,6 +183,10 @@ def users(request):
 
 @login_required
 def results(request):
+    '''
+    Anzeigen aller eingeteilten Laeufe.
+    Um resultate zu erfassen, kann jeder lauf bearbeiet werden.
+    '''
     # DEBUG
     if (debug_level >= 2): print('RESULTS -- request')
 
@@ -206,6 +211,10 @@ def results(request):
 
 @login_required
 def addresults(request, id):
+    '''
+    Formular mit den eingeteilten Personen anzeigen.
+    Laufzeiten koennen erfasst werden.
+    '''
     # DEBUG
     if (debug_level >= 2): print('ADD-RESULTS --> request / ID:', id)
 
@@ -214,13 +223,37 @@ def addresults(request, id):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    # Bereits erfasste Läufe abfragen, letzter gespeicherter Lauf ermitteln
-    runs_all_data = sj_results.objects.select_related().filter(fk_sj_events=event_id,run_nr=id).order_by('-run_nr','line_nr')
+    # Den gewählten Lauf in der DB abfragen
+    run_data = sj_results.objects.select_related().filter(fk_sj_events=event_id,run_nr=id).order_by('-run_nr','line_nr')
 
+    ResultFormSet = formset_factory(ResultForm, can_order=False)
+    
+    initial_value = []
+    for element in run_data:
+        if element.result < 0:
+            element.result = 0
+
+        initial_value.append({
+                        'fk_sj_users': element.fk_sj_users, 
+                        'firstname': element.fk_sj_users.firstname,
+                        'lastname': element.fk_sj_users.lastname,
+                        'run_nr': element.run_nr, 
+                        'line_nr': element.line_nr, 
+                        'result_category': element.result_category,
+                        'state': element.state,
+                        'result':element.result,
+                        })
+        print(f"User-ID: {element.fk_sj_users.firstname}, KAT: {element.result_category}, STATE: {element.state}, LINE-NR: {element.line_nr}")
+        
+    formset = ResultFormSet(initial=initial_value)
+    
     template = loader.get_template('results_add.html')
     context = {
-        'runs' : runs_all_data,
+        'runs' : run_data,
         'num_lines' : range(num_lines),
+        'num_lines_2' : range(1, num_lines + 1),
+        'run_nr_1' : id,
+        'formset' : formset,
         'pagetitle' : 'SJ - Resultate',
     }
     return HttpResponse(template.render(context, request))

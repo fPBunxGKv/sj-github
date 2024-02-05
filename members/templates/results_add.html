@@ -9,7 +9,62 @@
                     <thead>
                         <tr>
                             <th scope="col">Lauf #</th>
-                            {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
+                            {% for line in num_lines_2 %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <form action="saveresults/" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+                    <tr>
+                        <td class="align-middle">
+                            <b>{{ run_nr_1 }}
+                                <br>
+                                <input type="hidden" name="run_num" value="{{ run_nr_1 }}">
+                                <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                            </b>
+                        </td>
+                        {% for line in num_lines_2 %}
+                       
+
+                        <td class="align-middle">
+                            {% for form in formset %}
+                                {% if line == form.line_nr.value %}
+                                    <b>{{ form.fk_sj_users }}</b>
+                                    <br>
+                                    <b>FName: {{ form.all.firstname }} LName: {{ form.lastname }}</b>
+                                    <br>
+                                    {{ form.fk_sj_users.byear }} / {{ form.result_category.value }}
+                                    <br>
+                                    Status: {{ form.state.value }}
+                                    <br>
+                                    {{ form.result }}
+
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+                        {% endfor %}
+                    </form>
+                </tr>
+
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</section>            
+
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <table class="table table-fixed table-striped table-hover ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Lauf #</th>
+                            {% for line in num_lines_2 %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
