@@ -12,94 +12,71 @@
                             {% for line in num_lines_2 %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
                         </tr>
                     </thead>
-                    <form action="saveresults/" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ formset.management_form }}
-                    <tr>
-                        <td class="align-middle">
-                            <b>{{ run_nr_1 }}
-                                <br>
-                                <input type="hidden" name="run_num" value="{{ run_nr_1 }}">
-                                <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
-                            </b>
-                        </td>
-                        {% for line in num_lines_2 %}
-                       
-
-                        <td class="align-middle">
-                            {% for form in formset %}
-                                {% if line == form.line_nr.value %}
-                                    <b>{{ form.fk_sj_users }}</b>
-                                    <br>
-                                    <b>FName: {{ form.all.firstname }} LName: {{ form.lastname }}</b>
-                                    <br>
-                                    {{ form.fk_sj_users.byear }} / {{ form.result_category.value }}
-                                    <br>
-                                    Status: {{ form.state.value }}
-                                    <br>
-                                    {{ form.result }}
-
-                                    {% endif %}
-                                    {% endfor %}
-                                </td>
-                        {% endfor %}
-                    </form>
-                </tr>
-
                     <tbody>
+                        <form action="saveresults/" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ formset.management_form }}
+                            <tr>
+                                <td class="align-middle">
+                                    <b>{{ run_nr_1 }}
+                                        <br>
+                                        <input type="hidden" name="run_num" value="{{ run_nr_1 }}">
+                                        <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                                    </b>
+                                </td>
+                                {% for line in num_lines_2 %}
+                                    <td class="align-middle">
+                                        {% for form in formset %}
+                                            {% if line == form.line_nr.value %}
+                                                <b>{{ form.fk_sj_users }}</b>
+                                                <br>
+                                                <b>FName: {{ form.fk_sj_users__firstname }} LName: {{ form.lastname }}</b>
+                                                <br>
+                                                {{ form.fk_sj_users.byear }} / {{ form.result_category.value }}
+                                                <br>
+                                                Status: {{ form.state.value }}
+                                                <br>
+                                                {{ form.result }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                {% endfor %}
+                            </form>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-</section>            
-
-
-
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <table class="table table-fixed table-striped table-hover ">
-                    <thead>
-                        <tr>
-                            <th scope="col">Lauf #</th>
-                            {% for line in num_lines_2 %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% regroup runs by run_nr as new_runs %}
-                        <form action="saveresults/" method="post">
-                            {% csrf_token %}
-                            {% for x in new_runs %}
-                                <tr>
-                                    <td class="align-middle">
-                                        <b>{{ x.grouper }}
-                                            <br>
-                                            <input type="hidden" name="run_num" value="{{ x.grouper }}">
-                                            <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
-                                        </b>
-                                    </td>
-                                    {% for line in num_lines %}
-                                        <td>
-                                            {% for y in x.list %}
-                                                {% if line|add:"1" == y.line_nr %}
-                                                    {% if y.result <= 0 %}
-                                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
-                                                        <br>
-                                                        {{ y.fk_sj_users.byear }} / {{ y.result_category }}
-                                                        <br>
-                                                        Status: {{ y.state }}
-                                                        <br>
-                                                        <input type="number"
-                                                               id="add_res"
-                                                               name="add_res{{ line | add:'1' }}"
-                                                               value=""
-                                                               step="0.01"
-                                                               class="form-control form-control-sm">
-                                                    </td>
-                                                {% endif %}
-                                                {% if y.result > 0 %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <table class="table table-fixed table-striped table-hover ">
+                <thead>
+                    <tr>
+                        <th scope="col">Lauf #</th>
+                        {% for line in num_lines_2 %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% regroup runs by run_nr as new_runs %}
+                    <form action="saveresults/" method="post">
+                        {% csrf_token %}
+                        {% for x in new_runs %}
+                            <tr>
+                                <td class="align-middle">
+                                    <b>{{ x.grouper }}
+                                        <br>
+                                        <input type="hidden" name="run_num" value="{{ x.grouper }}">
+                                        <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                                    </b>
+                                </td>
+                                {% for line in num_lines %}
+                                    <td>
+                                        {% for y in x.list %}
+                                            {% if line|add:"1" == y.line_nr %}
+                                                {% if y.result <= 0 %}
                                                     <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                     <br>
                                                     {{ y.fk_sj_users.byear }} / {{ y.result_category }}
@@ -109,21 +86,36 @@
                                                     <input type="number"
                                                            id="add_res"
                                                            name="add_res{{ line | add:'1' }}"
-                                                           value="{{ y.result }}"
+                                                           value=""
                                                            step="0.01"
                                                            class="form-control form-control-sm">
-                                                {% endif %}
+                                                </td>
                                             {% endif %}
-                                        {% endfor %}
-                                    </td>
+                                            {% if y.result > 0 %}
+                                                <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                <br>
+                                                {{ y.fk_sj_users.byear }} / {{ y.result_category }}
+                                                <br>
+                                                Status: {{ y.state }}
+                                                <br>
+                                                <input type="number"
+                                                       id="add_res"
+                                                       name="add_res{{ line | add:'1' }}"
+                                                       value="{{ y.result }}"
+                                                       step="0.01"
+                                                       class="form-control form-control-sm">
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </form>
+            </tbody>
+        </table>
     </div>
 </div>
-</section>
+</div>
+</div>
 {% endblock %}

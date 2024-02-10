@@ -235,8 +235,6 @@ def addresults(request, id):
 
         initial_value.append({
                         'fk_sj_users': element.fk_sj_users, 
-                        'firstname': element.fk_sj_users.firstname,
-                        'lastname': element.fk_sj_users.lastname,
                         'run_nr': element.run_nr, 
                         'line_nr': element.line_nr, 
                         'result_category': element.result_category,
