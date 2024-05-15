@@ -21,17 +21,11 @@ env = environ.Env()
 # reading .env file
 environ.Env.read_env()
 
-# Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
-SECRET_KEY = env("SECRET_KEY")
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'z9k7q)hjl@cv)*d^_0g9mcn+l@l60xkoz9k7q)hjl@cv)*d^lva30(1t1-oo(742&ew'
+SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key-z4fbAa2z9h4E_P_jpyhF")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+DEBUG = env("DEBUG", default=False)
 
 SESSION_COOKIE_SECURE = True
 
