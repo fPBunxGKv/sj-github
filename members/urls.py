@@ -31,6 +31,7 @@ urlpatterns = [
             path('results/addresults/saveresults/' , views.saveresults, name='saveresults'),
 
             path('ranking/', views.ranking, name='ranking'),
+            path('addtestdata/', views.addrun_testdata, name='addtestdata'),
             path('addtestdata/<int:add_lines>', views.addrun_testdata, name='addtestdata'),
 
             # Login

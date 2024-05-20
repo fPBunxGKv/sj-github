@@ -14,7 +14,8 @@
                         <td>
                             <!-- Testdaten hinzufügen -->
                             <form action="/addtestdata/" method="post">
-                                <input type="number" name="run_num" value="">
+                                {% csrf_token %}
+                                <input type="number" name="add_count_runs" value="">
                                 <input class="btn btn-primary btn-sm"
                                        type="submit"
                                        value="Daten erstellen" />

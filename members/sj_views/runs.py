@@ -243,7 +243,13 @@ def updaterun(request):
 ### add testdata
 # ToDo: auf Admin Page einfügen und nur möglich falls beim aktuellen Event noch keine Laufeinteilung / Resultate vorhanden sind.
 @login_required
-def addrun_testdata(request, add_lines):
+def addrun_testdata(request, add_lines = 1):
+
+    form = UpdateRunForm(request.POST or None)
+
+    if form.is_valid():
+        add_count_runs = form.cleaned_data['add_count_runs']
+        print('Add result numbers:', add_count_runs )
 
     try:
         num_runs = add_lines
@@ -255,31 +261,27 @@ def addrun_testdata(request, add_lines):
     run_max = sj_results.objects.filter(fk_sj_events=event_info['id']).aggregate(Max('run_nr'))
     seed()
 
-    print('-------------------', len(run_max) )
-    print('-------------------', run_max['run_nr__max'] )
-
     if len(run_max) > 0 and run_max['run_nr__max']:
         run_max_1 = run_max['run_nr__max']
     else:
         run_max_1 = 1
 
+    all_users = sj_users.objects.values('byear','gender','startnum')
     for i in range(run_max_1 + 1, num_runs + run_max_1 + 1):
         for j in range(1, event_info['lines'] + 1):
-            startnummer = randint(1, 319)
-            print('Laufnr:',i,'Bahn:',j,'Startnummer:',startnummer)
+            start_index = randint(0, len(all_users)-1)
 
-            user_data = sj_users.objects.filter(startnum = startnummer).values('byear','gender')
             # Kategorie erstellen
             # Uebergabe: Geschlecht, Geburtsjahr, Anlass-Jahr
-            result_category = calc_cat(user_data[0]['gender'], int(user_data[0]['byear']), int(event_info['date'].strftime("%Y")))
+            result_category = calc_cat(all_users[start_index]['gender'], int(all_users[start_index]['byear']), int(event_info['date'].strftime("%Y")))
 
             # Lauf mit Läufern in sj_results eintragen
             if (i + 2) < (num_runs + run_max_1 + 1):
                 result_add_run = sj_results(run_nr = i,
                                             line_nr = j,
-                                            state = 'RQR', # Set for qualification run
+                                            state = 'RQR', # Set Result for qualification run
                                             result_category = result_category,
-                                            fk_sj_users = sj_users.objects.get(startnum = startnummer),
+                                            fk_sj_users = sj_users.objects.get(startnum = all_users[start_index]['startnum']),
                                             fk_sj_events = sj_events.objects.get(event_active = True),
                                             result = round(random.uniform(9,12), 2),
                                             )
@@ -288,7 +290,7 @@ def addrun_testdata(request, add_lines):
                                             line_nr = j,
                                             state = 'SQR', # Set for qualification run
                                             result_category = result_category,
-                                            fk_sj_users = sj_users.objects.get(startnum = startnummer),
+                                            fk_sj_users = sj_users.objects.get(startnum = all_users[start_index]['startnum']),
                                             fk_sj_events = sj_events.objects.get(event_active = True),
                                             result = -1,
                                             )
