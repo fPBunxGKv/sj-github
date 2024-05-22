@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
+{% load static %}
+
+{% load django_bootstrap5 %}
+
+{% bootstrap_css %}
+
+{% bootstrap_javascript %}
+
+{% bootstrap_messages %}
 
 {# Display a form #}
 

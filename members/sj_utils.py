@@ -3,6 +3,7 @@ from .models import sj_events
 from datetime import *
 from escpos.printer import Network, Dummy
 
+import uuid
 
 def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default'):
     print(f"Print-Templatename: { template }")
