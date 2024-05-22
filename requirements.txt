@@ -1,5 +1,6 @@
 # pip install -r requirements.txt
 django-bootstrap5
+django-environ
 python-escpos
 #reportlab
 scipy

@@ -23,6 +23,7 @@ from array import array
 from scipy.stats import rankdata
 
 from .sj_views.runs import run, addrun, editrun, updaterun, addrun_testdata
+from .sj_views.admin import administration
 
 from datetime import *
 import uuid
@@ -53,7 +54,7 @@ def register_new(request,id=''):
     isUUID, id = is_valid_uuid(id)
 
     if isUUID:
-        ''' 
+        '''
         If we get a valid UUID out of a string and userdata not with state "DEL",
         then redirect to django url with UUID
         else to an empty form.
@@ -83,7 +84,7 @@ def register_new(request,id=''):
                 print(form.cleaned_data["firstname"])
 
                 user_exists = sj_users.objects.filter(
-                    firstname = form.cleaned_data["firstname"], 
+                    firstname = form.cleaned_data["firstname"],
                     lastname = form.cleaned_data["lastname"],
                     byear = form.cleaned_data["byear"],
                     gender = form.cleaned_data["gender"],
@@ -116,7 +117,7 @@ def register_new(request,id=''):
     # if a GET (or any other method) we'll create a blank form
     else:
         if isUUID:
-            ''' 
+            '''
             If we get a valid UUID out of a string and userdata not with state "DEL",
             then redirect to django register url with UUID
             else to an empty form.
@@ -138,14 +139,14 @@ def register_new(request,id=''):
         'event_info': get_event_info(),
         'form' : form,
         }
-    
+
     return render(request, "register_new_2.html", context)
 
 def register_string(request, id):
     isUUID, id = is_valid_uuid(id)
 
     if isUUID:
-        ''' 
+        '''
         If we get a valid UUID out of a string and userdata not with state "DEL",
         then redirect to django registers url with UUID
         else to an empty form.
@@ -173,11 +174,11 @@ def thankyou(request):
 def users(request):
     mymembers = sj_users.objects.all().exclude(state='DEL').values().order_by('firstname','lastname')
     template = loader.get_template('users_show.html')
-    
+
     context = {
         'mymembers': mymembers,
         }
-    
+
     return HttpResponse(template.render(context, request))
 
 
@@ -290,14 +291,14 @@ def saveresults(request):
             previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id).aggregate(Min('result'))['result__min']
 
             print(f"{result_add_res.fk_sj_users}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
-            
+
             if lines[i] < previous_min:
                 print(" - Zettel für Wäscheleine drucken!")
                 # get userdata to print
                 print(f"Vorname: {result_add_res.fk_sj_users}")
                 print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
-                
-                
+
+
             else:
                 print(" - Leider keine neue Bestzeit!")
 
@@ -357,14 +358,14 @@ def addrecord(request):
 
 @login_required
 def delete(request, id):
-    ''' 
+    '''
     Delete all data of a user if he has no results in the database.
     Else just overwrite first/lastname with "***" and only keep ranking/result
-    relevant values. 
+    relevant values.
     Set state to DEL.
     '''
     member = sj_users.objects.get(uuid=id)
-    
+
     if sj_results.objects.filter(fk_sj_users=member.id).count() < 1:
         print(" - No results, delete the member")
         member.delete()
@@ -437,7 +438,7 @@ def ranking(request):
     event_info = get_event_info()
     event_id = event_info['id']
 
-# Kategorien mit Resultaten auslesen
+    # Kategorien mit Resultaten auslesen
     dist_cat = sj_results.objects.filter(
             fk_sj_events=event_id,
             state='RQR'
@@ -456,13 +457,14 @@ def ranking(request):
             print(q)
         print('-'*20)
 
-# Resultate pro Kategorie -> Rangliste
+    # Resultate pro Kategorie -> Rangliste
     results_per_cat = []
 
     for q in dist_cat:
-        if (debug_level >= 2): print(' --- ',q['result_category'],' --- ')
+        if (debug_level >= 2):
+            print(' --- ',q['result_category'],' --- ')
 
-    # Query Resultate pro Kategorie
+        # Query Resultate pro Kategorie
         result_best_cat=list(sj_results.objects.filter(
                 fk_sj_events=event_id,
                 state='RQR',
@@ -490,7 +492,7 @@ def ranking(request):
                 print(r)
             print('-'*20)
 
-# Query Resultate über alle Kategorien
+    # Query Resultate über alle Kategorien
     result_best_all=list(sj_results.objects.filter(
             fk_sj_events=event_id,
             state='RQR',
@@ -518,15 +520,4 @@ def ranking(request):
     }
 
     template = loader.get_template('rank_show.html')
-    return HttpResponse(template.render(context, request))
-
-### administration
-@login_required
-def administration(request):
-
-    context = {
-        'pagetitle' : 'SJ - Administration'
-    }
-    template = loader.get_template('administration_show.html')
-
     return HttpResponse(template.render(context, request))
