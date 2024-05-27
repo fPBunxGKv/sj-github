@@ -30,6 +30,7 @@ urlpatterns = [
             path('results/addresults/<int:id>' , views.addresults, name='addresults'),
             path('results/addresults/saveresults/' , views.saveresults, name='saveresults'),
 
+            path('setfinal/', views.set_final_runs, name='set_final_runs'),
             path('ranking/', views.ranking, name='ranking'),
             path('addtestdata/', views.addrun_testdata, name='addtestdata'),
             path('addtestdata/<int:add_lines>', views.addrun_testdata, name='addtestdata'),

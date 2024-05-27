@@ -6,7 +6,9 @@ from django.urls import reverse
 
 from django.forms import Form, IntegerField
 
-from django.db.models import Max
+from django.db.models import Max, Min
+from django.db.models import F, Window
+from django.db.models.functions import Rank
 
 from ..models import sj_users
 from ..models import sj_events
@@ -238,6 +240,67 @@ def updaterun(request):
         return HttpResponseRedirect(reverse('run'))
 
     return render(request, 'update_run.html', {'form': form})
+
+# Close quali runs, prepare final runs
+# delete qualificatin runs without results
+# get rank 1-4 of each category and create runs (SFR, set final run)
+
+@login_required
+def set_final_runs(request):
+    event_info = get_event_info()
+    event_id = event_info['id']
+    
+    # delete qualificatin runs without results of the actua event
+    sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
+
+    # Kategorien mit Resultaten auslesen
+    dist_cat = sj_results.objects.filter(
+            fk_sj_events=event_id,
+            state='RQR'
+            ).values(
+                'result_category'
+            ).distinct(
+
+            ).order_by(
+                'result_category'
+            )
+    
+    top_n_results_per_cat = []
+
+    for q in dist_cat:
+
+        # Query Resultate pro Kategorie
+        result_best_cat=sj_results.objects.filter(
+                fk_sj_events=event_id,
+                state='RQR',
+                result_category=q['result_category'],
+            ).values(
+                'fk_sj_users',
+                'fk_sj_users__firstname',
+                'fk_sj_users__lastname',
+                'result_category',
+            ).annotate(
+                fast_run=Min('result'),
+                rank=Window(
+                    expression=Rank(),
+                    order_by=F('fast_run').asc()),
+            ).order_by(
+                # 'result_category',
+                # 'fast_run'
+                'rank'
+            )
+        
+        # Ranglist pro Kategorie zu Array hinzufügen
+        num_finalists = result_best_cat.filter(rank__lte = 4).count()
+        top_n_results_per_cat.extend(list(result_best_cat.filter(rank__lte = 4)))
+
+        print(f'{5*"-"} {num_finalists} in cat {result_best_cat[0]["result_category"]} {5*"-"}')
+        for n in result_best_cat.filter(rank__lte = 4):
+            #print(n)
+            print(f"{n['rank']:>2} {n['fk_sj_users__firstname']:<10} {n['fk_sj_users__lastname']:<10} {n['fast_run']:>5}")
+
+
+    return HttpResponseRedirect(reverse('results'))
 
 
 ### add testdata
