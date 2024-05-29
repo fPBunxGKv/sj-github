@@ -250,8 +250,13 @@ def set_final_runs(request):
     event_info = get_event_info()
     event_id = event_info['id']
     
-    # delete qualificatin runs without results of the actua event
+    # delete qualificatin runs without results of the actual event
     sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
+    sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
+
+    # get latest run number
+    run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
+    run_next = run_max['run_nr__max'] + 1 
 
     # Kategorien mit Resultaten auslesen
     dist_cat = sj_results.objects.filter(
@@ -294,11 +299,15 @@ def set_final_runs(request):
         num_finalists = result_best_cat.filter(rank__lte = 4).count()
         top_n_results_per_cat.extend(list(result_best_cat.filter(rank__lte = 4)))
 
-        print(f'{5*"-"} {num_finalists} in cat {result_best_cat[0]["result_category"]} {5*"-"}')
-        for n in result_best_cat.filter(rank__lte = 4):
-            #print(n)
-            print(f"{n['rank']:>2} {n['fk_sj_users__firstname']:<10} {n['fk_sj_users__lastname']:<10} {n['fast_run']:>5}")
+        final_runs = []
+        print(f'\n{5*"-"} < {num_finalists} > in cat {result_best_cat[0]["result_category"]} {5*"-"}')
 
+        for index, item in enumerate(list(result_best_cat.filter(rank__lte = 4))):
+            print(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
+            final_runs.append(sj_results(run_nr=run_next, line_nr=index+1, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
+
+        sj_results.objects.bulk_create(final_runs)
+        run_next += 1
 
     return HttpResponseRedirect(reverse('results'))
 

@@ -11,16 +11,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <td>
-                            <!-- Testdaten hinzufügen -->
-                            <form action="/addtestdata/" method="post">
-                                {% csrf_token %}
-                                <input type="number" name="add_count_runs" value="">
-                                <input class="btn btn-primary btn-sm"
-                                       type="submit"
-                                       value="Daten erstellen" />
-                            </form>
-                        </td>
+                        <tr>
+                            <td>
+                                <!-- Testdaten hinzufügen -->
+                                <form action="/addtestdata/" method="post">
+                                    {% csrf_token %}
+                                    <input type="number" name="add_count_runs" value="">
+                                    <input class="btn btn-primary btn-sm"
+                                           type="submit"
+                                           value="Test-Vorläufe erstellen" />
+                                </form>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <!-- Generate final runs -->
+                                <form action="/setfinal/" method="post">
+                                    {% csrf_token %}
+                                    <input class="btn btn-primary btn-sm"
+                                           type="submit"
+                                           value="Finalläufe erstellen" />
+                                </form>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
