@@ -296,7 +296,8 @@ def set_final_runs(request):
                 'rank'
             )
         
-        # Ranglist pro Kategorie zu Array hinzufügen
+        # ToDo: define n in the event settings
+        # Add best n per category to the final runs
         num_finalists = result_best_cat.filter(rank__lte = 4).count()
         top_n_results_per_cat.extend(list(result_best_cat.filter(rank__lte = 4)))
 
@@ -305,14 +306,14 @@ def set_final_runs(request):
 
         for index, item in enumerate(list(result_best_cat.filter(rank__lte = 4))):
             print(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
-            print(f"Vor if - Index: {index}, RunNext: {run_next}")
+            # print(f"Vor if - Index: {index}, RunNext: {run_next}")
             if (index > 0) and (index % num_lines == 0):
                 run_next += 1
                 line_nr = 1
-                print(f"IN if - Index: {index}, RunNext: {run_next}")
+                # print(f"IN if - Index: {index}, RunNext: {run_next}")
             else:
                 line_nr = (index % num_lines) + 1
-                print(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
+                # print(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
             final_runs.append(sj_results(run_nr=run_next, line_nr=line_nr, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
 
         sj_results.objects.bulk_create(final_runs)
