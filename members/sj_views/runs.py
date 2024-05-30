@@ -249,6 +249,7 @@ def updaterun(request):
 def set_final_runs(request):
     event_info = get_event_info()
     event_id = event_info['id']
+    num_lines = event_info['lines']
     
     # delete qualificatin runs without results of the actual event
     sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
@@ -304,7 +305,15 @@ def set_final_runs(request):
 
         for index, item in enumerate(list(result_best_cat.filter(rank__lte = 4))):
             print(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
-            final_runs.append(sj_results(run_nr=run_next, line_nr=index+1, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
+            print(f"Vor if - Index: {index}, RunNext: {run_next}")
+            if (index > 0) and (index % num_lines == 0):
+                run_next += 1
+                line_nr = 1
+                print(f"IN if - Index: {index}, RunNext: {run_next}")
+            else:
+                line_nr = (index % num_lines) + 1
+                print(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
+            final_runs.append(sj_results(run_nr=run_next, line_nr=line_nr, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
 
         sj_results.objects.bulk_create(final_runs)
         run_next += 1
