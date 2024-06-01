@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.urls import reverse
+from django.core.paginator import Paginator
 
 from django.db.models import Min
 from django.db.models import Count
@@ -172,10 +173,15 @@ def thankyou(request):
 @login_required
 def users(request):
     mymembers = sj_users.objects.all().exclude(state='DEL').values().order_by('firstname','lastname')
+    paginator = Paginator(mymembers, 15)
     template = loader.get_template('users_show.html')
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'mymembers': mymembers,
+        'page_obj': page_obj,
         }
 
     return HttpResponse(template.render(context, request))
