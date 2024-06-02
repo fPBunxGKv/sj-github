@@ -1,125 +1,156 @@
 {% extends "base.html" %}
 {% block title %}<title>SJ - Teilnehmer</title>{% endblock %}
+{% load django_bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
 {% block content %}
     <div class="container">
         <div class="row">
             <div class="col">
                 <h1>Members</h1>
+                <nav aria-label="Page navigation">
+                    <ul>
+                        <div class="col-6 align-left">
+                            <i id="search-icon" class="fas fa-search"></i>
+                            <input id="user-input" placeholder="Search">
+                        </div>
+                    </ul>
+                    <ul class="pagination">
+                        {% if page_obj.has_previous and not page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ page_obj.previous_page_number | add:'-1' }}">{{ page_obj.previous_page_number | add:'-1' }}</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+                            </li>
+                            <li class="page-item active" aria-current="page">
+                                <a class="page-link" href="#">{{ page_obj.number }}</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                        {% if page_obj.has_previous and page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+                            </li>
+                            <li class="page-item active" aria-current="page">
+                                <a class="page-link" href="#">{{ page_obj.number }}</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item ">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                        {% if not page_obj.has_previous and page_obj.has_next %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link disabled" href="#">Previous</a>
+                            </li>
+                            <li class="page-item active" aria-current="page">
+                                <a class="page-link" href="#">{{ page_obj.number }}</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?page={{ page_obj.next_page_number | add:'1' }}">{{ page_obj.next_page_number | add:'1' }}</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item ">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="container">
+    <div class="col">
+        <div class="row">
+            <form layout='floating' method="post" action="{% url 'users' %}">
+                {% csrf_token %}
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
                             <th scope="col">Vorname</th>
                             <th scope="col">Nachname</th>
-                            <th scope="col">Status</th>
                             <th scope="col">Geburtsjahr</th>
                             <th scope="col">Geschlecht</th>
-                            <th scope="col">Startnummer</th>
                             <th scope="col">Email</th>
+                            <th scope="col">Ort</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Startnummer</th>
                             <th scope="col">Erstellt</th>
                             <th scope="col">Geändert</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% if not form.instance.id %}
+                            <tr>{% include 'save.html' %}</tr>
+                        {% endif %}
                         {% for x in page_obj %}
                             <tr>
-                                <td>{{ x.firstname }}</td>
-                                <td>{{ x.lastname }}</td>
-                                <td>{{ x.state }}</td>
-                                <td>{{ x.byear }}</td>
-                                <td>{{ x.gender }}</td>
-                                <td>
-                                    <a href="edit/{{ x.uuid }}">{{ x.startnum }}</a>
-                                </td>
-                                <td>{{ x.email }}</td>
-                                <td>{{ x.created_at | date:"d.m.Y, H:m" }}</td>
-                                <td>{{ x.updated_at | date:"d.m.Y, H:m:s" }}</td>
-                                <td>
-                                    <a class="btn btn-primary btn-sm" href="edit/{{ x.uuid }}" role="button">anpassen</a>
-                                    <a class="btn btn-danger btn-sm"
-                                       href="/delete/{{ x.uuid }}"
-                                       role="button">löschen</a>
-                                </td>
+                                {% if form.instance.id == x.id %}
+                                    {% include 'save.html' %}
+                                {% else %}
+                                    <td>{{ x.firstname }}</td>
+                                    <td>{{ x.lastname }}</td>
+                                    <td>{{ x.byear }}</td>
+                                    <td>{{ x.gender }}</td>
+                                    <td>{{ x.email }}</td>
+                                    <td>{{ x.city }}</td>
+                                    <td>{{ x.state }}</td>
+                                    <td>
+                                        <a href="edit/{{ x.uuid }}">{{ x.startnum }}</a>
+                                    </td>
+                                    <td>{{ x.created_at | date:"d.m.Y, H:m" }}</td>
+                                    <td>{{ x.updated_at | date:"d.m.Y, H:m:s" }}</td>
+                                    <td>
+                                        <button formnovalidate class="btn btn-success" name="edit" value="{{ x.id }}">Ändern</button>
+                                        <button formnovalidate
+                                                class="btn btn-danger"
+                                                name="delete"
+                                                value="{{ x.id }}"
+                                                onclick="return confirm('Bist du sicher?');">Löschen</button>
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination">
-                                {% if page_obj.has_previous and not page_obj.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=1">First</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="?page={{ page_obj.previous_page_number | add:'-1' }}">{{ page_obj.previous_page_number | add:'-1' }}</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-                                    </li>
-                                    <li class="page-item active" aria-current="page">
-                                        <a class="page-link" href="#">{{ page_obj.number }}</a>
-                                    </li>
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#">Next</a>
-                                    </li>
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                                    </li>
-                                {% endif %}
-                                {% if page_obj.has_previous and page_obj.has_next %}
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page=1">First</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-                                    </li>
-                                    <li class="page-item active" aria-current="page">
-                                        <a class="page-link" href="#">{{ page_obj.number }}</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                                    </li>
-                                    <li class="page-item ">
-                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                                    </li>
-                                {% endif %}
-                                {% if not page_obj.has_previous and page_obj.has_next %}
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#">First</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link disabled" href="#">Previous</a>
-                                    </li>
-                                    <li class="page-item active" aria-current="page">
-                                        <a class="page-link" href="#">{{ page_obj.number }}</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                           href="?page={{ page_obj.next_page_number | add:'1' }}">{{ page_obj.next_page_number | add:'1' }}</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                                    </li>
-                                    <li class="page-item ">
-                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </nav>
-                    </form>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </form>
         </div>
     </div>
 </div>

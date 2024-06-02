@@ -1,4 +1,7 @@
-from .models import sj_events
+from .models import sj_events, sj_users, sj_results
+
+from random import seed
+from random import randint
 
 from datetime import *
 from escpos.printer import Network, Dummy
@@ -91,3 +94,35 @@ def get_event_info():
             "reg_open": reg_open,
             "lines": active_event['event_num_lines']
             }
+
+def delete_user(id):
+    '''
+    Delete all data of a user if he has no results in the database.
+    Else just overwrite first/lastname with "***" and only keep ranking/result
+    relevant values.
+    Set state to DEL.
+    '''
+    user = sj_users.objects.get(id=id)
+
+    if sj_results.objects.filter(fk_sj_users=user.id).count() < 1:
+        print(" - No results, delete the user - ")
+        user.delete()
+    else:
+        print(" - Member has results, keep but clean it - ")
+        user.firstname = '***'
+        user.lastname = '***'
+        user.email = ''
+        user.phone = ''
+        user.city = ''
+        user.state = 'DEL'
+        user.save()
+
+def generate_startnumber():
+    seed()
+    i = 1
+    while i < 10:
+        startngen = randint(100000, 999999)
+        user_tst_startnr = sj_users.objects.filter(startnum=startngen)
+        if len(user_tst_startnr) < 1:
+            return startngen
+        i += 1

@@ -15,7 +15,7 @@ from .models import sj_users
 from .models import sj_events
 from .models import sj_results
 
-from .forms import RegisterUserForm
+from .forms import RegisterUserForm, UserForm
 
 from random import seed
 from random import randint
@@ -28,7 +28,7 @@ from .sj_views.admin import administration
 from datetime import *
 import uuid
 
-from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info
+from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, delete_user, generate_startnumber
 
 
 # ToDo: logging / debugging vereinheitlichen/verbessern
@@ -173,15 +173,43 @@ def thankyou(request):
 @login_required
 def users(request):
     mymembers = sj_users.objects.all().exclude(state='DEL').values().order_by('firstname','lastname')
+    form = UserForm(initial={'state': 'YES'})
     paginator = Paginator(mymembers, 15)
     template = loader.get_template('users_show.html')
 
+    if request.method == 'POST':
+        if 'save' in request.POST:
+            pk = request.POST.get('save')
+            if not pk:
+                form = UserForm(request.POST)
+                obj = form.save(commit=False)
+                obj.startnum = generate_startnumber()
+            else:
+                user = sj_users.objects.get(id=pk)
+                form = UserForm(request.POST, instance=user)
+                obj = form.save(commit=False)
+
+            # ToDo
+            # Startzettel ausdrucken
+            
+            obj.save()
+            form = UserForm()
+        elif 'delete' in request.POST:
+            pk = request.POST.get('delete')
+            delete_user(pk)
+        elif 'edit' in request.POST:
+            pk = request.POST.get('edit')
+            user = sj_users.objects.get(id=pk)
+            form = UserForm(instance=user)
+
     page_number = request.GET.get("page")
+    # url_parameter = request.GET.get("q")
     page_obj = paginator.get_page(page_number)
 
     context = {
         'mymembers': mymembers,
         'page_obj': page_obj,
+        'form': form,
         }
 
     return HttpResponse(template.render(context, request))
