@@ -71,10 +71,8 @@ Django test Server starten
 python manage.py runserver
 ```
 
-Einloggen und ein Event erstellen
-http://localhost:8000/admin/
+http://localhost:8000/
 
-Ausloggen
 - jetzt solltest du auf der "Homepage" vom SJ sein.
 - einloggen mit dem erstellten Admin user
 ---
