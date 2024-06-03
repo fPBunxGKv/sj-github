@@ -21,13 +21,16 @@ python3 -m venv env
 
 Python virtual enviroment aktivieren
 ```bash
-cd env
-source bin/activate
+source env/bin/activate
 ```
 
 Django installieren [Offizielle Webseite] (https://docs.djangoproject.com/en/4.2/topics/install/#installing-official-release)
 ```bash
 pip install --upgrade pip
+python -m pip install Django==4.2
+
+-- ODER --
+
 python -m pip install Django
 ```
 

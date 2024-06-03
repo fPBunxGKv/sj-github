@@ -191,9 +191,9 @@ def users(request):
 
             # ToDo
             # Startzettel ausdrucken
-            
+
             obj.save()
-            form = UserForm()
+            form = UserForm(initial={'state': 'YES'})
         elif 'delete' in request.POST:
             pk = request.POST.get('delete')
             delete_user(pk)
