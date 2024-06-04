@@ -251,73 +251,81 @@ def set_final_runs(request):
     event_id = event_info['id']
     num_lines = event_info['lines']
     
-    # delete qualificatin runs without results of the actual event
-    sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
-    sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
+    if request.method == 'POST':
+        if 'delete-final' in request.POST:
+            print("DELETE Final runs")
+            sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
+        elif 'generate-final' in request.POST:
+            print("GENERATE Final runs")
 
-    # get latest run number
-    run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
-    run_next = run_max['run_nr__max'] + 1 
 
-    # Kategorien mit Resultaten auslesen
-    dist_cat = sj_results.objects.filter(
-            fk_sj_events=event_id,
-            state='RQR'
-            ).values(
-                'result_category'
-            ).distinct(
+            # delete qualificatin runs without results of the actual event
+            sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
+            sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
 
-            ).order_by(
-                'result_category'
-            )
-    
-    top_n_results_per_cat = []
+            # get latest run number
+            run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
+            run_next = run_max['run_nr__max'] + 1 
 
-    for q in dist_cat:
+            # Kategorien mit Resultaten auslesen
+            dist_cat = sj_results.objects.filter(
+                    fk_sj_events=event_id,
+                    state='RQR'
+                    ).values(
+                        'result_category'
+                    ).distinct(
 
-        # Query Resultate pro Kategorie
-        result_best_cat=sj_results.objects.filter(
-                fk_sj_events=event_id,
-                state='RQR',
-                result_category=q['result_category'],
-            ).values(
-                'fk_sj_users',
-                'fk_sj_users__firstname',
-                'fk_sj_users__lastname',
-                'result_category',
-            ).annotate(
-                fast_run=Min('result'),
-                rank=Window(
-                    expression=Rank(),
-                    order_by=F('fast_run').asc()),
-            ).order_by(
-                # 'result_category',
-                # 'fast_run'
-                'rank'
-            )
-        
-        # ToDo: define n in the event settings
-        # Add best n per category to the final runs
-        num_finalists = result_best_cat.filter(rank__lte = 4).count()
-        top_n_results_per_cat.extend(list(result_best_cat.filter(rank__lte = 4)))
+                    ).order_by(
+                        'result_category'
+                    )
+            
+            top_n_results_per_cat = []
 
-        final_runs = []
-        print(f'\n{5*"-"} < {num_finalists} > in cat {result_best_cat[0]["result_category"]} {5*"-"}')
+            for q in dist_cat:
 
-        for index, item in enumerate(list(result_best_cat.filter(rank__lte = 4))):
-            print(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
-            # print(f"Vor if - Index: {index}, RunNext: {run_next}")
-            if (index > 0) and (index % num_lines == 0):
+                # Query Resultate pro Kategorie
+                result_best_cat=sj_results.objects.filter(
+                        fk_sj_events=event_id,
+                        state='RQR',
+                        result_category=q['result_category'],
+                    ).values(
+                        'fk_sj_users',
+                        'fk_sj_users__firstname',
+                        'fk_sj_users__lastname',
+                        'result_category',
+                    ).annotate(
+                        fast_run=Min('result'),
+                        rank=Window(
+                            expression=Rank(),
+                            order_by=F('fast_run').asc()),
+                    ).order_by(
+                        # 'result_category',
+                        # 'fast_run'
+                        'rank'
+                    )
+                
+                # ToDo: define n in the event settings
+                # Add best n per category to the final runs
+                num_finalists = result_best_cat.filter(rank__lte = 4).count()
+                top_n_results_per_cat.extend(list(result_best_cat.filter(rank__lte = 4)))
+
+                final_runs = []
+                print(f'\n{5*"-"} < {num_finalists} > in cat {result_best_cat[0]["result_category"]} {5*"-"}')
+
+                for index, item in enumerate(list(result_best_cat.filter(rank__lte = 4))):
+                    print(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
+                    # print(f"Vor if - Index: {index}, RunNext: {run_next}")
+                    if (index > 0) and (index % num_lines == 0):
+                        run_next += 1
+                        line_nr = 1
+                        # print(f"IN if - Index: {index}, RunNext: {run_next}")
+                    else:
+                        line_nr = (index % num_lines) + 1
+                        # print(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
+                    final_runs.append(sj_results(run_nr=run_next, line_nr=line_nr, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
+
+                sj_results.objects.bulk_create(final_runs)
                 run_next += 1
-                line_nr = 1
-                # print(f"IN if - Index: {index}, RunNext: {run_next}")
-            else:
-                line_nr = (index % num_lines) + 1
-                # print(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
-            final_runs.append(sj_results(run_nr=run_next, line_nr=line_nr, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
-
-        sj_results.objects.bulk_create(final_runs)
-        run_next += 1
 
     return HttpResponseRedirect(reverse('results'))
 

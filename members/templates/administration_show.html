@@ -4,22 +4,32 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <table class="table table-fixed table-striped table-hover ">
+                <table class="table table-fixed table-striped ">
                     <thead>
                         <tr>
-                            <th scope="col">Testdaten #</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>
                                 <!-- Testdaten hinzufügen -->
-                                <form action="/addtestdata/" method="post">
+                                <form class="form-inline" action="/addtestdata/" method="post">
                                     {% csrf_token %}
-                                    <input type="number" name="add_count_runs" value="">
-                                    <input class="btn btn-primary btn-sm"
-                                           type="submit"
-                                           value="Test-Vorläufe erstellen" />
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="number"
+                                                   class="form-control"
+                                                   placeholder="Anzahl Läufe"
+                                                   name="add_count_runs"
+                                                   value="">
+                                        </div>
+                                        <div class="col">
+                                            <input class="btn btn-primary btn-sm"
+                                                   type="submit"
+                                                   value="Test-Vorläufe erstellen" />
+                                        </div>
+                                    </div>
                                 </form>
                             </td>
                         </tr>
@@ -28,9 +38,11 @@
                                 <!-- Generate final runs -->
                                 <form action="/setfinal/" method="post">
                                     {% csrf_token %}
-                                    <input class="btn btn-primary btn-sm"
-                                           type="submit"
-                                           value="Finalläufe erstellen" />
+                                    <button formnovalidate class="btn btn-success btn-sm" name="generate-final">Finalläufe erstellen</button>
+                                    <button formnovalidate
+                                            class="btn btn-danger btn-sm"
+                                            name="delete-final"
+                                            onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
                                 </form>
                             </td>
                         </tr>
