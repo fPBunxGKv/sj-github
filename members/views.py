@@ -49,7 +49,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def register_new(request,id=''):
-    print("ID in reg_new:",id)
+    event_info = get_event_info()
 
     isUUID, id = is_valid_uuid(id)
 
@@ -65,7 +65,6 @@ def register_new(request,id=''):
 
     # if this is a POST request we need to process the form data
     if request.method == "POST":
-        print("in POST")
         # create a form instance and populate it with data from the request:
         form = RegisterUserForm(request.POST or None)
         # check whether it's valid:
@@ -77,11 +76,11 @@ def register_new(request,id=''):
                 form = RegisterUserForm(request.POST, instance=member)
                 form.save()
                 # send status email to the user
-                sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
+                #sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
 
             else:
                 # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
-                print(form.cleaned_data["firstname"])
+                # print(form.cleaned_data["firstname"])
 
                 user_exists = sj_users.objects.filter(
                     firstname = form.cleaned_data["firstname"],
@@ -93,7 +92,6 @@ def register_new(request,id=''):
                     member = sj_users.objects.get(uuid=user_exists[0].uuid)
                     form = RegisterUserForm(request.POST, instance=member)
                     form.save()
-                    sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
                 else:
                     # add new user
                     # generate a unic startnumber
@@ -108,7 +106,54 @@ def register_new(request,id=''):
                             obj.save()
                             break
                         i += 1
-                    sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
+                    #sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
+
+            # ToDo: render body by jinja template (or other template engine)
+            if form.cleaned_data["state"] == 'YES':
+                subject = f'Anmeldebestätigung: {event_info["name"]}'
+                body = (
+                    f'Hallo {form.cleaned_data["firstname"]}'
+                    f'\n\n'
+                    f'Du bist für den {event_info["name"]} am {event_info["date"].strftime("%d. %B %Y")} angemeldet.'
+                    f'\n'
+                    f'Wir freuen uns auf einen spannenden Wettkampf.'
+                    f'\n\n'
+                    f'Sportliche Grüsse'
+                    f'\n'
+                    f'OK Schnällschte Jegenstorfer'                )
+            elif form.cleaned_data["state"] == 'NO':
+                subject = f'{event_info["name"]}'
+                body = (
+                    f'Hallo {form.cleaned_data["firstname"]}'
+                    f'\n\n'
+                    f'Schade kannst du diesmal nicht dabei sein.'
+                    f'\n'
+                    f'Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.'
+                    f'\n\n'
+                    f'Sportliche Grüsse'
+                    f'\n'
+                    f'OK Schnällschte Jegenstorfer'
+                    f'\n\n\n'
+                    f'Falls du zukünftig keine Einladung mehr bekommen möchstest, hier klicken [LINK unsubscribe]'
+                ) 
+            elif form.cleaned_data["state"] == 'DEL':
+                subject = f'Konto gelöscht'
+                body = (
+                    f'Hallo {form.cleaned_data["firstname"]}'
+                    f'\n\n'
+                    f'Wir haben deine Daten gelöscht.'
+                    f'\n'
+                    f'Gerne begrüssen wir dich weiterhin als Zuschauer.'
+                    f'\n\n'
+                    f'Sportliche Grüsse'
+                    f'\n'
+                    f'OK Schnällschte Jegenstorfer'
+                )
+                # print(f'Memberdaten (vor löschen): {member}, Member-ID {member.id}')
+                delete_user(member.id)
+
+            #print (f'Body: {body}')
+            sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], subject, body)
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
