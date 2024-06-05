@@ -29,11 +29,22 @@ DEBUG = env("DEBUG", default=False)
 
 SESSION_COOKIE_SECURE = True
 
+# E-Mail Settings
+SMTP_SERVER = env("EMAIL_SERVER", default="localhost")
+SMTP_PORT = env("EMAIL_PORT", default=25)
+SMTP_PASSWORD = env("EMAIL_PASSWORD", default="")
+
+EMAIL_FROM_DISPLAY_NAME = env("EMAIL_FROM_DISPLAY_NAME", default="From Display Name")
+EMAIL_FROM = env("EMAIL_FROM", default="foo@bar.com")
+
+EMAIL_BCC_DISPLAY_NAME = env("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
+EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
+
+# print(f'SETTINGS: Secret-Key: {SECRET_KEY}, Server: {SMTP_SERVER}, Port: {SMTP_PORT}, Sender: {SENDER_EMAIL}')
+
 ALLOWED_HOSTS = ['*', '.localhost', '127.0.0.1', '[::1]']
 
-
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -74,7 +85,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sj.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
