@@ -26,7 +26,7 @@ from .sj_views.runs import run, addrun, editrun, updaterun, set_final_runs, addr
 from .sj_views.admin import administration
 
 from datetime import *
-import uuid
+# import uuid
 
 from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, delete_user, generate_startnumber
 
@@ -106,54 +106,34 @@ def register_new(request,id=''):
                             obj.save()
                             break
                         i += 1
-                    #sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
 
-            # ToDo: render body by jinja template (or other template engine)
+            # Render the email boty text
+            templ_body = loader.get_template('emails/confirm_registation.html')
+
+            ctx_body = {
+                'state' : form.cleaned_data["state"],
+                'firstname' : form.cleaned_data["firstname"],
+                'form_data' : form.cleaned_data,
+                'event_info': get_event_info(),
+                }
+            
+            mail_body = templ_body.render(ctx_body)
+
+            # Generate email subject
             if form.cleaned_data["state"] == 'YES':
                 subject = f'Anmeldebestätigung: {event_info["name"]}'
-                body = (
-                    f'Hallo {form.cleaned_data["firstname"]}'
-                    f'\n\n'
-                    f'Du bist für den {event_info["name"]} am {event_info["date"].strftime("%d. %B %Y")} angemeldet.'
-                    f'\n'
-                    f'Wir freuen uns auf einen spannenden Wettkampf.'
-                    f'\n\n'
-                    f'Sportliche Grüsse'
-                    f'\n'
-                    f'OK Schnällschte Jegenstorfer'                )
+
             elif form.cleaned_data["state"] == 'NO':
                 subject = f'{event_info["name"]}'
-                body = (
-                    f'Hallo {form.cleaned_data["firstname"]}'
-                    f'\n\n'
-                    f'Schade kannst du diesmal nicht dabei sein.'
-                    f'\n'
-                    f'Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.'
-                    f'\n\n'
-                    f'Sportliche Grüsse'
-                    f'\n'
-                    f'OK Schnällschte Jegenstorfer'
-                    f'\n\n\n'
-                    f'Falls du zukünftig keine Einladung mehr bekommen möchstest, hier klicken [LINK unsubscribe]'
-                ) 
+
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
-                body = (
-                    f'Hallo {form.cleaned_data["firstname"]}'
-                    f'\n\n'
-                    f'Wir haben deine Daten gelöscht.'
-                    f'\n'
-                    f'Gerne begrüssen wir dich weiterhin als Zuschauer.'
-                    f'\n\n'
-                    f'Sportliche Grüsse'
-                    f'\n'
-                    f'OK Schnällschte Jegenstorfer'
-                )
+ 
                 # print(f'Memberdaten (vor löschen): {member}, Member-ID {member.id}')
                 delete_user(member.id)
 
-            #print (f'Body: {body}')
-            sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], subject, body)
+            #print (f'Body: {mail_body}')
+            sendmail(form.cleaned_data["email"], subject, mail_body)
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
@@ -170,10 +150,11 @@ def register_new(request,id=''):
             if sj_users.objects.filter(uuid=id).count() > 0:
                 member = sj_users.objects.get(uuid=id)
 
+                # already registerd
                 if member.state == 'YES':
                     return HttpResponseRedirect(reverse('thankyou'))
                 elif member.state != 'DEL':
-                    form = RegisterUserForm(instance=member)
+                    form = RegisterUserForm(instance=member, initial={'state': ''})
             else:
                 form = RegisterUserForm()
         else:
@@ -203,8 +184,8 @@ def register_string(request, id):
 
     return HttpResponseRedirect('/register/')
 
-def thankyou(request):
-    print("IN THANKYOU")
+def thankyou(request, state=''):
+    print("IN view THANKYOU - ", state)
     event_info = get_event_info()
 
     template = loader.get_template('thankyou.html')
@@ -217,8 +198,13 @@ def thankyou(request):
 
 @login_required
 def users(request):
-    mymembers = sj_users.objects.all().exclude(state='DEL').values().order_by('firstname','lastname')
+    # Fetch users with state != 'DEL' and order by firstname and lastname
+    mymembers = sj_users.objects.exclude(state='DEL').values().order_by('firstname', 'lastname')
+    
+    # Initialize the form
     form = UserForm(initial={'state': 'YES'})
+
+    # Create a paginator
     paginator = Paginator(mymembers, 15)
     template = loader.get_template('users_show.html')
 

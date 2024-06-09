@@ -1,0 +1,22 @@
+{% if num_runners < 2 %}
+Hallo {{ user_datasets.0.firstname }},
+
+Schon bald ist es wieder soweit, der {{ event_info.name | default:"" }} findet am {{ event_info.date | date:"l, d. F Y" | default:"" }} statt.
+Du kannst dich bereits jetzt mittels den untenstehenden Link anmelden.
+
+    Dein persönlicher Anmelde-Link: {{main_url}}/register/{{ user_datasets.0.uuid }}
+
+Sportliche Grüsse
+OK Schnällschte Jegenstorfer
+{% else %}
+Hallo zusammen,
+
+Schon bald ist es wieder soweit, der {{ event_info.name | default:"" }} findet am {{ event_info.date | date:"l, d. F Y" | default:"" }} statt.
+Ihr könnt euch bereits jetzt mittels den untenstehenden Links anmelden.
+{% for user in user_datasets %}
+{{ user.firstname }}:
+    {{main_url}}/register/{{ user.uuid }}
+{% endfor %}
+Sportliche Grüsse
+OK Schnällschte Jegenstorfer
+{% endif %}

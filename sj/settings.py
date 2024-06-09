@@ -40,7 +40,9 @@ EMAIL_FROM = env("EMAIL_FROM", default="foo@bar.com")
 EMAIL_BCC_DISPLAY_NAME = env("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
 EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
 
-# print(f'SETTINGS: Secret-Key: {SECRET_KEY}, Server: {SMTP_SERVER}, Port: {SMTP_PORT}, Sender: {SENDER_EMAIL}')
+MAIN_URL = env("MAIN_URL", default="http://127.0.0.1:8000")
+
+#print(f'SETTINGS: Secret-Key: {SECRET_KEY}, Server: {SMTP_SERVER}, Port: {SMTP_PORT}, Main URL: {MAIN_URL}')
 
 ALLOWED_HOSTS = ['*', '.localhost', '127.0.0.1', '[::1]']
 

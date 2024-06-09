@@ -1,0 +1,30 @@
+{% if form_data.state == 'YES' %}
+Hallo {{ firstname }}
+
+Du bist für den {{ event_info.name }} am {{ event_info.date | date:"l, d. F Y" | default:"" }} angemeldet.
+Wir freuen uns auf einen spannenden Wettkampf.
+
+Sportliche Grüsse
+OK Schnällschte Jegenstorfer
+
+- TEMLATE -
+{% elif form_data.state == 'NO' %}
+Hallo {{ firstname }}
+
+Schade kannst du diesmal nicht aktiv dabei sein.
+Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.
+
+Sportliche Grüsse
+OK Schnällschte Jegenstorfer
+
+- TEMLATE -
+{% elif state == 'DEL' %}
+Hallo {{ firstname }}
+
+Wir haben deine Daten gelöscht.
+
+Sportliche Grüsse
+OK Schnällschte Jegenstorfer
+
+- TEMLATE -
+{% endif %}

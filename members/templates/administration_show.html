@@ -12,10 +12,10 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
-                                <!-- Testdaten hinzufügen -->
-                                <form class="form-inline" action="/addtestdata/" method="post">
-                                    {% csrf_token %}
+                            <!-- Testdaten hinzufügen -->
+                            <form class="form-inline" action="/addtestdata/" method="post">
+                                {% csrf_token %}
+                                <td>
                                     <div class="row">
                                         <div class="col">
                                             <input type="number"
@@ -30,21 +30,34 @@
                                                    value="Test-Vorläufe erstellen" />
                                         </div>
                                     </div>
-                                </form>
-                            </td>
+                                </td>
+                            </form>
                         </tr>
                         <tr>
-                            <td>
-                                <!-- Generate final runs -->
-                                <form action="/setfinal/" method="post">
+                            <!-- Generate final runs -->
+                            <form action="/setfinal/" method="post">
+                                <td>
                                     {% csrf_token %}
                                     <button formnovalidate class="btn btn-success btn-sm" name="generate-final">Finalläufe erstellen</button>
                                     <button formnovalidate
                                             class="btn btn-danger btn-sm"
                                             name="delete-final"
                                             onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
-                                </form>
-                            </td>
+                                </td>
+                            </form>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <!-- Send Emails -->
+                            <form method="post" action="{% url 'administration' %}">
+                                <td>
+                                    {% csrf_token %}
+                                    <button formnovalidate class="btn btn-danger" name="reset_admin_state">1. User admin Status zurücksetzen</button>
+                                    <button formnovalidate class="btn btn-success" name="send_invitation_email">2. Email Einladungen senden</button>
+                                </td>
+                            </form>
                         </tr>
                     </tbody>
                 </table>

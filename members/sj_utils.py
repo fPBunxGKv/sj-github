@@ -14,7 +14,7 @@ import smtplib, ssl
 # Import the email modules we'll need
 from email.message import EmailMessage
 
-# E-Mail Settings
+# ENV Settings (E-Mail)
 from django.conf import settings
 
 
@@ -82,7 +82,7 @@ def is_valid_uuid(value):
     except ValueError:
         return False, ''
 
-def sendmail(state='na',firstname='na',email='na', msg_subj='Subject', msg_body='Message Body Text', value=''):
+def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_format='html'):
 
     # print("Will send Email for:", value, state, firstname, email)
     # print(f'SEND-MAIL - Server: {settings.SMTP_SERVER}, Port: {settings.SMTP_PORT}, Sender: {settings.SENDER_EMAIL}')

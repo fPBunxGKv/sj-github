@@ -31,6 +31,7 @@ class sj_users(models.Model):
     city = models.CharField(max_length=50, default='')
     startnum = models.IntegerField(null=False, default=0)
     state = models.CharField(max_length=10, choices=STATE)
+    admin_state = models.CharField(max_length=10, default='')
 
     def __str__(self):
         return f"{self.lastname}, {self.firstname}"
