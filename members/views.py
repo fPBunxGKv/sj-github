@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 from django.db.models import Min
 from django.db.models import Count
 
-from django.db.models import F, Window
+from django.db.models import F, Window, Q
 from django.db.models.functions import Rank
 
 from .models import sj_users
@@ -116,7 +116,7 @@ def register_new(request,id=''):
                 'form_data' : form.cleaned_data,
                 'event_info': get_event_info(),
                 }
-            
+
             mail_body = templ_body.render(ctx_body)
 
             # Generate email subject
@@ -128,7 +128,7 @@ def register_new(request,id=''):
 
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
- 
+
                 # print(f'Memberdaten (vor löschen): {member}, Member-ID {member.id}')
                 delete_user(member.id)
 
@@ -201,14 +201,13 @@ def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
     mymembers = sj_users.objects.exclude(state='DEL').values().order_by('firstname', 'lastname')
     
+    searched = ""
     # Initialize the form
     form = UserForm(initial={'state': 'YES'})
 
-    # Create a paginator
-    paginator = Paginator(mymembers, 15)
-    template = loader.get_template('users_show.html')
-
     if request.method == 'POST':
+        searched = request.POST.get('query')
+
         if 'save' in request.POST:
             pk = request.POST.get('save')
             if not pk:
@@ -232,6 +231,12 @@ def users(request):
             pk = request.POST.get('edit')
             user = sj_users.objects.get(id=pk)
             form = UserForm(instance=user)
+        elif 'search' in request.POST:
+            mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
+
+    # Create a paginator
+    paginator = Paginator(mymembers, 12)
+    template = loader.get_template('users_show.html')
 
     page_number = request.GET.get("page")
     # url_parameter = request.GET.get("q")
@@ -241,6 +246,7 @@ def users(request):
         'mymembers': mymembers,
         'page_obj': page_obj,
         'form': form,
+        'searched' : searched,
         }
 
     return HttpResponse(template.render(context, request))
