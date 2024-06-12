@@ -15,6 +15,7 @@ members/static/
 
 # Env
 .env
+.python-version
 myvenv/
 venv/
 

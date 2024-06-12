@@ -26,7 +26,7 @@ from .sj_views.runs import run, addrun, editrun, updaterun, set_final_runs, addr
 from .sj_views.admin import administration
 
 from datetime import *
-import uuid
+# import uuid
 
 from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, delete_user, generate_startnumber
 
@@ -49,7 +49,7 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def register_new(request,id=''):
-    print("ID in reg_new:",id)
+    event_info = get_event_info()
 
     isUUID, id = is_valid_uuid(id)
 
@@ -65,7 +65,6 @@ def register_new(request,id=''):
 
     # if this is a POST request we need to process the form data
     if request.method == "POST":
-        print("in POST")
         # create a form instance and populate it with data from the request:
         form = RegisterUserForm(request.POST or None)
         # check whether it's valid:
@@ -77,11 +76,11 @@ def register_new(request,id=''):
                 form = RegisterUserForm(request.POST, instance=member)
                 form.save()
                 # send status email to the user
-                sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
+                #sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
 
             else:
                 # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
-                print(form.cleaned_data["firstname"])
+                # print(form.cleaned_data["firstname"])
 
                 user_exists = sj_users.objects.filter(
                     firstname = form.cleaned_data["firstname"],
@@ -93,7 +92,6 @@ def register_new(request,id=''):
                     member = sj_users.objects.get(uuid=user_exists[0].uuid)
                     form = RegisterUserForm(request.POST, instance=member)
                     form.save()
-                    sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
                 else:
                     # add new user
                     # generate a unic startnumber
@@ -108,7 +106,34 @@ def register_new(request,id=''):
                             obj.save()
                             break
                         i += 1
-                    sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "New User")
+
+            # Render the email boty text
+            templ_body = loader.get_template('emails/confirm_registation.html')
+
+            ctx_body = {
+                'state' : form.cleaned_data["state"],
+                'firstname' : form.cleaned_data["firstname"],
+                'form_data' : form.cleaned_data,
+                'event_info': get_event_info(),
+                }
+            
+            mail_body = templ_body.render(ctx_body)
+
+            # Generate email subject
+            if form.cleaned_data["state"] == 'YES':
+                subject = f'Anmeldebestätigung: {event_info["name"]}'
+
+            elif form.cleaned_data["state"] == 'NO':
+                subject = f'{event_info["name"]}'
+
+            elif form.cleaned_data["state"] == 'DEL':
+                subject = f'Konto gelöscht'
+ 
+                # print(f'Memberdaten (vor löschen): {member}, Member-ID {member.id}')
+                delete_user(member.id)
+
+            #print (f'Body: {mail_body}')
+            sendmail(form.cleaned_data["email"], subject, mail_body)
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
@@ -125,10 +150,11 @@ def register_new(request,id=''):
             if sj_users.objects.filter(uuid=id).count() > 0:
                 member = sj_users.objects.get(uuid=id)
 
+                # already registerd
                 if member.state == 'YES':
                     return HttpResponseRedirect(reverse('thankyou'))
                 elif member.state != 'DEL':
-                    form = RegisterUserForm(instance=member)
+                    form = RegisterUserForm(instance=member, initial={'state': ''})
             else:
                 form = RegisterUserForm()
         else:
@@ -158,8 +184,8 @@ def register_string(request, id):
 
     return HttpResponseRedirect('/register/')
 
-def thankyou(request):
-    print("IN THANKYOU")
+def thankyou(request, state=''):
+    print("IN view THANKYOU - ", state)
     event_info = get_event_info()
 
     template = loader.get_template('thankyou.html')
@@ -172,8 +198,13 @@ def thankyou(request):
 
 @login_required
 def users(request):
-    mymembers = sj_users.objects.all().exclude(state='DEL').values().order_by('firstname','lastname')
+    # Fetch users with state != 'DEL' and order by firstname and lastname
+    mymembers = sj_users.objects.exclude(state='DEL').values().order_by('firstname', 'lastname')
+    
+    # Initialize the form
     form = UserForm(initial={'state': 'YES'})
+
+    # Create a paginator
     paginator = Paginator(mymembers, 15)
     template = loader.get_template('users_show.html')
 

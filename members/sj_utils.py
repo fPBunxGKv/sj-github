@@ -8,10 +8,20 @@ from escpos.printer import Network, Dummy
 
 import uuid
 
+# Import smtplib for sending email function
+import smtplib, ssl
+
+# Import the email modules we'll need
+from email.message import EmailMessage
+
+# ENV Settings (E-Mail)
+from django.conf import settings
+
+
 def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default'):
     print(f"Print-Templatename: { template }")
     # test if logo file is present
-    
+
     # init dummy printer
     d = Dummy()
 
@@ -34,7 +44,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
         d.set(align='center', font='a', bold=True, width=2, height=2, density=9, double_width=False, double_height=False)
         d.textln(user_data.result_category)
         d.ln(1)
-        
+
         if run_time > 0:
             d.text(f"--  {run_time:2.2f}  --\n")
         else:
@@ -60,11 +70,10 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
         p = Network(host=printer_ip, timeout=1)
         p._raw(d.output)
         return True
-    
+
     except Exception as error:
         print("Printing error:", type(error).__name__, "-", error)
         return False
-
 
 def is_valid_uuid(value):
     try:
@@ -73,11 +82,36 @@ def is_valid_uuid(value):
     except ValueError:
         return False, ''
 
+def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_format='html'):
 
-def sendmail(state='na',firstmane='na',email='na', value=''):
-    print("Will send Email for:", value, state, firstmane, email)
+    # print("Will send Email for:", value, state, firstname, email)
+    # print(f'SEND-MAIL - Server: {settings.SMTP_SERVER}, Port: {settings.SMTP_PORT}, Sender: {settings.SENDER_EMAIL}')
 
+    msg = EmailMessage()
+    msg.set_content(msg_body)
 
+    msg['From'] = f'{settings.EMAIL_FROM_DISPLAY_NAME} <{settings.EMAIL_FROM}>'
+    msg['To'] = email
+    msg['Bcc'] = f'{settings.EMAIL_BCC_DISPLAY_NAME} <{settings.EMAIL_BCC}>'
+    msg['Subject'] = msg_subj
+
+    # Create a secure SSL context
+    context = ssl.create_default_context()
+
+    # Try to log in to server and send email
+    try:
+        server = smtplib.SMTP(settings.SMTP_SERVER,settings.SMTP_PORT)
+        server.starttls(context=context) # Secure the connection
+        server.login(settings.EMAIL_FROM, settings.SMTP_PASSWORD)
+        server.send_message(msg)
+        send_success = True
+    except Exception as e:
+        # Print any error messages to stdout
+        print(f'Exception in sendmail: {e}')
+        send_success = False
+    finally:
+        server.quit()
+        return send_success
 
 def get_event_info():
     active_event = sj_events.objects.filter(event_active=True).values('id','event_name','event_date','event_reg_start','event_reg_end','event_reg_open','event_num_lines').first()

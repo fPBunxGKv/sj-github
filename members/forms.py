@@ -135,7 +135,8 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.fields['phone'].required = False
+        self.fields['email'].required = False
+        self.fields['city'].required = False
     
     # specify the name of model to use
     class Meta:
@@ -146,14 +147,16 @@ class UserForm(forms.ModelForm):
         
         widgets = {
             'firstname': forms.TextInput(attrs={
-                'class': 'form-outline',
+                'class': 'form-floating mb-4',
                 'class': 'form-control form-control-md',
                 'required': True,
+                'placeholder': 'Vorname *',
                 }),
             'lastname': forms.TextInput(attrs={
                 'class': 'form-outline',
                 'class': 'form-control form-control-md',
                 'required': True,
+                'placeholder': 'Nachname *',
                 }),
             'byear': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -168,7 +171,6 @@ class UserForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={
                 'class': 'form-outline',
                 'class': 'form-control form-control-md',
-                'required': True,
                 }),
             'phone': forms.TextInput(attrs={
                 'class': 'form-outline',
@@ -177,7 +179,6 @@ class UserForm(forms.ModelForm):
             'city': forms.TextInput(attrs={
                 'class': 'form-outline',
                 'class': 'form-control form-control-md',
-                'required': True,
                 }),
             'state': forms.Select(attrs={
                 'class': 'form-control',
