@@ -10,6 +10,8 @@
             <div class="col">
                 <h1>Members</h1>
                 <ul>
+                    <form layout='floating' method="post" action="{% url 'users' %}">
+                        {% csrf_token %}
                     <div class="input-group mb-3">
                         <input autofocus
                                type="text"
@@ -106,7 +108,6 @@
 <div class="container">
     <div class="col">
         <div class="row">
-            <form layout='floating' method="post" action="{% url 'users' %}">
                 {% csrf_token %}
                 <table class="table table-striped table-hover">
                     <thead>

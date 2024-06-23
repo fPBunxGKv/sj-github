@@ -5,7 +5,7 @@ from django.template import loader
 from django.urls import reverse
 from django.core.paginator import Paginator
 
-from django.db.models import Min
+from django.db.models import Min, Q
 from django.db.models import Count
 
 from django.db.models import F, Window
@@ -201,14 +201,17 @@ def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
     mymembers = sj_users.objects.exclude(state='DEL').values().order_by('firstname', 'lastname')
     
+    print("Function users - begin: ", mymembers.count())
+    
+    searched = ""
+
     # Initialize the form
     form = UserForm(initial={'state': 'YES'})
 
-    # Create a paginator
-    paginator = Paginator(mymembers, 15)
-    template = loader.get_template('users_show.html')
-
     if request.method == 'POST':
+        searched = request.POST.get('query')
+        if searched:
+            mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
         if 'save' in request.POST:
             pk = request.POST.get('save')
             if not pk:
@@ -232,12 +235,21 @@ def users(request):
             pk = request.POST.get('edit')
             user = sj_users.objects.get(id=pk)
             form = UserForm(instance=user)
+        elif 'search' in request.POST:
+            print('query1 in post request...', searched)
+
+            print('in post search')
+            mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
+    # Create a paginator
+    paginator = Paginator(mymembers, 12)
+    template = loader.get_template('users_show.html')
 
     page_number = request.GET.get("page")
     # url_parameter = request.GET.get("q")
     page_obj = paginator.get_page(page_number)
 
     context = {
+        'searched' : searched,
         'mymembers': mymembers,
         'page_obj': page_obj,
         'form': form,
