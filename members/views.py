@@ -5,6 +5,8 @@ from django.template import loader
 from django.urls import reverse
 from django.core.paginator import Paginator
 
+from django.conf import settings
+
 from django.db.models import Min, Q
 from django.db.models import Count
 
@@ -209,7 +211,11 @@ def users(request):
     form = UserForm(initial={'state': 'YES'})
 
     if request.method == 'POST':
-        searched = request.POST.get('query')
+        if 'clear' in request.POST:
+            searched = ''
+        else:
+            searched = request.POST.get('query')
+
         if searched:
             mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
         if 'save' in request.POST:
@@ -225,6 +231,17 @@ def users(request):
 
             # ToDo
             # Startzettel ausdrucken
+            if obj.state == 'YES':
+                prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=2)
+            else:
+                print(f'User {obj.firstname} {obj.lastname} is not registert: {obj.state}.')
+                prn_status=False
+            
+            if prn_status:
+                print("REG - printed")
+                obj.admin_state = "PRINTED"
+            else:
+                print(f'REG - not printed: {prn_status}')
 
             obj.save()
             form = UserForm(initial={'state': 'YES'})
@@ -236,7 +253,7 @@ def users(request):
             user = sj_users.objects.get(id=pk)
             form = UserForm(instance=user)
         elif 'search' in request.POST:
-            print('query1 in post request...', searched)
+            print('query in post request...', searched)
 
             print('in post search')
             mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))

@@ -17,8 +17,46 @@ from email.message import EmailMessage
 # ENV Settings (E-Mail)
 from django.conf import settings
 
+def calc_cat(u_gender, u_byear, event_year):
+    """ Berechnet die Kategorie
 
-def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default'):
+    Uebergabe:
+        Geschlecht
+        Geburtsjahr
+        Anlass Jahr
+
+        ToDo:
+            - "Formel" in DB abbilden
+            -
+    """
+    u_age = event_year - u_byear
+    # print('Kategorie berechnen, Gender:', u_gender, 'u_byear:', u_byear, 'u_age:', u_age, 'event_year:', event_year)
+    mstring = str(u_age)
+    match mstring:
+        case '0' | '1' | '2' | '3' | '4' | '5':
+            cat_n =  '05'
+        case '6':
+            cat_n =  '06'
+        case '7':
+            cat_n =  '07'
+        case '8':
+            cat_n =  '08'
+        case '9':
+            cat_n =  '09'
+        case '10':
+            cat_n =  '10'
+        case '11':
+            cat_n =  '11'
+        case '12' | '13':
+            cat_n =  '12/13'
+        case '14' | '15':
+            cat_n =  '14/15'
+        case _:
+            cat_n =  '16/Open'
+    return str(u_gender + cat_n)
+
+
+def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1):
     print(f"Print-Templatename: { template }")
     # test if logo file is present
 
@@ -55,9 +93,21 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
         d.cut()
 
     elif template == 'register':
-        d.text(f"Template: {template}\n")
-        d.ln(2)
-        d.cut()
+        print_cat = calc_cat(user_data.gender,user_data.byear,2024)
+        for n in range(num_copies):
+            d.set_with_default(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=False, flip=False, double_width=False, double_height=False, custom_size=False)
+
+            d.textln(user_data.firstname)
+            d.textln(user_data.lastname)
+
+            d.textln("--------------")
+            d.textln(print_cat)
+
+            d.ln(2)
+            d.barcode(str(user_data.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='A', align_ct=True, function_type=None, check=True, force_software=False)
+            d.qr(str(user_data.startnum),size=5)
+
+            d.cut()
 
     else:
         d.text(f"Template: {template}\n")
