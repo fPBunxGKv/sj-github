@@ -40,6 +40,10 @@ EMAIL_FROM = env("EMAIL_FROM", default="foo@bar.com")
 EMAIL_BCC_DISPLAY_NAME = env("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
 EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
 
+# Printer Settings
+PRINTER_RUN_IP = env("PRINTER_RUN_IP", default="192.168.0.10")
+PRINTER_REG_IP = env("PRINTER_REG_IP", default="192.168.0.11")
+
 MAIN_URL = env("MAIN_URL", default="http://127.0.0.1:8000")
 
 #print(f'SETTINGS: Secret-Key: {SECRET_KEY}, Server: {SMTP_SERVER}, Port: {SMTP_PORT}, Main URL: {MAIN_URL}')
