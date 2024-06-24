@@ -23,6 +23,10 @@
                                aria-describedby="button-addon2">
                         <button formnovalidate
                                 class="btn btn-outline-secondary"
+                                name="clear"
+                                id="button-addon2">Alle anzeigen</button>
+                        <button formnovalidate
+                                class="btn btn-outline-secondary"
                                 name="search"
                                 id="button-addon2">Suchen</button>
                     </div>
@@ -138,7 +142,7 @@
                                     <td>{{ x.gender }}</td>
                                     <td>{{ x.email }}</td>
                                     <td>{{ x.city }}</td>
-                                    <td>{{ x.state }}</td>
+                                    <td>{{ x.state }} / {{x.admin_state}}</td>
                                     <td>{{ x.startnum }}</td>
                                     <td>
                                         <button formnovalidate class="btn btn-success" name="edit" value="{{ x.id }}">Ändern</button>
