@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+
+{% block extra_head %}
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<!-- 
+
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+-->
+
+{% endblock %}
+
 {% block content %}
     <section class="vh-20 gradient-custom">
         <div class="container py-5 h-20">
@@ -33,6 +44,9 @@
                                                value=""
                                                class="form-control form-control-sm">
                                         <label class="form-label" for="addline{{ line | add:'1' }}">Bahn {{ line | add:"1" }}</label>
+																		
+                                        <button onclick="startQrReader({{ line | add:'1' }})">Start QR Reader {{ line | add:"1" }}</button>
+										
                                     </div>
                                 </div>
                             {% endfor %}
@@ -41,6 +55,8 @@
                                     <input class="btn btn-primary btn-sm" type="submit" value="Submit" />
                                 </div>
                             </div>
+                                <!-- <div id="reader" style="display:none;" width="600px"></div> -->
+                                <div id="reader" style="display:block;" width="600px"></div>
                         </div>
                     </form>
                 </div>
@@ -95,4 +111,98 @@
                     </div>
                 </div>
             </section>
-        {% endblock %}
+
+            <script>
+                function startQrReader(buttonId) {
+                    //document.getElementById('reader').style.display = 'block';
+
+
+                    function onScanSuccess(decodedText, decodedResult) {
+                        // handle the scanned code as you like, for example:
+                        console.log(`Code matched = ${decodedText}`, decodedResult);
+                    }
+
+                    function onScanFailure(error) {
+                        // handle scan failure, usually better to ignore and keep scanning.
+                        // for example:
+                        console.warn(`Code scan error = ${error}`);
+                    }
+
+                    let html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+                            qrbox: {width: 250, height: 250},
+                            fps: 10, 
+                            videoConstraints: {facingMode: { exact: "environment"}},
+                        }, 
+                        false);
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+
+/*
+                    function onScanSuccess(qrCodeMessage) {
+                        document.getElementById(`addline${buttonId}`).value = qrCodeMessage;
+                        html5QrCode.stop().then(ignore => {
+                            document.getElementById('reader').style.display = 'none';
+                        }).catch(err => {
+                            console.error('Unable to stop scanning.', err);
+                        });
+                        html5QrCode.clear();
+                    }
+
+                    function onScanError(errorMessage) {
+                        console.warn(`QR code scan error: ${errorMessage}`);
+                    }
+
+                    //var html5QrCode = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+                    //html5QrCode.render(onScanSuccess);
+
+
+                    var html5QrCode = new Html5Qrcode("reader");
+                    html5QrCode.start(
+                        { facingMode: "environment" }, 
+                        {
+                            fps: 10,    
+                            qrbox: { width: 250, height: 250 }  
+                        },
+                        onScanSuccess,
+                        onScanError
+                     ).catch(err => {
+                         console.error('Unable to start scanning.', err);
+                     });
+
+ 
+
+
+
+                    let html5QrcodeScanner = new Html5QrcodeScanner("reader",
+                        { fps: 10, qrbox: {width: 250, height: 250} },
+                        false);
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+
+                        supportedScanTypes: [
+                            Html5QrcodeScanType.SCAN_TYPE_CAMERA
+                        ],
+
+let html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", 
+    { 
+        fps: 10,
+        qrbox: qrboxFunction,
+        experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true
+        },
+        rememberLastUsedCamera: true,
+        supportedScanTypes: [
+            Html5QrcodeScanType.SCAN_TYPE_FILE, 
+            Html5QrcodeScanType.SCAN_TYPE_CAMERA
+        ],
+        aspectRatio: 1.7777778
+    });
+
+
+*/
+
+
+                }
+            </script>
+{% endblock %}

@@ -1,0 +1,21 @@
+[
+  {
+    "model": "members.sj_users",
+    "pk": 2,
+    "fields": {
+      "created_at": "2023-05-09T19:09:33.645Z",
+      "updated_at": "2023-05-09T19:09:33.645Z",
+      "uuid": "214565a7-8941-4891-bf11-7e2bdb7e8ef8",
+      "firstname": "Hans2",
+      "lastname": "Muster2",
+      "byear": 0,
+      "gender": "m",
+      "email": "h.m@test.ch",
+      "phone": "0123456",
+      "city": "Bern",
+      "startnum": 1,
+      "state": "aktiv"
+    }
+  }
+]
+

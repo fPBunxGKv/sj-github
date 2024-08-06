@@ -27,7 +27,10 @@ SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key-z4fbAa2z9h4E_P_jpyhF")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False)
 
-SESSION_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_DOMAIN = None
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 ALLOWED_HOSTS = ['*', '.localhost', '127.0.0.1', '[::1]']
 
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_bootstrap5',
     'members.apps.MembersConfig',
+    'sslserver',
 ]
 
 MIDDLEWARE = [
