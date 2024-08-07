@@ -36,7 +36,7 @@
                                         <br>
                                         {% if value.state %}Status: {{ value.state | default:'---' }}{% endif %}
                                         <br>
-                                        <input type="number"
+                                        <input {% if key == 1 %}autofocus{% endif %} type="number"
                                                id="edit_run"
                                                name="edit_run{{ key }}"
                                                value="{{ value.startnum }}"

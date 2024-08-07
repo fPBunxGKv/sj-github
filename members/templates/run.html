@@ -23,18 +23,18 @@
                         {% for line in num_lines %}
                             {% if num_lines > 4 %}
                                 <div class="col-sm-1 mb-2">
-                                {% else %}
-                                    <div class="col-sm-2 mb-2">
-                                    {% endif %}
-                                    <div class="form-outline">
-                                        <input type="number"
-                                               id="addline{{ line | add:'1' }}"
-                                               name="addline{{ line | add:'1' }}"
-                                               value=""
-                                               class="form-control form-control-sm">
-                                        <label class="form-label" for="addline{{ line | add:'1' }}">Bahn {{ line | add:"1" }}</label>
-                                    </div>
-                                </div>
+                            {% else %}
+                                <div class="col-sm-2 mb-2">
+                            {% endif %}
+                            <div class="form-outline">
+                                <input {% if line == 0 %}autofocus{% endif %} type="number"
+                                        id="addline{{ line | add:'1' }}"
+                                        name="addline{{ line | add:'1' }}"
+                                        value=""
+                                        class="form-control form-control-sm">
+                                <label class="form-label" for="addline{{ line | add:'1' }}">Bahn {{ line | add:"1" }}</label>
+                            </div>
+                            </div>
                             {% endfor %}
                             <div class="col-sm-1 mb-2">
                                 <div>
