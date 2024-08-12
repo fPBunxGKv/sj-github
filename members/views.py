@@ -325,7 +325,6 @@ def saveresults(request):
     # DEBUG
     if (debug_level >= 2): print('SAVE-RESULTS --> request')
 
-    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
     num_lines = event_info['lines']
     event_id = event_info['id']
@@ -333,10 +332,8 @@ def saveresults(request):
     lines=array('f', [])
     lines = [0] * num_lines
 
-    # for ll in request.POST:
-    #     print(ll)
-
     num = int(request.POST['run_num'])
+
     for i in range(num_lines):
         k = 'add_res' + str(i+1)
 
@@ -351,23 +348,30 @@ def saveresults(request):
         if lines[i] != -1:
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
-            previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id).aggregate(Min('result'))['result__min']
+            previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
 
-            print(f"{result_add_res.fk_sj_users}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+            print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
 
-            if lines[i] < previous_min:
-                print(" - Zettel für Wäscheleine drucken!")
+            if (previous_min == None):
+                print(" - Zettel für Wäscheleine drucken (none)!")
                 # get userdata to print
-                print(f"Vorname: {result_add_res.fk_sj_users}")
                 print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
-
-
+            elif (lines[i] < previous_min):
+                print(" - Zettel für Wäscheleine drucken (besser)!")
+                # get userdata to print
+                print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
             else:
                 print(" - Leider keine neue Bestzeit!")
 
+            # Set the sate for the result - used for ranking (qualy/final)
+            if (result_add_res.state == 'SQR'):
+                result_add_res.state = 'RQR'
+            elif (result_add_res.state == 'SFR'):
+                result_add_res.state = 'RFR'
+            else:
+                print("!!! Resultat: Kein gültiger Status !!!")
+                result_add_res.state = 'DNF'
 
-
-            result_add_res.state = 'RQR'
             result_add_res.result = lines[i]
             result_add_res.save()
 
