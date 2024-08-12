@@ -4,8 +4,39 @@
     <!-- Tabelle mit den Resultaten -->
     <div class="container">
         <div class="row">
-            <div class="col">
-                <caption><b>Vorläufe</b></caption>
+            <div class="column">
+                <h1 style="text-align:left">Finalläufe</h1>
+                {% for c in fin_categories %}
+                    <table class="table table-fixed table-striped caption-top">
+                        <caption><b>Kategorie {{ c.result_category }}</b></caption>
+                        <thead>
+                            <tr>
+                                <th style="width:3%" class="th-lg"></th>
+                                <th style="width:10%" class="th-lg">Rang</th>
+                                <th style="width:20%" class="th-lg">Name</th>
+                                <th style="width:5%" style="text-align:right">Zeit</th>
+                                <th class="th-lg">Kategorie</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in fin_results_per_cat %}
+                                {% if r.result_category == c.result_category %}
+                                    <tr>
+                                        <td></td>
+                                        <td> {{ r.rank }}</td>
+                                        <td>{{ r.fk_sj_users__firstname }} {{ r.fk_sj_users__lastname }}</td>
+                                        <td style="text-align:right">{{ r.fast_run|stringformat:'0.2f' }}</td>
+                                        <td>{{ r.result_category }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+        <div class="row">
+            <div class="column">
+                <h1 style="text-align:left">Vorläufe</h1>
                 {% for c in categories %}
                     <table class="table table-fixed table-striped caption-top">
                         <caption><b>Kategorie {{ c.result_category }}</b></caption>
@@ -33,33 +64,32 @@
                         </tbody>
                     </table>
                 {% endfor %}
-                <div class="row">
-                    <div class="col">
-                        <table class="table table-striped caption-top">
-                            <caption><b>Alle Kategorien</b></caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col"></th>
-                                    <th scope="col">Rang</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Zeit</th>
-                                    <th scope="col">Kategorie</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for r in result_best_all %}
-                                    <tr>
-                                        <td></td>
-                                        <td>{{ r.rank }}</td>
-                                        <td>{{ r.fk_sj_users__firstname }} {{ r.fk_sj_users__lastname }}</td>
-                                        <td>{{ r.fast_run | stringformat:'0.2f' }}</td>
-                                        <td>{{ r.result_category }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
-        </section>
+            <div class="column">
+                <table class="table table-striped caption-top">
+                    <h1 style="text-align:left">Alle Kategorien</h1>
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Rang</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Zeit</th>
+                            <th scope="col">Kategorie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in result_best_all %}
+                            <tr>
+                                <td></td>
+                                <td>{{ r.rank }}</td>
+                                <td>{{ r.fk_sj_users__firstname }} {{ r.fk_sj_users__lastname }}</td>
+                                <td>{{ r.fast_run | stringformat:'0.2f' }}</td>
+                                <td>{{ r.result_category }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     {% endblock %}

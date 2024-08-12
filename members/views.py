@@ -494,12 +494,54 @@ def updaterecord(request, id):
     member.save()
     return HttpResponseRedirect(reverse('users'))
 
+
 # Rangliste
 def ranking(request):
 
     # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
     event_id = event_info['id']
+
+
+    # Kategorien mit Resultaten auslesen
+    fin_dist_cat = sj_results.objects.filter(
+            fk_sj_events=event_id,
+            state='RFR'
+            ).values(
+                'result_category'
+            ).distinct(
+
+            ).order_by(
+                'result_category'
+            )
+
+
+    # Final-Resultate pro Kategorie -> Rangliste
+    fin_results_per_cat = []
+
+    for q in fin_dist_cat:
+        # Query Resultate pro Kategorie
+        result_best_cat=list(sj_results.objects.filter(
+                fk_sj_events=event_id,
+                state='RFR',
+                result_category=q['result_category'],
+            ).values(
+                'fk_sj_users',
+                'fk_sj_users__firstname',
+                'fk_sj_users__lastname',
+                'result_category',
+            ).annotate(
+                fast_run=Min('result'),
+                rank=Window(
+                    expression=Rank(),
+                    order_by=F('fast_run').asc()),
+            ).order_by(
+                'result_category',
+                'fast_run'
+            )
+        )
+        # Ranglist pro Kategorie zu Array hinzufügen
+        fin_results_per_cat.extend(result_best_cat)
 
     # Kategorien mit Resultaten auslesen
     dist_cat = sj_results.objects.filter(
@@ -512,13 +554,6 @@ def ranking(request):
             ).order_by(
                 'result_category'
             )
-
-    # DEBUG - Kategorien ausgeben
-    if (debug_level >= 2):
-        print('-'*20, 'category (disinct)','-'*20)
-        for q in dist_cat:
-            print(q)
-        print('-'*20)
 
     # Resultate pro Kategorie -> Rangliste
     results_per_cat = []
@@ -555,6 +590,7 @@ def ranking(request):
                 print(r)
             print('-'*20)
 
+
     # Query Resultate über alle Kategorien
     result_best_all=list(sj_results.objects.filter(
             fk_sj_events=event_id,
@@ -577,9 +613,11 @@ def ranking(request):
     context = {
         'pagetitle' : 'SJ - Rangliste',
         'event_info': event_info,
+        'fin_results_per_cat' : fin_results_per_cat,
         'results_per_cat' : results_per_cat,
         'result_best_all' : result_best_all,
         'categories' : dist_cat,
+        'fin_categories' : fin_dist_cat,
     }
 
     template = loader.get_template('rank_show.html')
