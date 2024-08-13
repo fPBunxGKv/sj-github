@@ -364,9 +364,9 @@ def saveresults(request):
                 print(" - Leider keine neue Bestzeit!")
 
             # Set the sate for the result - used for ranking (qualy/final)
-            if (result_add_res.state == 'SQR'):
+            if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
                 result_add_res.state = 'RQR'
-            elif (result_add_res.state == 'SFR'):
+            elif (result_add_res.state == 'SFR') or (result_add_res.state == 'RFR'):
                 result_add_res.state = 'RFR'
             else:
                 print("!!! Resultat: Kein gültiger Status !!!")
