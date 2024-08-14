@@ -498,59 +498,22 @@ def updaterecord(request, id):
     member.save()
     return HttpResponseRedirect(reverse('users'))
 
+def getResultsPerCategory(event_id, stateStr):
+    '''
+    Get results per categories from DB
 
-# Rangliste
-def ranking(request):
-
-    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
-    event_info = get_event_info()
-    event_id = event_info['id']
-
-
-    # Kategorien mit Resultaten auslesen
-    fin_dist_cat = sj_results.objects.filter(
-            fk_sj_events=event_id,
-            state='RFR'
-            ).values(
-                'result_category'
-            ).distinct(
-
-            ).order_by(
-                'result_category'
-            )
-
-
-    # Final-Resultate pro Kategorie -> Rangliste
-    fin_results_per_cat = []
-
-    for q in fin_dist_cat:
-        # Query Resultate pro Kategorie
-        result_best_cat=list(sj_results.objects.filter(
-                fk_sj_events=event_id,
-                state='RFR',
-                result_category=q['result_category'],
-            ).values(
-                'fk_sj_users',
-                'fk_sj_users__firstname',
-                'fk_sj_users__lastname',
-                'result_category',
-            ).annotate(
-                fast_run=Min('result'),
-                rank=Window(
-                    expression=Rank(),
-                    order_by=F('fast_run').asc()),
-            ).order_by(
-                'result_category',
-                'fast_run'
-            )
-        )
-        # Ranglist pro Kategorie zu Array hinzufügen
-        fin_results_per_cat.extend(result_best_cat)
+    @type event_id: str
+    @param event_id: event ID
+    @type stateStr: str
+    @param stateStr: Status of runs ('RQR' for first runs, 'RFR' for final runs)
+    @rtype1: list, list of lists
+    @returns: list of categories, list of categories containing a list of results ordered by fast run
+    '''
 
     # Kategorien mit Resultaten auslesen
     dist_cat = sj_results.objects.filter(
             fk_sj_events=event_id,
-            state='RQR'
+            state=stateStr
             ).values(
                 'result_category'
             ).distinct(
@@ -563,13 +526,10 @@ def ranking(request):
     results_per_cat = []
 
     for q in dist_cat:
-        if (debug_level >= 2):
-            print(' --- ',q['result_category'],' --- ')
-
         # Query Resultate pro Kategorie
         result_best_cat=list(sj_results.objects.filter(
                 fk_sj_events=event_id,
-                state='RQR',
+                state=stateStr,
                 result_category=q['result_category'],
             ).values(
                 'fk_sj_users',
@@ -589,11 +549,27 @@ def ranking(request):
         # Ranglist pro Kategorie zu Array hinzufügen
         results_per_cat.extend(result_best_cat)
 
-        if (debug_level >= 2):
-            for r in result_best_cat:
-                print(r)
-            print('-'*20)
+    return dist_cat, results_per_cat
 
+def getFirstRunningResultsPerCategory(event_id):
+    return getResultsPerCategory(event_id, 'RQR')
+
+def getFinalResultsPerCategory(event_id):
+    return getResultsPerCategory(event_id, 'RFR')
+
+
+# Rangliste
+def ranking(request):
+
+    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
+    event_info = get_event_info()
+    event_id = event_info['id']
+
+    # Query Resultate der Finalläufe
+    fin_dist_cat, fin_results_per_cat = getFinalResultsPerCategory(event_id)
+
+    # Query Resultate der Vorläufe
+    dist_cat, results_per_cat = getFirstRunningResultsPerCategory(event_id)
 
     # Query Resultate über alle Kategorien
     result_best_all=list(sj_results.objects.filter(
