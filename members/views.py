@@ -348,25 +348,25 @@ def saveresults(request):
         if lines[i] != -1:
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
-            previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
-
-            print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
-
-            if (previous_min == None):
-                print(" - Zettel für Wäscheleine drucken (none)!")
-                # get userdata to print
-                print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
-            elif (lines[i] < previous_min):
-                print(" - Zettel für Wäscheleine drucken (besser)!")
-                # get userdata to print
-                print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
-            else:
-                print(" - Leider keine neue Bestzeit!")
-
-            # Set the sate for the result - used for ranking (qualy/final)
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
+                previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
+                print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+
+                # Print or not (paper)
+                if (previous_min == None):
+                    print(" - Zettel für Wäscheleine drucken (none)!")
+                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
+                elif (lines[i] < previous_min):
+                    print(" - Zettel für Wäscheleine drucken (besser)!")
+                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
+                else:
+                    print(" - Leider keine neue Bestzeit!")
+
+                # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RQR'
+
             elif (result_add_res.state == 'SFR') or (result_add_res.state == 'RFR'):
+                # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RFR'
             else:
                 print("!!! Resultat: Kein gültiger Status !!!")
