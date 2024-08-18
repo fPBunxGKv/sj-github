@@ -1,4 +1,5 @@
 # pip install -r requirements.txt
+django-bootstrap-static
 django-bootstrap5
 django-environ
 python-escpos
