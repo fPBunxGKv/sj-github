@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="de">
     <head>
-        {% load django_bootstrap5 %}
+        {% comment %} {% load django_bootstrap5 %}
         {% bootstrap_css %}
         {% bootstrap_javascript %}
-        {% bootstrap_messages %}
+        {% bootstrap_messages %} {% endcomment %}
         
         {% load static %}
+        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+        <script defer src="{% static 'fontawesome/js/all.min.js' %}"></script>
+
         <link rel="shortcut icon"
               type="image/png"
               href="{% static 'favicon.ico' %}"/>
