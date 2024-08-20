@@ -7,143 +7,44 @@
 {% block content %}
     <div class="container">
         <div class="row">
+          {% csrf_token %}
             <div class="col">
                 <h1>Members</h1>
-                <ul>
-                    <form layout='floating' method="post" action="{% url 'users' %}">
-                        {% csrf_token %}
-                    <div class="input-group mb-3">
-                        <input autofocus
-                               type="text"
-                               value="{{ searched | default:'' }}"
-                               class="form-control"
-                               placeholder="Suchen"
-                               name="query"
-                               aria-label="Suche"
-                               aria-describedby="button-addon2">
-                        <button formnovalidate
-                                class="btn btn-outline-secondary"
-                                name="clear"
-                                id="button-addon2">Alle anzeigen</button>
-                        <button formnovalidate
-                                class="btn btn-outline-secondary"
-                                name="search"
-                                id="button-addon2">Suchen</button>
-                    </div>
-                </ul>
-                <ul class="pagination">
-                    {% if page_obj.has_previous and not page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1">First</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.previous_page_number | add:'-1' }}">{{ page_obj.previous_page_number | add:'-1' }}</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-                        </li>
-                        <li class="page-item active" aria-current="page">
-                            <a class="page-link" href="#">{{ page_obj.number }}</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">Next</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                        </li>
-                    {% endif %}
-                    {% if page_obj.has_previous and page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1">First</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
-                        </li>
-                        <li class="page-item active" aria-current="page">
-                            <a class="page-link" href="#">{{ page_obj.number }}</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                        </li>
-                        <li class="page-item ">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                        </li>
-                    {% endif %}
-                    {% if not page_obj.has_previous and page_obj.has_next %}
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">First</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link disabled" href="#">Previous</a>
-                        </li>
-                        <li class="page-item active" aria-current="page">
-                            <a class="page-link" href="#">{{ page_obj.number }}</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link"
-                               href="?page={{ page_obj.next_page_number | add:'1' }}">{{ page_obj.next_page_number | add:'1' }}</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                        </li>
-                        <li class="page-item ">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container">
-    <div class="col">
-        <div class="row">
-                {% csrf_token %}
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col">Vorname</th>
-                            <th scope="col">Nachname</th>
-                            <th scope="col">Geburtsjahr</th>
-                            <th scope="col">Geschlecht</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Ort</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Startnummer</th>
-                            <th scope="col">Erstellt</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if not form.instance.id %}
-                            <tr>{% include 'save.html' %}</tr>
-                        {% endif %}
-                        {% for x in page_obj %}
+                <div class="input-group mb-3">
+                    <input autofocus
+                           type="text"
+                           id="search-input"
+                           class="form-control"
+                           placeholder="Suchen"
+                           aria-label="Suche"
+                           aria-describedby="button-addon2">
+                </div>
+                <div id="members-list">
+                    <table class="table table-striped table-hover">
+                        <thead>
                             <tr>
-                                {% if form.instance.id == x.id %}
-                                    {% include 'save.html' %}
-                                {% else %}
-                                    <td>{{ x.firstname }}</td>
-                                    <td>{{ x.lastname }}</td>
-                                    <td>{{ x.byear }}</td>
-                                    <td>{{ x.gender }}</td>
-                                    <td>{{ x.email }}</td>
-                                    <td>{{ x.city }}</td>
-                                    <td>{{ x.state }} / {{x.admin_state}}</td>
-                                    <td>{{ x.startnum }}</td>
+                                <th scope="col">Vorname</th>
+                                <th scope="col">Nachname</th>
+                                <th scope="col">Geburtsjahr</th>
+                                <th scope="col">Geschlecht</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Ort</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Startnummer</th>
+                                <th scope="col">Erstellt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="members-tbody">
+                            {% for x in mymembers %}
+                                <tr class="member-row">
+                                    <td class="firstname">{{ x.firstname }}</td>
+                                    <td class="lastname">{{ x.lastname }}</td>
+                                    <td class="byear">{{ x.byear }}</td>
+                                    <td class="gender">{{ x.gender }}</td>
+                                    <td class="email">{{ x.email }}</td>
+                                    <td class="city">{{ x.city }}</td>
+                                    <td class="state">{{ x.state }} / {{ x.admin_state }}</td>
+                                    <td class="startnum">{{ x.startnum }}</td>
                                     <td>
                                         <button formnovalidate class="btn btn-success" name="edit" value="{{ x.id }}">Ändern</button>
                                         <button formnovalidate
@@ -152,13 +53,40 @@
                                                 value="{{ x.id }}"
                                                 onclick="return confirm('Bist du sicher?');">Löschen</button>
                                     </td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </form>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("JavaScript loaded");  // Debugging line to confirm script is running
+
+        const searchInput = document.getElementById('search-input');
+        const membersRows = document.querySelectorAll('.member-row');
+
+        searchInput.addEventListener('input', function () {
+            console.log("Input detected");  // Debugging line to confirm input event is triggered
+            const query = searchInput.value.toLowerCase();
+
+            membersRows.forEach(row => {
+                const firstname = row.querySelector('.firstname').textContent.toLowerCase();
+                const lastname = row.querySelector('.lastname').textContent.toLowerCase();
+                const email = row.querySelector('.email').textContent.toLowerCase();
+
+                if (firstname.includes(query) || lastname.includes(query) || email.includes(query)) {
+                    row.style.display = '';  // Show row if it matches the query
+                } else {
+                    row.style.display = 'none';  // Hide row if it doesn't match
+                }
+            });
+        });
+    });
+    </script>
+
 {% endblock %}
+
+
