@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
     <head>
-    <!-- {% load django_bootstrap5 %}
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    {% bootstrap_messages %} -->
 
         {% load static %}
         <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+        <script defer src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
         <script defer src="{% static 'fontawesome/js/all.min.js' %}"></script>
 
         <link rel="shortcut icon"
@@ -21,7 +18,8 @@
     </head>
 
     <body>
-        {% block sidebar %}<!-- insert default navigation text for every page -->{% endblock %}
+        {% block sidebar %}
+        <!-- insert default navigation text for every page -->
         <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <button type="button"
@@ -60,6 +58,8 @@
             </div>
         </nav>
     </div>
+    {% endblock %}
+
     {% block content %}<!-- default content text (typically empty) -->{% endblock %}
 </body>
 </html>
