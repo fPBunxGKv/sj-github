@@ -14,12 +14,16 @@ from pathlib import Path
 import environ
 import os
 
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False),
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env()
-# reading .env file
-environ.Env.read_env()
+# Take environment variables from .env file
+environ.Env.read_env(BASE_DIR / 'sj/.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key-z4fbAa2z9h4E_P_jpyhF")
@@ -28,6 +32,10 @@ SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key-z4fbAa2z9h4E_P_jpyhF")
 DEBUG = env("DEBUG", default=False)
 
 SESSION_COOKIE_SECURE = True
+
+# Setup support for proxy headers
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # E-Mail Settings
 SMTP_SERVER = env("EMAIL_SERVER", default="localhost")
@@ -44,7 +52,9 @@ EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
 PRINTER_RUN_IP = env("PRINTER_RUN_IP", default="192.168.0.10")
 PRINTER_REG_IP = env("PRINTER_REG_IP", default="192.168.0.11")
 
-MAIN_URL = env("MAIN_URL", default="http://127.0.0.1:8000")
+# MAIN_URL = env("MAIN_URL", default="http://127.0.0.1:8000")
+#MAIN_URL = env("MAIN_URL")
+#print("Main URL:",MAIN_URL)
 
 #print(f'SETTINGS: Secret-Key: {SECRET_KEY}, Server: {SMTP_SERVER}, Port: {SMTP_PORT}, Main URL: {MAIN_URL}')
 
@@ -59,6 +69,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_bootstrap5',
+    'bootstrap',
     'members.apps.MembersConfig',
 ]
 
@@ -140,9 +151,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # DEV
-STATICFILES_DIRS = (
-  os.path.join(BASE_DIR, 'static/'),
-)
+# STATICFILES_DIRS = (
+#   os.path.join(BASE_DIR, 'static/'),
+# )
+
+# print('Static DIRS:',STATICFILES_DIRS)
 
 # PROD
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
@@ -152,6 +165,11 @@ STATICFILES_DIRS = (
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+print('Static Root:', STATIC_ROOT)
+print('Debug:', DEBUG)
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
