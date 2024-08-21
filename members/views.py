@@ -201,7 +201,7 @@ def thankyou(request, state=''):
 @login_required
 def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
-    mymembers = sj_users.objects.exclude(state='DEL').values().order_by('firstname', 'lastname')
+    mymembers = sj_users.objects.exclude(state='DEL').exclude(admin_state='deleted').values().order_by('firstname', 'lastname')
     
     print("Function users - begin: ", mymembers.count())
     
@@ -229,7 +229,6 @@ def users(request):
                 form = UserForm(request.POST, instance=user)
                 obj = form.save(commit=False)
 
-            # ToDo
             # Startzettel ausdrucken
             if obj.state == 'YES':
                 prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=2)
