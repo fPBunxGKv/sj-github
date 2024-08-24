@@ -118,7 +118,7 @@ def register_new(request,id=''):
                 'form_data' : form.cleaned_data,
                 'event_info': get_event_info(),
                 }
-            
+
             mail_body = templ_body.render(ctx_body)
 
             # Generate email subject
@@ -130,7 +130,7 @@ def register_new(request,id=''):
 
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
- 
+
                 # print(f'Memberdaten (vor löschen): {member}, Member-ID {member.id}')
                 delete_user(member.id)
 
@@ -202,9 +202,9 @@ def thankyou(request, state=''):
 def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
     mymembers = sj_users.objects.exclude(state='DEL').exclude(admin_state='deleted').values().order_by('firstname', 'lastname')
-    
+
     print("Function users - begin: ", mymembers.count())
-    
+
     searched = ""
 
     # Initialize the form
@@ -220,27 +220,31 @@ def users(request):
             mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
         if 'save' in request.POST:
             pk = request.POST.get('save')
-            if not pk:
-                form = UserForm(request.POST)
-                obj = form.save(commit=False)
-                obj.startnum = generate_startnumber()
-            else:
+            print('- '*50)
+            if int(pk) > 0:
                 user = sj_users.objects.get(id=pk)
                 form = UserForm(request.POST, instance=user)
                 obj = form.save(commit=False)
+            else:
+                form = UserForm(request.POST)
+                obj = form.save(commit=False)
+                obj.startnum = generate_startnumber()
 
             # Startzettel ausdrucken
             if obj.state == 'YES':
-                prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=2)
+                event_info = get_event_info()
+                event_year = event_info["date"].strftime("%Y")
+
+                prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=1, event_year=int(event_year))
             else:
                 print(f'User {obj.firstname} {obj.lastname} is not registert: {obj.state}.')
                 prn_status=False
-            
+
             if prn_status:
-                print("REG - printed")
+                print("Registration -> printed")
                 obj.admin_state = "PRINTED"
             else:
-                print(f'REG - not printed: {prn_status}')
+                print(f'Registration -> not printed: {prn_status}')
 
             obj.save()
             form = UserForm(initial={'state': 'YES'})
@@ -250,24 +254,35 @@ def users(request):
         elif 'edit' in request.POST:
             pk = request.POST.get('edit')
             user = sj_users.objects.get(id=pk)
+
+            # ToDo 
+            # print(f'User {user.firstname} {user.lastname} - STATE {user.state}')
+            if user.state.upper() == 'EMAILSENT':
+                user.state = 'YES'
+            elif user.state.upper() == 'NO':
+                user.state = 'YES'
+            elif user.state.upper() == 'YES':
+                user.state = 'YES'
+            elif user.state.upper() == '':
+                user.state = 'YES'
+
             form = UserForm(instance=user)
-        elif 'search' in request.POST:
-            print('query in post request...', searched)
-
-            print('in post search')
-            mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
+        # elif 'search' in request.POST:
+        #     print('query in post request...', searched)
+        #     print('in post search')
+        #     mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
     # Create a paginator
-    paginator = Paginator(mymembers, 12)
-    template = loader.get_template('users_show.html')
-
-    page_number = request.GET.get("page")
+    # paginator = Paginator(mymembers, 12)
+    #page_number = request.GET.get("page")
     # url_parameter = request.GET.get("q")
-    page_obj = paginator.get_page(page_number)
+    #page_obj = paginator.get_page(page_number)
+    
+    template = loader.get_template('users_show.html')
 
     context = {
         'searched' : searched,
         'mymembers': mymembers,
-        'page_obj': page_obj,
+        # 'page_obj': page_obj,
         'form': form,
         }
 
@@ -322,6 +337,7 @@ def addresults(request, id):
 @login_required
 def saveresults(request):
     # DEBUG
+    #debug_level = 2
     if (debug_level >= 2): print('SAVE-RESULTS --> request')
 
     event_info = get_event_info()
@@ -347,19 +363,21 @@ def saveresults(request):
         if lines[i] != -1:
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
+            if (debug_level >= 2): print(f'  --> resulte state: {result_add_res.state}')
+            
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
                 previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
-                print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+                if (debug_level >= 2): print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
 
                 # Print or not (paper)
                 if (previous_min == None):
-                    print(" - Zettel für Wäscheleine drucken (none)!")
+                    if (debug_level >= 2): print(" - Zettel für Wäscheleine drucken (none)!")
                     print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
                 elif (lines[i] < previous_min):
-                    print(" - Zettel für Wäscheleine drucken (besser)!")
+                    if (debug_level >= 2): print(" - Zettel für Wäscheleine drucken (besser)!")
                     print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
                 else:
-                    print(" - Leider keine neue Bestzeit!")
+                    if (debug_level >= 2): print(" - Leider keine neue Bestzeit!")
 
                 # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RQR'
@@ -368,7 +386,7 @@ def saveresults(request):
                 # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RFR'
             else:
-                print("!!! Resultat: Kein gültiger Status !!!")
+                if (debug_level >= 2): print("!!! Resultat: Kein gültiger Status !!!")
                 result_add_res.state = 'DNF'
 
             result_add_res.result = lines[i]

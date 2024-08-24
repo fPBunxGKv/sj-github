@@ -7,6 +7,7 @@ from datetime import *
 from escpos.printer import Network, Dummy
 
 import uuid
+import time
 
 # Import smtplib for sending email function
 import smtplib, ssl
@@ -56,74 +57,121 @@ def calc_cat(u_gender, u_byear, event_year):
     return str(u_gender + cat_n)
 
 
-def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1):
+def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1, event_year=2020):
     print(f"Print-Templatename: { template }")
-    # test if logo file is present
-
+    # ToDo - test if logo file is present
+    
     # init dummy printer
-    d = Dummy()
+    DumPrn = Dummy()
 
-    if template == 'run':
-        # Font, align, etc. settings
-        print(f"set_widh_default")
-        d.set_with_default(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=False, flip=False, double_width=False, double_height=False, custom_size=False)
-        print(f"set_1")
-        d.set(align='center', font='a', bold=True, width=2, height=2, density=9, double_width=True, double_height=True)
-
-        # create ESC/POS for the print job, this should go really fast
-        # d.ln(3)
-        # d.image("static/logo_211x211.png")
-        # d.ln(3)
-
-        d.textln(user_data.fk_sj_users.firstname)
-        d.textln(user_data.fk_sj_users.lastname)
-
-        print(f"set_2")
-        d.set(align='center', font='a', bold=True, width=2, height=2, density=9, double_width=False, double_height=False)
-        d.textln(user_data.result_category)
-        d.ln(1)
-
-        if run_time > 0:
-            d.text(f"--  {run_time:2.2f}  --\n")
-        else:
-            d.text(f"--  ERROR  --\n")
-
-        d.ln(2)
-        d.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='A', align_ct=True, function_type=None, check=True, force_software=False)
-        d.cut()
-
-    elif template == 'register':
-        print_cat = calc_cat(user_data.gender,user_data.byear,2024)
-        for n in range(num_copies):
-            d.set_with_default(align='center', font='a', bold=True, underline=0, width=2, height=2, density=9, invert=False, smooth=False, flip=False, double_width=False, double_height=False, custom_size=False)
-
-            d.textln(user_data.firstname)
-            d.textln(user_data.lastname)
-
-            d.textln("--------------")
-            d.textln(print_cat)
-
-            d.ln(2)
-            d.barcode(str(user_data.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='A', align_ct=True, function_type=None, check=True, force_software=False)
-            d.qr(str(user_data.startnum),size=5)
-
-            d.cut()
-
-    else:
-        d.text(f"Template: {template}\n")
-        d.text(f"Definition fehlt...\n")
-        d.ln(2)
-        d.cut()
-
-    # send code to printer
     try:
-        p = Network(host=printer_ip, timeout=1)
-        p._raw(d.output)
-        return True
+        
+        import os
+        os.environ["ESCPOS_CAPABILITIES_FILE"] = "/home/mla/env_github/sj-github/members/tm-t88vi-58.json"
+        # print(os.environ["ESCPOS_CAPABILITIES_FILE"])
+        NetPrn = Network(host=printer_ip, timeout=1)
+
+        #NetPrn.profile('TM-T88VI-58')
+
+        
+        #pass
+        # p = Network(host=printer_ip, timeout=1)
+        
+        # p._raw(d.output)
+        # return True
 
     except Exception as error:
         print("Printing error:", type(error).__name__, "-", error)
         return False
+
+    if template == 'run':
+        # DumPrn.ln(count=6)
+
+        # Logo
+        NetPrn.ln(count=4)
+        NetPrn.set(align='center')
+        NetPrn.image("members/static/logo_211x211.png")
+        NetPrn.ln(count=1)
+        
+        # Firstname
+        NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
+        NetPrn.textln(f'{user_data.fk_sj_users.firstname}')
+
+        # Lastname
+        NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=1, height=1, density=8)
+        NetPrn.textln(user_data.fk_sj_users.lastname)
+
+        # Category
+        NetPrn.ln(count=1)
+        NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=1, density=8)
+        NetPrn.textln(user_data.result_category)
+        
+        # Result
+        NetPrn.ln(count=1)
+        if run_time > 0:
+            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
+            NetPrn.textln(f"{run_time:2.2f}")
+        else:
+            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
+            NetPrn.textln(f"--  ERROR  --")
+
+        # Startnumber as barcode inkl. text
+        NetPrn.ln(count=2)
+        NetPrn.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+
+        # Cut the paper & close the connection
+        NetPrn.cut()
+        NetPrn.close()
+
+    elif template == 'register':
+        print_cat = calc_cat(user_data.gender, user_data.byear, event_year)
+        for n in range(num_copies):
+
+            # Logo
+            NetPrn.ln(count=4)
+            NetPrn.set(align='center')
+            NetPrn.image("members/static/logo_211x211.png")
+            NetPrn.ln(count=1)
+            
+            # Firstname
+            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
+            NetPrn.textln(f'{user_data.firstname}')
+
+            # Lastname
+            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=1, height=1, density=8)
+            NetPrn.textln(user_data.lastname)
+
+            # Category / Birthyear            
+            NetPrn.ln(count=1)
+            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=1, density=8)            
+            NetPrn.textln(f'{user_data.byear}')
+            NetPrn.textln(f'{print_cat}')
+
+            # Startnumber as barcode inkl. text
+            NetPrn.ln(count=3)
+            NetPrn.barcode(str(user_data.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+
+            NetPrn.cut()
+            NetPrn.close()
+
+        return True
+
+    else:
+        NetPrn.text(f"Template: {template}\n")
+        NetPrn.text(f"Definition fehlt...\n")
+        NetPrn.ln(2)
+        NetPrn.cut()
+
+    # send code to printer
+    # try:
+    #     p = Network(host=printer_ip, timeout=1)
+        
+    #     p._raw(d.output)
+    #     return True
+
+    # except Exception as error:
+    #     print("Printing error:", type(error).__name__, "-", error)
+    #     return False
 
 def is_valid_uuid(value):
     try:
