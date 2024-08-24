@@ -30,6 +30,20 @@
                                 <th scope="col">Erstellt</th>
                             </tr>
                         </thead>
+                        <form layout='floating' method="post" action="{% url 'users' %}">
+                            {% csrf_token %}
+                                <tr>{% include 'save.html' %}</tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
                         <tbody id="members-tbody">
                             {% for x in mymembers %}
                                 <tr class="member-row">
@@ -51,6 +65,7 @@
                                     </td>
                                 </tr>
                             {% endfor %}
+                        </form>
                         </tbody>
                     </table>
                 </div>
