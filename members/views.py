@@ -372,10 +372,10 @@ def saveresults(request):
                 # Print or not (paper)
                 if (previous_min == None):
                     if (debug_level >= 2): print(" - Zettel für Wäscheleine drucken (none)!")
-                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
+                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run',printer_ip=settings.PRINTER_RUN_IP)
                 elif (lines[i] < previous_min):
                     if (debug_level >= 2): print(" - Zettel für Wäscheleine drucken (besser)!")
-                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run')
+                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run', printer_ip=settings.PRINTER_RUN_IP)
                 else:
                     if (debug_level >= 2): print(" - Leider keine neue Bestzeit!")
 
