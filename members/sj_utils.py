@@ -60,25 +60,13 @@ def calc_cat(u_gender, u_byear, event_year):
 def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1, event_year=2020):
     print(f"Print-Templatename: { template }")
     # ToDo - test if logo file is present
+    #        via dummy printer ?
     
     # init dummy printer
-    DumPrn = Dummy()
+    # DumPrn = Dummy()
 
     try:
-        
-        import os
-        os.environ["ESCPOS_CAPABILITIES_FILE"] = "/home/mla/env_github/sj-github/members/tm-t88vi-58.json"
-        # print(os.environ["ESCPOS_CAPABILITIES_FILE"])
         NetPrn = Network(host=printer_ip, timeout=1)
-
-        #NetPrn.profile('TM-T88VI-58')
-
-        
-        #pass
-        # p = Network(host=printer_ip, timeout=1)
-        
-        # p._raw(d.output)
-        # return True
 
     except Exception as error:
         print("Printing error:", type(error).__name__, "-", error)
