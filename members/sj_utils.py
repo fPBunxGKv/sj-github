@@ -68,53 +68,11 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
     try:
         NetPrn = Network(host=printer_ip, timeout=1)
 
-    except Exception as error:
-        print("Printing error:", type(error).__name__, "-", error)
-        return False
-
-    if template == 'run':
-        # DumPrn.ln(count=6)
-
-        # Logo
-        NetPrn.ln(count=4)
-        NetPrn.set(align='center')
-        NetPrn.image("members/static/logo_211x211.png")
-        NetPrn.ln(count=1)
-        
-        # Firstname
-        NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
-        NetPrn.textln(f'{user_data.fk_sj_users.firstname}')
-
-        # Lastname
-        NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=1, height=1, density=8)
-        NetPrn.textln(user_data.fk_sj_users.lastname)
-
-        # Category
-        NetPrn.ln(count=1)
-        NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=1, density=8)
-        NetPrn.textln(user_data.result_category)
-        
-        # Result
-        NetPrn.ln(count=1)
-        if run_time > 0:
-            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
-            NetPrn.textln(f"{run_time:2.2f}")
-        else:
-            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
-            NetPrn.textln(f"--  ERROR  --")
-
-        # Startnumber as barcode inkl. text
-        NetPrn.ln(count=2)
-        NetPrn.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
-
-        # Cut the paper & close the connection
-        NetPrn.cut()
-        NetPrn.close()
-
-    elif template == 'register':
-        print_cat = calc_cat(user_data.gender, user_data.byear, event_year)
-        for n in range(num_copies):
-
+        if template == 'run':
+            # DumPrn.ln(count=6)
+            """
+            Printer Model: TM-T88VI
+            """
             # Logo
             NetPrn.ln(count=4)
             NetPrn.set(align='center')
@@ -123,33 +81,83 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             
             # Firstname
             NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
-            NetPrn.textln(f'{user_data.firstname}')
+            NetPrn.textln(f'{user_data.fk_sj_users.firstname}')
 
             # Lastname
             NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=1, height=1, density=8)
-            NetPrn.textln(user_data.lastname)
+            NetPrn.textln(user_data.fk_sj_users.lastname)
 
-            # Category / Birthyear            
+            # Category
             NetPrn.ln(count=1)
-            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=1, density=8)            
-            NetPrn.textln(f'{user_data.byear}')
-            NetPrn.textln(f'{print_cat}')
+            NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=1, density=8)
+            NetPrn.textln(user_data.result_category)
+            
+            # Result
+            NetPrn.ln(count=1)
+            if run_time > 0:
+                NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
+                NetPrn.textln(f"{run_time:2.2f}")
+            else:
+                NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=2, height=2, density=8)
+                NetPrn.textln(f"--  ERROR  --")
 
             # Startnumber as barcode inkl. text
-            NetPrn.ln(count=3)
-            NetPrn.barcode(str(user_data.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+            NetPrn.ln(count=2)
+            NetPrn.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
 
+            # Cut the paper & close the connection
             NetPrn.cut()
             NetPrn.close()
 
-        return True
+        elif template == 'register':
+            """
+            Printer Model: TM-T20II
+            """
+            print_cat = calc_cat(user_data.gender, user_data.byear, event_year)
+            for n in range(num_copies):
 
-    else:
-        NetPrn.text(f"Template: {template}\n")
-        NetPrn.text(f"Definition fehlt...\n")
-        NetPrn.ln(2)
-        NetPrn.cut()
+                # Logo
+                NetPrn.ln(count=6)
+                NetPrn.set(align='center')
+                NetPrn.image("members/static/logo_211x211.png")
+                NetPrn.ln(count=1)
+                
+                # Firstname
+                NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=3, height=3, density=8)
+                NetPrn.textln(f'{user_data.firstname}')
 
+                # Lastname
+                NetPrn.set(align='center', font='a', bold=False, custom_size=True, width=2, height=2, density=8)
+                NetPrn.textln(user_data.lastname)
+
+                # Category / Birthyear            
+                NetPrn.ln(count=1)
+                NetPrn.set(align='center', font='a', bold=True, custom_size=True, width=3, height=1, density=8)            
+                NetPrn.textln(f'{user_data.byear}')
+                NetPrn.textln(f'{print_cat}')
+
+                # Startnumber as barcode inkl. text
+                NetPrn.ln(count=3)
+                NetPrn.barcode(str(user_data.startnum), 'CODE39', height=90, width=3, pos='OFF', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+                
+                NetPrn.ln(count=1)
+                NetPrn.set(align='center', font='a', bold=False, custom_size=True, width=2, height=2, density=8)
+                NetPrn.textln(f'* {user_data.startnum} *')
+                NetPrn.cut()
+                NetPrn.close()
+
+            return True
+
+        else:
+            NetPrn.text(f"Template: {template}\n")
+            NetPrn.text(f"Definition fehlt...\n")
+            NetPrn.ln(2)
+            NetPrn.cut()
+
+    except Exception as error:
+        print("Printing error:", type(error).__name__, "-", error)
+        return False
+    
     # send code to printer
     # try:
     #     p = Network(host=printer_ip, timeout=1)
