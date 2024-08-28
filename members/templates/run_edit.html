@@ -2,53 +2,76 @@
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
     <!-- Tabelle mit eingeteilten Läufen -->
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <h1>Bearbeiten</h1>
+    <section class="vh-20 gradient-custom">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h1>Bearbeiten</h1>
+                </div>
             </div>
+            <!--
+            <div class="row">
+                <div class="col">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover ">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Lauf #</th>
+                                    {% for line in num_lines %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <form action="updaterun/" method="post">
+                                    {% csrf_token %}
+                                    <tr>
+                                        <td class="align-middle">
+                                            <b>{{ run_num }}
+                                                <br>
+                                                <input type="hidden" name="run_num" value="{{ run_num }}">
+                                                <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                                            </b>
+                                        </td>
+                                        {% for key, value in line_infos.items %}
+                                            <td>
+                                                <b>{{ value.firstname | default:'' }} {{ value.lastname | default:'' }} </b>
+                                                <br>
+                                                {% if value.result_category %}{{ value.result_category }} ({{ value.byear }}){% endif %}
+                                                <br>
+                                                <input {% if key == 1 %}autofocus{% endif %} type="number" id="edit_run" name="edit_run{{ key }}" value="{{ value.startnum }}" class="form-control form-control-sm">
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        -->
         </div>
-        <div class="row">
-            <div class="col">
-                <table class="table table-fixed table-striped table-hover ">
-                    <thead>
-                        <tr>
-                            <th scope="col">Lauf #</th>
-                            {% for line in num_lines %}<th scope="col">Bahn {{ line }}</th>{% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <form action="updaterun/" method="post">
-                            {% csrf_token %}
-                            <tr>
-                                <td class="align-middle">
-                                    <b>{{ run_num }}
-                                        <br>
-                                        <input type="hidden" name="run_num" value="{{ run_num }}">
-                                        <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
-                                    </b>
-                                </td>
-                                {% for key, value in line_infos.items %}
-                                    <td>
-                                        <b>{{ value.firstname | default:'' }} {{ value.lastname | default:'' }} </b>
-                                        <br>
-                                        {% if value.result_category %}{{ value.result_category }} ({{ value.byear }}){% endif %}
-                                        <br>
-                                        {% if value.state %}Status: {{ value.state | default:'---' }}{% endif %}
-                                        <br>
-                                        <input {% if key == 1 %}autofocus{% endif %} type="number"
-                                               id="edit_run"
-                                               name="edit_run{{ key }}"
-                                               value="{{ value.startnum }}"
-                                               class="form-control form-control-sm">
-                                    </td>
-                                {% endfor %}
-                            </tr>
-                        </tbody>
-                    </table>
+        <div class="container">
+            <div class="row mb-3">
+                <form action="updaterun/" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="run_num" value="{{ run_num }}">
+                    {% for key, value in line_infos.items %}
+                        <div class="form-outline">
+                            <input {% if key == 1 %}autofocus="True"{% endif %}
+                                   type="number"
+                                   id="edit_run"
+                                   name="edit_run{{ key }}"
+                                   value="{{ value.startnum }}"
+                                   class="form-control form-control-sm">
+                            <label class="form-label" for="edit_run{{ key }}">Lauf {{ run_num }} / Bahn {{ key }}</label>
+                        </div>
+                        <b>{{ value.firstname | default:'' }} {{ value.lastname | default:'' }} </b> -
+                        {% if value.result_category %}{{ value.result_category }} ({{ value.byear }}){% endif %}
+                        <br>
+                        <br>
+                    {% endfor %}
+                    <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 {% endblock %}
