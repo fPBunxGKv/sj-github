@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        {% load static %}
+        <link rel="stylesheet"
+              href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+        <script defer src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+        <script defer src="{% static 'fontawesome/js/all.min.js' %}"></script>
+        <link rel="shortcut icon"
+              type="image/png"
+              href="{% static 'favicon.ico' %}" />
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block title %}<title>SJ - Home</title>{% endblock %}
+    </head>
+    <body>
+        {% block sidebar %}{% endblock %}
+        {% block content %}<!-- default content text (typically empty) -->{% endblock %}
+    </body>
+</html>

@@ -259,7 +259,7 @@ def set_final_runs(request):
             print("GENERATE Final runs")
 
 
-            # delete qualificatin runs without results of the actual event
+            # delete qualification runs without results of the actual event
             sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
             sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
 
@@ -328,6 +328,24 @@ def set_final_runs(request):
                 run_next += 1
 
     return HttpResponseRedirect(reverse('results'))
+
+@login_required
+def print_final_runs(request):
+    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
+    event_info = get_event_info()
+    num_lines = event_info['lines']
+    event_id = event_info['id']
+
+    runs_all_data = sj_results.objects.prefetch_related('fk_sj_events').filter(fk_sj_events=event_id, state='SFR').order_by('-run_nr','line_nr')
+
+    template = loader.get_template('run_print_final.html')
+    context = {
+        'runs' : runs_all_data,
+        'num_lines' : range(num_lines),
+        'pagetitle' : 'SJ - Laufeinteilung',
+    }
+    return HttpResponse(template.render(context, request))
+
 
 
 ### add testdata

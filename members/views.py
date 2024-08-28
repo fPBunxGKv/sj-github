@@ -24,7 +24,7 @@ from random import randint
 from array import array
 from scipy.stats import rankdata
 
-from .sj_views.runs import run, addrun, editrun, updaterun, set_final_runs, addrun_testdata
+from .sj_views.runs import run, addrun, editrun, updaterun, set_final_runs, print_final_runs, addrun_testdata
 from .sj_views.admin import administration
 
 from datetime import *

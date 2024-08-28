@@ -25,6 +25,7 @@ urlpatterns = [
             path('run/addrun/', views.addrun, name='addrun'),
             path('run/edit/<int:id>', views.editrun, name='editrun'),
             path('run/edit/updaterun/', views.updaterun, name='updaterun'),
+            path('printfinal/', views.print_final_runs, name='print_final_runs'),
 
             path('results/' , views.results, name='results'),
             path('results/addresults/<int:id>' , views.addresults, name='addresults'),
