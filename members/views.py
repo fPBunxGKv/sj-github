@@ -235,7 +235,7 @@ def users(request):
                 event_info = get_event_info()
                 event_year = event_info["date"].strftime("%Y")
 
-                prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=1, event_year=int(event_year))
+                prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
             else:
                 print(f'User {obj.firstname} {obj.lastname} is not registert: {obj.state}.')
                 prn_status=False
