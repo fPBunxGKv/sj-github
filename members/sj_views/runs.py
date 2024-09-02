@@ -160,10 +160,12 @@ def editrun(request, id):
     event_info = get_event_info()
     num_lines = event_info['lines']
 
-# nur zum editieren anzeigen falls noch keine Resulate vorhanden sind, sonst zurück auf Übersicht Zeiterfassung
-    num_results_in_run = sj_results.objects.filter(run_nr=id, state = 'RQR').count()
+    debug_level = 3
 
-    if (debug_level>=2): print('{} Resultate in Lauf Nummer {}'.format(num_results_in_run, id))
+    # nur zum editieren anzeigen falls noch keine Resulate vorhanden sind, sonst zurück auf Übersicht Zeiterfassung
+    num_results_in_run = sj_results.objects.filter(run_nr=id, state='RQR', fk_sj_events_id=event_info['id']).count()
+
+    if (debug_level>=2): print(f'{num_results_in_run} Resultate in Lauf Nummer {id} - Event > {event_info["name"]}')
 
     if num_results_in_run > 0:
         return HttpResponseRedirect(reverse('run'))
