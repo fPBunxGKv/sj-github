@@ -255,7 +255,7 @@ def users(request):
             pk = request.POST.get('edit')
             user = sj_users.objects.get(id=pk)
 
-            # ToDo 
+            # ToDo
             # print(f'User {user.firstname} {user.lastname} - STATE {user.state}')
             if user.state.upper() == 'EMAILSENT':
                 user.state = 'YES'
@@ -276,7 +276,7 @@ def users(request):
     #page_number = request.GET.get("page")
     # url_parameter = request.GET.get("q")
     #page_obj = paginator.get_page(page_number)
-    
+
     template = loader.get_template('users_show.html')
 
     context = {
@@ -364,7 +364,7 @@ def saveresults(request):
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
             if (debug_level >= 2): print(f'  --> resulte state: {result_add_res.state}')
-            
+
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
                 previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
                 if (debug_level >= 2): print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
@@ -590,8 +590,9 @@ def ranking(request):
 
     # Query Resultate über alle Kategorien
     result_best_all=list(sj_results.objects.filter(
-            fk_sj_events=event_id,
-            state='RQR',
+            Q(state='RQR') | Q(state='RFR')
+        ).filter(
+            fk_sj_events=event_id
         ).values(
             'fk_sj_users',
             'fk_sj_users__firstname',
