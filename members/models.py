@@ -36,20 +36,23 @@ class sj_users(models.Model):
     def __str__(self):
         return f"{self.lastname}, {self.firstname}"
 
-# Anlaesse
+# Events
 class sj_events(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    event_name = models.CharField(max_length=50, null=False, default='')
-    event_date = models.DateTimeField()
-    event_active = models.BooleanField(True,False, default=False)
+    event_name = models.CharField(verbose_name="Anlass", max_length=50, null=False, default='')
+    event_date = models.DateField(verbose_name="Datum")
+    event_active = models.BooleanField(verbose_name="Event aktiv", default=False)
     # 
-    event_reg_open = models.BooleanField(True,False, default=False)
-    event_reg_start = models.DateTimeField()
-    event_reg_end = models.DateTimeField()
+    event_reg_open = models.BooleanField(verbose_name="Registration aktiv", default=False)
+    event_reg_start = models.DateTimeField(verbose_name="Registration ab")
+    event_reg_end = models.DateTimeField(verbose_name="Registration bis")
     # 
-    event_num_lines = models.IntegerField(null=False, default=4)
+    event_num_lines = models.IntegerField(verbose_name="Anzahl Bahnen", null=False, default=4)
+
+    def __str__(self):
+        return f"{self.event_name}"
 
 # Resultate
 class sj_results(models.Model):
