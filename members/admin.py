@@ -22,7 +22,20 @@ class sj_eventsAdmin(admin.ModelAdmin):
         }),
     )
 
+class sj_resultsAdmin(admin.ModelAdmin):
+    search_fields = ('fk_sj_users__lastname', 'fk_sj_users__firstname')
+    list_filter = ('fk_sj_events', 'state',)
+
+    list_display = (
+            'fk_sj_users',
+            'result_category',
+            'result',
+            'state',
+            )
+
+
+
 # Register your models here.
 admin.site.register(sj_users)
 admin.site.register(sj_events, sj_eventsAdmin)
-admin.site.register(sj_results)
+admin.site.register(sj_results, sj_resultsAdmin)

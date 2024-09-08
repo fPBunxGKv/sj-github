@@ -44,11 +44,11 @@ class sj_events(models.Model):
     event_name = models.CharField(verbose_name="Anlass", max_length=50, null=False, default='')
     event_date = models.DateField(verbose_name="Datum")
     event_active = models.BooleanField(verbose_name="Event aktiv", default=False)
-    # 
+    #
     event_reg_open = models.BooleanField(verbose_name="Registration aktiv", default=False)
     event_reg_start = models.DateTimeField(verbose_name="Registration ab")
     event_reg_end = models.DateTimeField(verbose_name="Registration bis")
-    # 
+    #
     event_num_lines = models.IntegerField(verbose_name="Anzahl Bahnen", null=False, default=4)
 
     def __str__(self):
@@ -67,13 +67,13 @@ class sj_results(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    fk_sj_users = models.ForeignKey("sj_users", on_delete=models.PROTECT)
-    fk_sj_events = models.ForeignKey("sj_events", on_delete=models.PROTECT)
-    run_nr = models.IntegerField(null=False, default=0)
-    line_nr = models.IntegerField(null=False, default=0)
-    result = models.FloatField(null=False, default=-1)
-    result_category = models.CharField(null=False, default='', max_length=3)
-    state = models.CharField(max_length=3, null=False, choices=RESULT_STATE, default='DNF')
+    fk_sj_users = models.ForeignKey(to="sj_users", on_delete=models.PROTECT)
+    fk_sj_events = models.ForeignKey(to="sj_events", on_delete=models.PROTECT,)
+    run_nr = models.IntegerField(verbose_name="Lauf Nr.", null=False, default=0)
+    line_nr = models.IntegerField(verbose_name="Bahn", null=False, default=0)
+    result = models.FloatField(verbose_name="Resultat", null=False, default=-1)
+    result_category = models.CharField(verbose_name="Kategorie", null=False, default='', max_length=3)
+    state = models.CharField(verbose_name="Status", max_length=3, null=False, choices=RESULT_STATE, default='DNF')
 
 # Printer configuration
     # IP-Address, logo, paper (54mm, 80mm), what for (run, registration, ...)
