@@ -43,7 +43,7 @@
                             {% endif %}
                         </div>
                         <div class="navbar-nav ms-auto">
-                            <a href="{% url 'logout' %}" class="nav-item nav-link">Logout</a>
+                            <a href="{% url 'logout' %}" class="nav-item nav-link">Logout ({{ user.username }})</a>
                         {% else %}
                             <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
                             {% if event_info.reg_open %}
