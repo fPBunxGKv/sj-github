@@ -47,12 +47,14 @@
                                 <td>
                                     {% csrf_token %}
                                     <button formnovalidate class="btn btn-success btn-sm" name="generate-final">Finalläufe erstellen</button>
+                                    
                                     <button formnovalidate
                                             class="btn btn-danger btn-sm"
                                             name="delete-final"
                                             onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
+                                        </form>
+                                        <a class="btn btn-primary" href="/printfinal" role="button">Druck Finalläufe</a>
                                 </td>
-                            </form>
                         </tr>
                         <tr>
                             <td colspan="3"></td>
