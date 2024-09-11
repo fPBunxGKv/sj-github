@@ -203,7 +203,8 @@ class UserForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         # Prüfen, ob Vor- und Nachname Buchstaben enthalten
-        NAME_REGEX = "^[a-zA-ZäöüÄÖÜßéàè]+(?:[- ][a-zA-ZäöüÄÖÜßéàè]+)*$"
+        #NAME_REGEX = "^[a-zA-ZäöüÄÖÜßéàèë]+(?:[- ][a-zA-ZäöüÄÖÜßéàèë]+)*$"
+        NAME_REGEX = "^[a-zA-ZÀ-ÿ]+(?:[- ][a-zA-ZÀ-ÿ]+)*$"
         
         firstname = cleaned_data.get('firstname')
         if not re.match(NAME_REGEX, firstname):
