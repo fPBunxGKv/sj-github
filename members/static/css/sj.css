@@ -1,0 +1,11 @@
+@media print {
+    .page-break-before {
+        page-break-before: always;
+    }
+    .page-break-after {
+        page-break-after: always;
+    }
+    .page-break-inside {
+        page-break-inside: avoid;
+    }
+}
