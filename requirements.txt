@@ -1,7 +1,29 @@
-# pip install -r requirements.txt
-django-bootstrap-static
-#django-bootstrap5
-django-environ
-python-escpos
-#reportlab
-scipy
+### pip install -r requirements.txt
+# django-bootstrap-static
+# django-bootstrap5
+# django-environ
+# python-escpos
+# reportlab
+# scipy
+appdirs==1.4.4
+argcomplete==3.5.0
+asgiref==3.8.1
+Django==4.2.20
+django-bootstrap-static==5.3.3
+django-environ==0.11.2
+environ==1.0
+escpos==2.0.0
+future==1.0.0
+numpy==2.1.1
+pillow==10.4.0
+pypng==0.20220715.0
+pyserial==3.5
+python-barcode==0.15.1
+pyusb==1.2.1
+PyYAML==6.0.2
+qrcode==7.4.2
+scipy==1.14.1
+six==1.16.0
+sqlparse==0.5.1
+typing_extensions==4.12.2
+viivakoodi==0.8.0
