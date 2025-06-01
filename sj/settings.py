@@ -146,24 +146,24 @@ LOGOUT_REDIRECT_URL = '/'
 
 SESSION_COOKIE_SECURE = True
 
-# Setup support for proxy headers
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# # Setup support for proxy headers
+# USE_X_FORWARDED_HOST = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# E-Mail Settings
-SMTP_SERVER = env("EMAIL_SERVER", default="localhost")
-SMTP_PORT = env("EMAIL_PORT", default=25)
-SMTP_PASSWORD = env("EMAIL_PASSWORD", default="")
+# # E-Mail Settings
+# SMTP_SERVER = env("EMAIL_SERVER", default="localhost")
+# SMTP_PORT = env("EMAIL_PORT", default=25)
+# SMTP_PASSWORD = env("EMAIL_PASSWORD", default="")
 
-EMAIL_FROM_DISPLAY_NAME = env("EMAIL_FROM_DISPLAY_NAME", default="From Display Name")
-EMAIL_FROM = env("EMAIL_FROM", default="foo@bar.com")
+# EMAIL_FROM_DISPLAY_NAME = env("EMAIL_FROM_DISPLAY_NAME", default="From Display Name")
+# EMAIL_FROM = env("EMAIL_FROM", default="foo@bar.com")
 
-EMAIL_BCC_DISPLAY_NAME = env("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
-EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
+# EMAIL_BCC_DISPLAY_NAME = env("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
+# EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
 
-# Printer Settings
-PRINTER_RUN_IP = env("PRINTER_RUN_IP", default="192.168.0.10")
-PRINTER_REG_IP = env("PRINTER_REG_IP", default="192.168.0.11")
+# # Printer Settings
+# PRINTER_RUN_IP = env("PRINTER_RUN_IP", default="192.168.0.10")
+# PRINTER_REG_IP = env("PRINTER_REG_IP", default="192.168.0.11")
 
 # MAIN_URL = env("MAIN_URL", default="http://127.0.0.1:8000")
 #MAIN_URL = env("MAIN_URL")
