@@ -1,0 +1,29 @@
+services:
+  django-web:
+    build: .
+    container_name: sj-docker
+    ports:
+      - "8001"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_ENVIRONMENT: ${DJANGO_ENVIRONMENT}
+    env_file:
+      - ./.env
+    volumes:
+      # Source code
+      - static_sj_prod:/app/staticfiles
+      # Database files
+      - /home/admsqline/projects/data/sj_prod/data:/app/data
+    networks:
+      - internal
+
+volumes:
+  static_sj_prod:
+    external: true
+
+networks:
+  internal:
+    name: internal
+    external: true

@@ -10,4 +10,4 @@ python manage.py collectstatic --no-input
 
 # Start Gunicorn
 echo "Starting Gunicorn..."
-exec gunicorn --bind 0.0.0.0:8000 --workers 3 dockdjango.wsgi:application
+exec gunicorn --bind 0.0.0.0:8000 --workers 3 sj.wsgi:application
