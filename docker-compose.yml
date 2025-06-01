@@ -1,5 +1,5 @@
 services:
-  django-web:
+  sj-prod-web:
     build: .
     container_name: sj-docker
     ports:
