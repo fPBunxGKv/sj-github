@@ -248,6 +248,28 @@ def users(request):
 
             obj.save()
             form = UserForm(initial={'state': 'YES'})
+
+        elif 'print' in request.POST:
+            pk = request.POST.get('print')
+            user = sj_users.objects.get(id=pk)
+
+            event_info = get_event_info()
+            event_year = event_info["date"].strftime("%Y")
+            print(f'--> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
+            user.state = 'YES'
+            #prn_status = print_paper(user_data=user, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
+            prn_status = True
+            print(f'----> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
+
+
+            if prn_status:
+                print("Registration -> printed")
+                user.admin_state = "PRINTED"
+            else:
+                print(f'Registration -> not printed: {prn_status}')
+
+            user.save()
+
         elif 'delete' in request.POST:
             pk = request.POST.get('delete')
             delete_user(pk)
