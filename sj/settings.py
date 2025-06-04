@@ -144,8 +144,8 @@ LOGOUT_REDIRECT_URL = '/'
 # environ.Env.read_env(BASE_DIR / 'sj/.env')
 
 
-SESSION_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://sj.squareline.ch']
+SESSION_COOKIE_SECURE = os.getenv('DJANGO_SESSION_COOKIE_SECURE', 'True')
+CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS","https://127.0.0.1,https://localhost,https://[::1]").split(",")
 
 # # Setup support for proxy headers
 # USE_X_FORWARDED_HOST = True
