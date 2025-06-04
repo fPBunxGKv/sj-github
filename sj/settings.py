@@ -129,8 +129,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Our Settings ---
-# LOGIN_REDIRECT_URL = '/'
-# LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # import environ
 # import os
@@ -144,7 +144,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # environ.Env.read_env(BASE_DIR / 'sj/.env')
 
 
-#SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://sj.squareline.ch']
 
 # # Setup support for proxy headers
 # USE_X_FORWARDED_HOST = True
