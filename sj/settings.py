@@ -144,7 +144,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # environ.Env.read_env(BASE_DIR / 'sj/.env')
 
 
-SESSION_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
 
 # # Setup support for proxy headers
 # USE_X_FORWARDED_HOST = True
@@ -174,4 +174,4 @@ SESSION_COOKIE_SECURE = True
 #STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 #STATIC_ROOT = '/var/www/sj2024-static/static'
 #print('Static Root:', STATIC_ROOT)
-print('Debug:', DEBUG)
+# print('Debug:', DEBUG)
