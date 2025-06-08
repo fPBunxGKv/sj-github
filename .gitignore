@@ -12,6 +12,7 @@ db.sqlite3
 
 # Env
 .env
+.env*
 .python-version
 myvenv/
 venv/

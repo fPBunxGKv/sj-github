@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-!m=^@*pf)g7+jxx78+^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS","127.0.0.1,localhost,*,[::1]").split(",")
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 
 # Environment variable for Django environment
 GLOBAL_ENV = os.getenv("DJANGO_ENVIRONMENT", "Env Not Set")
@@ -77,10 +77,11 @@ WSGI_APPLICATION = 'sj.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+DATABASE_NAME = os.getenv('DATABASE_NAME', 'database.sqlite3')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data/database.sqlite3',
+        'NAME': BASE_DIR / 'data' / DATABASE_NAME,
     }
 }
 
@@ -128,21 +129,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- Our Settings ---
+
+# -----------------------------------------------------------------------
+# Custom settings for the project
+# -----------------------------------------------------------------------
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-
-# import environ
-# import os
-
-# env = environ.Env(
-#     # set casting, default value
-#     DEBUG=(bool, False),
-# )
-
-# # Take environment variables from .env file
-# environ.Env.read_env(BASE_DIR / 'sj/.env')
-
 
 SESSION_COOKIE_SECURE = os.getenv('DJANGO_SESSION_COOKIE_SECURE', 'True')
 CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS","https://127.0.0.1,https://localhost,https://[::1]").split(",")
@@ -151,28 +144,17 @@ CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS","https://127.0.0.
 # USE_X_FORWARDED_HOST = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# # E-Mail Settings
-# SMTP_SERVER = env("EMAIL_SERVER", default="localhost")
-# SMTP_PORT = env("EMAIL_PORT", default=25)
-# SMTP_PASSWORD = env("EMAIL_PASSWORD", default="")
+# E-Mail Settings
+SMTP_SERVER = os.getenv("EMAIL_SERVER", default="localhost")
+SMTP_PORT = os.getenv("EMAIL_PORT", default=25)
+SMTP_PASSWORD = os.getenv("EMAIL_PASSWORD", default="")
 
-# EMAIL_FROM_DISPLAY_NAME = env("EMAIL_FROM_DISPLAY_NAME", default="From Display Name")
-# EMAIL_FROM = env("EMAIL_FROM", default="foo@bar.com")
+EMAIL_FROM_DISPLAY_NAME = os.getenv("EMAIL_FROM_DISPLAY_NAME", default="From Display Name")
+EMAIL_FROM = os.getenv("EMAIL_FROM", default="foo@bar.com")
 
-# EMAIL_BCC_DISPLAY_NAME = env("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
-# EMAIL_BCC = env("EMAIL_BCC", default="foo@bar.com")
+EMAIL_BCC_DISPLAY_NAME = os.getenv("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
+EMAIL_BCC = os.getenv("EMAIL_BCC", default="foo@bar.com")
 
-# # Printer Settings
-# PRINTER_RUN_IP = env("PRINTER_RUN_IP", default="192.168.0.10")
-# PRINTER_REG_IP = env("PRINTER_REG_IP", default="192.168.0.11")
-
-# MAIN_URL = env("MAIN_URL", default="http://127.0.0.1:8000")
-#MAIN_URL = env("MAIN_URL")
-#print("Main URL:",MAIN_URL)
-
-#print(f'SETTINGS: Secret-Key: {SECRET_KEY}, Server: {SMTP_SERVER}, Port: {SMTP_PORT}, Main URL: {MAIN_URL}')
-
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-#STATIC_ROOT = '/var/www/sj2024-static/static'
-#print('Static Root:', STATIC_ROOT)
-# print('Debug:', DEBUG)
+# Printer Settings
+PRINTER_RUN_IP = os.getenv("PRINTER_RUN_IP", default="192.168.0.10")
+PRINTER_REG_IP = os.getenv("PRINTER_REG_IP", default="192.168.0.11")
