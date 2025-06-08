@@ -1,0 +1,29 @@
+services:
+  sj-dev-web:
+    build: .
+    container_name: sj-dev
+    ports:
+      - "8000"
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: ${DJANGO_DEBUG}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+      DJANGO_ENVIRONMENT: ${DJANGO_ENVIRONMENT}
+    env_file:
+      - ./.env
+    volumes:
+      # Source code
+      - static_sj_dev:/app/staticfiles
+      # Database files
+      - /home/admsqline/projects/data/sj_dev/data:/app/data
+    networks:
+      - internal
+
+volumes:
+  static_sj_dev:
+    external: true
+
+networks:
+  internal:
+    name: internal
+    external: true
