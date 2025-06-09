@@ -189,8 +189,8 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': True,
         },
-        'sj.custom': {
-            'handlers': ['console', 'file'],
+        'sj.file.logger': {
+            'handlers': ['file'],
             'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
             'propagate': True,
         },

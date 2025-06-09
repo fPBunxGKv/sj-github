@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from members.models import sj_users
 from ..sj_utils import get_event_info, sendmail
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('sj.file.logger')
 
 # Utility to check if user is in admin group
 def is_admin(user):
@@ -58,7 +58,7 @@ def administration(request):
                 }
 
                 body_html = render_to_string('emails/invite_registation.html', ctx_body)
-                subject = f"Voranmeldung für {event_info['name']} ({event_info['date']})"
+                subject = f"Voranmeldung für {event_info['name']}"
 
                 send_state = sendmail(email, subject, body_html)
 
