@@ -144,6 +144,9 @@ CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS","https://127.0.0.
 # USE_X_FORWARDED_HOST = True
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Main URL for the application (e.g., for email links)
+MAIN_URL = os.getenv("MAIN_URL", default="http://localhost:8000")
+
 # E-Mail Settings
 SMTP_SERVER = os.getenv("EMAIL_SERVER", default="localhost")
 SMTP_PORT = os.getenv("EMAIL_PORT", default=25)
