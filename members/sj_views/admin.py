@@ -1,76 +1,73 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.decorators import user_passes_test
+import logging
 
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from django.template import loader
-from django.urls import reverse
-
-# ENV Settings (MAIN_URL)
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 from members.models import sj_users
-
 from ..sj_utils import get_event_info, sendmail
-
-import logging
 
 logger = logging.getLogger(__name__)
 
-### administration
+# Utility to check if user is in admin group
 def is_admin(user):
     return user.groups.filter(name='grp-admin').exists()
 
-@login_required 
+@login_required
 @user_passes_test(is_admin)
 def administration(request):
-
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
-            logger.info(f'Reset admin_state ...')
-            user_datasets = sj_users.objects.exclude(state='DEL').exclude(email='').values('email')
-            user_datasets.update(admin_state='')
+            logger.info('Resetting admin_state ...')
+            sj_users.objects.exclude(state='DEL').exclude(email='').update(admin_state='')
 
         elif 'send_invitation_email' in request.POST:
-            logger.info(f'Send invitation emails ...')
+            logger.info('Load event info ...')
+            # Load event information
+            event_info = get_event_info()
+            if not event_info:
+                logger.error('No event information found.')
+                return HttpResponse("No event information found.", status=500)
 
-            user_emails = sj_users.objects.filter(admin_state='').exclude(state='YES').exclude(state='DEL').exclude(email='').values('email').distinct().order_by('email')
-            # print(user_emails.query)
-            # print(f'Value-List: {user_emails.values_list}')
+            logger.info('Sending invitation emails ...')
+            user_emails = (
+                sj_users.objects
+                .filter(admin_state='', email__isnull=False)
+                .exclude(state__in=['YES', 'DEL'])
+                .values_list('email', flat=True)
+                .distinct()
+                .order_by('email')
+            )
 
-            # Load your template
-            templ_body = loader.get_template('emails/invite_registation.html')
+            for email in user_emails:
+                user_records = (
+                    sj_users.objects
+                    .filter(email=email)
+                    .exclude(state='YES')
+                )
 
-            for item in user_emails:
-                user_datasets = sj_users.objects.filter(email=item['email']).exclude(state='YES').values()
-                num_runners = user_datasets.count()
+                num_runners = user_records.count()
 
                 ctx_body = {
-                    'num_runners' : num_runners,
-                    'user_datasets' : user_datasets,
+                    'num_runners': num_runners,
+                    'user_datasets': user_records,
                     'event_info': get_event_info(),
-                    'main_url' : settings.MAIN_URL,
-                    }
-                
-                # Render the template
-                body_html = templ_body.render(ctx_body)
+                    'main_url': settings.MAIN_URL,
+                }
 
-                print(f'--- {num_runners} -----------------------')
-                print(body_html)
-                subject = "Anmeldung"
+                body_html = render_to_string('emails/invite_registation.html', ctx_body)
+                subject = f"Voranmeldung für {event_info['event_name']} ({event_info['event_date']})"
 
-                send_state = sendmail(item['email'], subject, body_html)
+                send_state = sendmail(email, subject, body_html)
 
                 # Set state to 'EMAILSENT'
                 if send_state:
-                    user_datasets.update(admin_state='EMAILSENT')
+                    user_records.update(admin_state='EMAILSENT')
+                    logger.info(f'Email sent to: {email}')
                 else:
-                    print(f'Email was not sent to: {item["email"]}')
+                    logger.warning(f'Email was not sent to: {email}')
 
-
-    context = {
-        'pagetitle' : 'SJ - Administration'
-    }
-    template = loader.get_template('administration_show.html')
-
-    return HttpResponse(template.render(context, request))
+    context = {'pagetitle': 'SJ - Administration'}
+    return render(request, 'administration_show.html', context)
