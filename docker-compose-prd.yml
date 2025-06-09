@@ -1,7 +1,7 @@
 services:
-  sj-prod-web:
+  sj-prd-web:
     build: .
-    container_name: sj-docker
+    container_name: sj-prd
     ports:
       - "8000"
     environment:
