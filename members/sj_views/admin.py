@@ -58,7 +58,7 @@ def administration(request):
                 }
 
                 body_html = render_to_string('emails/invite_registation.html', ctx_body)
-                subject = f"Voranmeldung für {event_info['event_name']} ({event_info['event_date']})"
+                subject = f"Voranmeldung für {event_info['name']} ({event_info['date']})"
 
                 send_state = sendmail(email, subject, body_html)
 
