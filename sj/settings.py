@@ -138,7 +138,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 SESSION_COOKIE_SECURE = os.getenv('DJANGO_SESSION_COOKIE_SECURE', 'True')
-CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS","https://127.0.0.1,https://localhost,https://[::1]").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS","http://127.0.0.1,http://localhost,https://[::1]").split(",")
 
 # # Setup support for proxy headers
 # USE_X_FORWARDED_HOST = True
@@ -161,3 +161,42 @@ EMAIL_BCC = os.getenv("EMAIL_BCC", default="foo@bar.com")
 # Printer Settings
 PRINTER_RUN_IP = os.getenv("PRINTER_RUN_IP", default="192.168.0.10")
 PRINTER_REG_IP = os.getenv("PRINTER_REG_IP", default="192.168.0.11")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'data', 'app.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'sj.custom': {
+            'handlers': ['console', 'file'],
+            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            'propagate': True,
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'],
+        'level': os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+    }
+}

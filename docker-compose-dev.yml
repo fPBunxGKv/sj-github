@@ -12,7 +12,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      # Source code
+      # Static files
       - static_sj_dev:/app/staticfiles
       # Database files
       - /home/admsqline/projects/data/sj_dev/data:/app/data
