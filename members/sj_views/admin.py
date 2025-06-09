@@ -13,6 +13,9 @@ from members.models import sj_users
 
 from ..sj_utils import get_event_info, sendmail
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 ### administration
 def is_admin(user):
@@ -24,12 +27,12 @@ def administration(request):
 
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
-            print(f'Clear admin_state ...')
+            logger.info(f'Reset admin_state ...')
             user_datasets = sj_users.objects.exclude(state='DEL').exclude(email='').values('email')
             user_datasets.update(admin_state='')
 
         elif 'send_invitation_email' in request.POST:
-            print(f'Send Invitation Emails...')
+            logger.info(f'Send invitation emails ...')
 
             user_emails = sj_users.objects.filter(admin_state='').exclude(state='YES').exclude(state='DEL').exclude(email='').values('email').distinct().order_by('email')
             # print(user_emails.query)
