@@ -192,7 +192,7 @@ LOGGING = {
         'sj.file.logger': {
             'handlers': ['file'],
             'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            'propagate': True,
+            'propagate': False,
         },
     },
     'root': {
