@@ -187,7 +187,12 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'propagate': True,
+            'propagate': False,
+        },
+        'sj.console.logger': {
+            'handlers': ['console'],
+            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            'propagate': False,
         },
         'sj.file.logger': {
             'handlers': ['file'],
