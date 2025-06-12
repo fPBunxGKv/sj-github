@@ -32,10 +32,11 @@ from datetime import *
 
 from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, delete_user, generate_startnumber
 
-
-# ToDo: logging / debugging vereinheitlichen/verbessern
 import logging
-logger = logging.getLogger(__name__)
+# Logging setup
+from django.conf import settings
+logger = logging.getLogger('sj.console.logger')
+
 
 debug_level = 1
 
@@ -54,6 +55,7 @@ def register_new(request,id=''):
     event_info = get_event_info()
 
     isUUID, id = is_valid_uuid(id)
+    logger.info(f"Register NEW - isUUID: {isUUID}, uuid: {id}")
 
     if isUUID:
         '''
@@ -62,7 +64,7 @@ def register_new(request,id=''):
         else to an empty form.
         '''
         if sj_users.objects.filter(uuid=id).count() < 1:
-            print("redirect vor POST")
+            logger.info(f"Register NEW - Redirect to empty form, no user with UUID {id} found")
             return HttpResponseRedirect('/register/')
 
     # if this is a POST request we need to process the form data
@@ -73,7 +75,7 @@ def register_new(request,id=''):
         if form.is_valid():
             # If we have a valid UUID with data -> update this record
             if isUUID:
-                print("update record for UUID:", id)
+                logger.info(f"Register NEW - Update record for UUID {id}")
                 member = sj_users.objects.get(uuid=id)
                 form = RegisterUserForm(request.POST, instance=member)
                 form.save()
@@ -82,7 +84,6 @@ def register_new(request,id=''):
 
             else:
                 # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
-                # print(form.cleaned_data["firstname"])
 
                 user_exists = sj_users.objects.filter(
                     firstname = form.cleaned_data["firstname"],
@@ -131,10 +132,8 @@ def register_new(request,id=''):
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
 
-                # print(f'Memberdaten (vor löschen): {member}, Member-ID {member.id}')
                 delete_user(member.id)
 
-            #print (f'Body: {mail_body}')
             sendmail(form.cleaned_data["email"], subject, mail_body)
 
             # show thankyou page
@@ -150,12 +149,14 @@ def register_new(request,id=''):
             else to an empty form.
             '''
             if sj_users.objects.filter(uuid=id).count() > 0:
+                logger.info(f"Register NEW - Found user with UUID {id}, loading data")
                 member = sj_users.objects.get(uuid=id)
 
                 # already registerd
                 if member.state == 'YES':
                     return HttpResponseRedirect(reverse('thankyou'))
                 elif member.state != 'DEL':
+                    logger.info(f"Register NEW - Loading form for user {member.firstname} {member.lastname}, State: {member.state}")
                     form = RegisterUserForm(instance=member, initial={'state': ''})
             else:
                 form = RegisterUserForm()
@@ -187,7 +188,7 @@ def register_string(request, id):
     return HttpResponseRedirect('/register/')
 
 def thankyou(request, state=''):
-    print("IN view THANKYOU - ", state)
+    logger.info(f"IN view THANKYOU - {state}")
     event_info = get_event_info()
 
     template = loader.get_template('thankyou.html')
@@ -203,7 +204,7 @@ def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
     mymembers = sj_users.objects.exclude(state='DEL').exclude(admin_state='deleted').values().order_by('firstname', 'lastname')
 
-    print("Function users - begin: ", mymembers.count())
+    logger.info(f"Users - begin: {mymembers.count()}")
 
     searched = ""
 
@@ -220,7 +221,7 @@ def users(request):
             mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
         if 'save' in request.POST:
             pk = request.POST.get('save')
-            print('- '*50)
+            logger.info(f"User {pk} - Save form")
             if int(pk) > 0:
                 user = sj_users.objects.get(id=pk)
                 form = UserForm(request.POST, instance=user)
@@ -237,14 +238,14 @@ def users(request):
 
                 prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
             else:
-                print(f'User {obj.firstname} {obj.lastname} is not registert: {obj.state}.')
+                logger.info(f"User {obj.firstname} {obj.lastname} is not registered: {obj.state}.")
                 prn_status=False
 
             if prn_status:
-                print("Registration -> printed")
+                logger.info(f"Registration -> printed for {obj.firstname} {obj.lastname}")
                 obj.admin_state = "PRINTED"
             else:
-                print(f'Registration -> not printed: {prn_status}')
+                logger.info(f"Registration -> not printed: {prn_status}")
 
             obj.save()
             form = UserForm(initial={'state': 'YES'})
@@ -255,18 +256,18 @@ def users(request):
 
             event_info = get_event_info()
             event_year = event_info["date"].strftime("%Y")
-            print(f'--> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
+            logger.info(f'--> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
             user.state = 'YES'
             #prn_status = print_paper(user_data=user, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
             prn_status = True
-            print(f'----> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
+            logger.info(f'----> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
 
 
             if prn_status:
-                print("Registration -> printed")
+                logger.info(f"Registration -> printed for {user.firstname} {user.lastname}")
                 user.admin_state = "PRINTED"
             else:
-                print(f'Registration -> not printed: {prn_status}')
+                logger.info(f"Registration -> not printed: {prn_status}")
 
             user.save()
 
@@ -314,7 +315,7 @@ def users(request):
 @login_required
 def results(request):
     # DEBUG
-    if (debug_level >= 2): print('RESULTS -- request')
+    if (debug_level >= 2): logger.info('RESULTS -- request')
 
     # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
@@ -325,7 +326,7 @@ def results(request):
     runs_all_data = sj_results.objects.select_related().filter(fk_sj_events=event_id).order_by('-run_nr','line_nr')
 
     # DEBUG
-    if (debug_level >= 2): print('EVENT-ID:', event_id,'\nNUMBER-LINES:', num_lines)
+    if (debug_level >= 2): logger.info(f"EVENT-ID: {event_id}, NUMBER-LINES: {num_lines}")
 
     template = loader.get_template('results_show.html')
     context = {
@@ -338,7 +339,7 @@ def results(request):
 @login_required
 def addresults(request, id):
     # DEBUG
-    if (debug_level >= 2): print('ADD-RESULTS --> request / ID:', id)
+    if (debug_level >= 2): logger.info(f'ADD-RESULTS --> request / ID: {id}')
 
     # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
@@ -360,7 +361,7 @@ def addresults(request, id):
 def saveresults(request):
     # DEBUG
     #debug_level = 2
-    if (debug_level >= 2): print('SAVE-RESULTS --> request')
+    if (debug_level >= 2): logger.info('SAVE-RESULTS --> request')
 
     event_info = get_event_info()
     num_lines = event_info['lines']
@@ -380,26 +381,26 @@ def saveresults(request):
         except:
             lines[i] = -1
 
-        if (debug_level >= 2): print('SAVE-RESULTS --> request, run-num =', num, ', lines', i, ':', lines[i])
+        if (debug_level >= 2): logger.info(f'SAVE-RESULTS --> request, run-num = {num}, lines {i}: {lines[i]}')
 
         if lines[i] != -1:
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
-            if (debug_level >= 2): print(f'  --> resulte state: {result_add_res.state}')
+            if (debug_level >= 2): logger.info(f'  --> resulte state: {result_add_res.state}')
 
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
                 previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
-                if (debug_level >= 2): print(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+                if (debug_level >= 2): logger.info(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
 
                 # Print or not (paper)
                 if (previous_min == None):
-                    if (debug_level >= 2): print(" - Zettel für Wäscheleine drucken (none)!")
+                    if (debug_level >= 2): logger.info(" - Zettel für Wäscheleine drucken (none)!")
                     print_paper(user_data=result_add_res,  run_time=lines[i], template='run',printer_ip=settings.PRINTER_RUN_IP)
                 elif (lines[i] < previous_min):
-                    if (debug_level >= 2): print(" - Zettel für Wäscheleine drucken (besser)!")
+                    if (debug_level >= 2): logger.info(" - Zettel für Wäscheleine drucken (besser)!")
                     print_paper(user_data=result_add_res,  run_time=lines[i], template='run', printer_ip=settings.PRINTER_RUN_IP)
                 else:
-                    if (debug_level >= 2): print(" - Leider keine neue Bestzeit!")
+                    if (debug_level >= 2): logger.info(" - Leider keine neue Bestzeit!")
 
                 # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RQR'
@@ -408,7 +409,7 @@ def saveresults(request):
                 # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RFR'
             else:
-                if (debug_level >= 2): print("!!! Resultat: Kein gültiger Status !!!")
+                if (debug_level >= 2): logger.info("!!! Resultat: Kein gültiger Status !!!")
                 result_add_res.state = 'DNF'
 
             result_add_res.result = lines[i]
@@ -473,10 +474,10 @@ def delete(request, id):
     member = sj_users.objects.get(uuid=id)
 
     if sj_results.objects.filter(fk_sj_users=member.id).count() < 1:
-        print(" - No results, delete the member")
+        logger.info(f"Delete user {member.firstname} {member.lastname} with UUID {id} - no results found")
         member.delete()
     else:
-        print(" - Member has results, keep but clean it")
+        logger.info(f"User {member.firstname} {member.lastname} with UUID {id} has results - anonymizing")
         member.firstname = '***'
         member.lastname = '***'
         member.email = ''
