@@ -8,7 +8,14 @@
                 <br>
                 <img src="{% static 'logo_211x211.png' %}" width="auto" height="auto">
                 <br>
-                <br>Du bist angemeldet für den
+                <br>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
                 <br>
                 <h1>{{ event_info.name }}</h1>
                 <h5>am {{ event_info.date | date:"d. F Y" }}</h5>
