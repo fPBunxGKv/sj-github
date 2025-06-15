@@ -16,6 +16,7 @@ class sj_users(models.Model):
     STATE = (
         ('YES', 'Ich bin dabei'),
         ('NO', 'Ich kann diesmal leider nicht'),
+        ('NOMAIL', 'Bitte nicht mehr einladen (keine E-Mails)'),
         ('DEL', 'Bitte meine Daten löschen'),
     )
 
