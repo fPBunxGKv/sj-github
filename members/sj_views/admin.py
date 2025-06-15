@@ -9,7 +9,10 @@ from django.http import HttpResponse
 from members.models import sj_users
 from ..sj_utils import get_event_info, sendmail
 
-logger = logging.getLogger('sj.file.logger')
+# Logging setup
+from django.conf import settings
+logger = logging.getLogger('sj.console.logger')
+#logger = logging.getLogger('sj.file.logger')
 
 # Utility to check if user is in admin group
 def is_admin(user):
@@ -21,7 +24,7 @@ def administration(request):
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
             logger.info('Resetting admin_state ...')
-            sj_users.objects.exclude(state='DEL').exclude(email='').update(admin_state='')
+            sj_users.objects.exclude(state='DEL').exclude(email='').update(admin_state='', state='')
 
         elif 'send_invitation_email' in request.POST:
             logger.info('Load event info ...')
@@ -35,7 +38,7 @@ def administration(request):
             user_emails = (
                 sj_users.objects
                 .filter(admin_state='', email__isnull=False)
-                .exclude(state__in=['YES', 'DEL'])
+                .exclude(state__in=['DEL'])
                 .values_list('email', flat=True)
                 .distinct()
                 .order_by('email')
@@ -45,7 +48,6 @@ def administration(request):
                 user_records = (
                     sj_users.objects
                     .filter(email=email)
-                    .exclude(state='YES')
                 )
 
                 num_runners = user_records.count()
@@ -53,7 +55,7 @@ def administration(request):
                 ctx_body = {
                     'num_runners': num_runners,
                     'user_datasets': user_records,
-                    'event_info': get_event_info(),
+                    'event_info': event_info,
                     'main_url': settings.MAIN_URL,
                 }
 
@@ -62,11 +64,12 @@ def administration(request):
 
                 send_state = sendmail(email, subject, body_html)
 
-                # Set state to 'EMAILSENT'
+                # Set state to 'EMAIL_SENT'
                 if send_state:
-                    user_records.update(admin_state='EMAILSENT')
+                    user_records.update(admin_state='EMAIL_SENT')
                     logger.info(f'Email sent to: {email}')
                 else:
+                    user_records.update(admin_state='EMAIL_FAILED')
                     logger.warning(f'Email was not sent to: {email}')
 
     context = {'pagetitle': 'SJ - Administration'}
