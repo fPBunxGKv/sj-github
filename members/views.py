@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.template import loader
 from django.urls import reverse
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 from django.conf import settings
 
@@ -117,24 +118,32 @@ def register_new(request,id=''):
                 'state' : form.cleaned_data["state"],
                 'firstname' : form.cleaned_data["firstname"],
                 'form_data' : form.cleaned_data,
-                'event_info': get_event_info(),
+                'event_info': event_info,
                 }
 
             mail_body = templ_body.render(ctx_body)
 
             # Generate email subject
+            subject = None
             if form.cleaned_data["state"] == 'YES':
                 subject = f'Anmeldebestätigung: {event_info["name"]}'
+                messages.success(request, 'Wir haben deine Daten gespeichert. Du wirst in Kürze eine E-Mail mit der Anmeldebestätigung erhalten.')
 
             elif form.cleaned_data["state"] == 'NO':
                 subject = f'{event_info["name"]}'
+                messages.success(request, 'Wir haben deine Daten gespeichert. Wir hoffen dich nächstes Mal wieder zu sehen.')
 
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
-
+                messages.success(request, 'Wir haben deine Daten gelöscht. Du kannst dich jederzeit wieder anmelden.')
                 delete_user(member.id)
 
-            sendmail(form.cleaned_data["email"], subject, mail_body)
+            elif form.cleaned_data["state"] == 'NOMAIL':
+                delete_user(member.id, state='NOMAIL')
+                messages.success(request, 'Wir haben deine Email Adresse gelöscht. Du wirst in Zukunft keine E-Mails mehr erhalten.')
+
+            if subject:
+                sendmail(form.cleaned_data["email"], subject, mail_body)
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
@@ -154,14 +163,17 @@ def register_new(request,id=''):
 
                 # already registerd
                 if member.state == 'YES':
+                    messages.success(request, 'Du bist bereits registriert!')
                     return HttpResponseRedirect(reverse('thankyou'))
                 elif member.state != 'DEL':
                     logger.info(f"Register NEW - Loading form for user {member.firstname} {member.lastname}, State: {member.state}")
                     form = RegisterUserForm(instance=member, initial={'state': ''})
             else:
                 form = RegisterUserForm()
+                form = RegisterUserForm(initial={'state': 'YES'})
         else:
             form = RegisterUserForm()
+            form = RegisterUserForm(initial={'state': 'YES'})
 
     context = {
         'pagetitle' : 'SJ - Anmeldung',
