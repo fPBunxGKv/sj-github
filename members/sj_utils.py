@@ -223,7 +223,7 @@ def get_event_info():
             "lines": active_event['event_num_lines']
             }
 
-def delete_user(id):
+def delete_user(id, state='DEL'):
     '''
     Delete all data of a user if he has no results in the database.
     Else just overwrite first/lastname with "***" and only keep ranking/result
@@ -235,7 +235,7 @@ def delete_user(id):
     if sj_results.objects.filter(fk_sj_users=user.id).count() < 1:
         print(" - No results, delete the user - ")
         user.delete()
-    else:
+    elif state == 'DEL':
         print(" - Member has results, keep but clean it - ")
         user.firstname = '***'
         user.lastname = '***'
@@ -244,6 +244,13 @@ def delete_user(id):
         user.city = ''
         user.state = 'DEL'
         user.save()
+    elif state == 'NOMAIL':
+        user.email = ''
+        user.phone = ''
+        user.state = 'NOMAIL'
+        user.save()
+    else:
+        print(" - No action taken - ")
 
 def generate_startnumber():
     seed()
