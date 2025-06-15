@@ -24,12 +24,11 @@
 
                             <form action='' method="POST" >
                                 {% csrf_token %}
-                                {% comment %} {% bootstrap_form form layout='floating' exclude='phone'%}
 
-                                {% bootstrap_button button_type="submit" content="Absenden" %}
-                                {% bootstrap_button button_type="reset" content="Abbrechen" %} {% endcomment %}
+                            
+                                {{ form.as_p }}
+                                <input class="btn btn-primary btn-lg" type="submit" value="Absenden" />
                             </form>
-
                         </div>
                     </div>
                 </div>
