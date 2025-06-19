@@ -33,7 +33,7 @@
                             <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
                             {% if request.user|is_in_group:"grp-kasse" %}
                                 <a href="{% url 'users' %}" class="nav-item nav-link">Teilnehmer</a>
-                                <a href="{% url 'add' %}" class="nav-item nav-link">TeilnehmerIn erfassen</a>
+                                {% comment %} <a href="{% url 'add' %}" class="nav-item nav-link">TeilnehmerIn erfassen</a> {% endcomment %}
                             {% endif %}
                             {% if request.user|is_in_group:"grp-lauf" %}
                                 <a href="{% url 'run' %}" class="nav-item nav-link">Laufeinteilung</a>
