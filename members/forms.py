@@ -7,6 +7,7 @@ from datetime import date
 NAME_REGEX = "^[a-zA-ZÀ-ÿ]+(?:[- ][a-zA-ZÀ-ÿ]+)*$"
 
 class RegisterRunsForm(forms.ModelForm):
+    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,12 +25,19 @@ class RegisterRunsForm(forms.ModelForm):
 
         return cleaned_data
 
-# create a ModelForm
+# RegisterUserForm is used to register a new user
+# if lastname and firstname field is empty, hide state field
 class RegisterUserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['phone'].required = False
+
+        firstname = self.data.get('firstname') if self.is_bound else self.initial.get('firstname')
+        lastname = self.data.get('lastname') if self.is_bound else self.initial.get('lastname')
+
+        if not firstname and not lastname:
+            print("RegisterUserForm: firstname or lastname is empty, hiding state field")
+            self.fields['state'].widget = forms.HiddenInput()
 
     # specify the name of model to use
     class Meta:
@@ -40,7 +48,6 @@ class RegisterUserForm(forms.ModelForm):
             'byear',
             'gender',
             'email',
-            # 'phone',
             'city',
             'state'
         ]
@@ -108,7 +115,7 @@ class RegisterUserForm(forms.ModelForm):
         return cleaned_data        
 
 
-# create a ModelForm
+# UserForm is used to update user data as logged in user
 class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
