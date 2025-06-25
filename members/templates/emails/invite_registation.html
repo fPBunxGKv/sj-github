@@ -1,22 +1,83 @@
-{% if num_runners < 2 %}
-Hallo {{ user_datasets.0.firstname }},
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Anmeldung – {{ event_info.name | default:"Event" }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f8f8f8;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .email-container {
+            background-color: #ffffff;
+            padding: 30px;
+            max-width: 600px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0066cc;
+        }
+        a.link {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #ffffff;
+            color: #0066cc !important;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        a.link:hover {
+            background-color: #9ac8f7;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        {% if num_runners < 2 %}
+            <h1>Hallo {{ user_datasets.0.firstname }},</h1>
 
-Schon bald ist es wieder soweit, der {{ event_info.name | default:"" }} findet am {{ event_info.date | date:"l, d. F Y" | default:"" }} statt.
-Du kannst dich bereits jetzt mittels den untenstehenden Link anmelden.
+            <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
 
-    Dein persönlicher Anmelde-Link: {{main_url}}/register/{{ user_datasets.0.uuid }}
+            <p>Du kannst dich bereits jetzt mittels diesem Link anmelden:<br>
+            <p><strong>{{ user_datasets.0.firstname|default:"->" }}, </strong>
+            <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}" class="link">
+                dein persönlicher Link.
+            </a></p>
+            <p>Oder kopiere diesen Link in deinen Browser:<br>
+            <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}">{{ main_url }}/register/{{ user_datasets.0.uuid }}</a></p>
 
-Sportliche Grüsse
-OK Schnällschte Jegenstorfer
-{% else %}
-Hallo zusammen,
+        {% else %}
+            <h1>Hallo zusammen,</h1>
+            <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
 
-Schon bald ist es wieder soweit, der {{ event_info.name | default:"" }} findet am {{ event_info.date | date:"l, d. F Y" | default:"" }} statt.
-Ihr könnt euch bereits jetzt mittels den untenstehenden Links anmelden.
-{% for user in user_datasets %}
-{{ user.firstname }}:
-    {{main_url}}/register/{{ user.uuid }}
-{% endfor %}
-Sportliche Grüsse
-OK Schnällschte Jegenstorfer
-{% endif %}
+            <p>Ihr könnt euch bereits jetzt mittels den untenstehenden Links anmelden:</p>
+            {% for user in user_datasets %}
+                <p><strong>{{ user.firstname }}, </strong>
+                <a href="{{ main_url }}/register/{{ user.uuid }}" class="link">
+                    dein persönlicher Link.
+                </a></p>
+                <p>Oder kopiere diesen Link in deinen Browser:<br>
+                <a href="{{ main_url }}/register/{{ user.uuid }}">{{ main_url }}/register/{{ user.uuid }}</a></p>
+            {% endfor %}
+        {% endif %}
+
+        <div class="footer">
+            <p>Sportliche Grüsse<br>
+            OK Schnällschte Jegenstorfer</p>
+        </div>
+    </div>
+</body>
+</html>

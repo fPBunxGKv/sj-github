@@ -2,9 +2,11 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.mail import send_mail
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.http import HttpResponse
+from django.utils.html import strip_tags
 
 from members.models import sj_users
 from ..sj_utils import get_event_info, sendmail
@@ -60,9 +62,15 @@ def administration(request):
                 }
 
                 body_html = render_to_string('emails/invite_registation.html', ctx_body)
-                subject = f"Voranmeldung für {event_info['name']}"
 
-                send_state = sendmail(email, subject, body_html)
+                send_state = send_mail(
+                    subject=f"Voranmeldung für den {event_info['name']}",
+                    message=strip_tags(body_html),  # plain text fallback
+                    recipient_list=[email],
+                    html_message=body_html,
+                    fail_silently=False,  # Important!
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                )
 
                 # Set state to 'EMAIL_SENT'
                 if send_state:

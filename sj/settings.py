@@ -158,6 +158,18 @@ EMAIL_FROM = os.getenv("EMAIL_FROM", default="foo@bar.com")
 EMAIL_BCC_DISPLAY_NAME = os.getenv("EMAIL_BCC_DISPLAY_NAME", default="Bcc Display Name")
 EMAIL_BCC = os.getenv("EMAIL_BCC", default="foo@bar.com")
 
+# Email settings for sending emails (via django.core.mail)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development, use console backend to print emails to console
+EMAIL_HOST = os.getenv("EMAIL_SERVER", default="localhost")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", default=25))
+EMAIL_HOST_USER = os.getenv("EMAIL_USERNAME", default="")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD", default="")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", default="False") == "True"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", default="False") == "True"
+DEFAULT_FROM_EMAIL = f'{EMAIL_FROM_DISPLAY_NAME} <{EMAIL_FROM}>'  # Default sender format
+
+
 # Printer Settings
 PRINTER_RUN_IP = os.getenv("PRINTER_RUN_IP", default="192.168.0.10")
 PRINTER_REG_IP = os.getenv("PRINTER_REG_IP", default="192.168.0.11")

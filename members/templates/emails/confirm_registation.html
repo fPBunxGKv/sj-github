@@ -1,30 +1,32 @@
-{% if form_data.state == 'YES' %}
-Hallo {{ firstname }}
+<body>
+    <div class="email-container">
+        {% if form_data.state == 'YES' %}
+        <p>Hallo {{ firstname }}</p>
 
-Du bist für den {{ event_info.name }} am {{ event_info.date | date:"l, d. F Y" | default:"" }} angemeldet.
-Wir freuen uns auf einen spannenden Wettkampf.
+        <p>Du bist für den <strong>{{ event_info.name }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> angemeldet.<br>
+        Wir freuen uns auf einen spannenden Wettkampf.</p>
 
-Sportliche Grüsse
-OK Schnällschte Jegenstorfer
+        <p>Sportliche Grüsse<br>
+        OK Schnällschte Jegenstorfer</p>
 
-- TEMPLATE -
-{% elif form_data.state == 'NO' %}
-Hallo {{ firstname }}
+        {% elif form_data.state == 'NO' %}
+        <p>Hallo {{ firstname }}</p>
 
-Schade kannst du diesmal nicht aktiv dabei sein.
-Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.
+        <p>Schade kannst du diesmal nicht aktiv dabei sein.<br>
+        Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.</p>
 
-Sportliche Grüsse
-OK Schnällschte Jegenstorfer
+        <p>Sportliche Grüsse<br>
+        OK Schnällschte Jegenstorfer</p>
 
-- TEMPLATE -
-{% elif state == 'DEL' %}
-Hallo {{ firstname }}
+        {% elif state == 'DEL' %}
+        <p>Hallo {{ firstname }}</p>
 
-Wir haben deine Daten gelöscht.
+        <p>Wir haben deine Daten gelöscht.</p>
 
-Sportliche Grüsse
-OK Schnällschte Jegenstorfer
+        <p>Sportliche Grüsse<br>
+        OK Schnällschte Jegenstorfer</p>
 
-- TEMPLATE -
-{% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

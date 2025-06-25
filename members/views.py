@@ -1,10 +1,13 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.core.mail import send_mail
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.urls import reverse
-from django.core.paginator import Paginator
-from django.contrib import messages
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from django.conf import settings
 
@@ -111,9 +114,6 @@ def register_new(request,id=''):
                             break
                         i += 1
 
-            # Render the email boty text
-            templ_body = loader.get_template('emails/confirm_registation.html')
-
             ctx_body = {
                 'state' : form.cleaned_data["state"],
                 'firstname' : form.cleaned_data["firstname"],
@@ -121,7 +121,8 @@ def register_new(request,id=''):
                 'event_info': event_info,
                 }
 
-            mail_body = templ_body.render(ctx_body)
+            # Render the email body HTML
+            body_html = render_to_string('emails/confirm_registation.html', ctx_body)
 
             # Generate email subject
             subject = None
@@ -143,7 +144,15 @@ def register_new(request,id=''):
                 messages.success(request, 'Wir haben deine Email Adresse gelöscht. Du wirst in Zukunft keine E-Mails mehr erhalten.')
 
             if subject:
-                sendmail(form.cleaned_data["email"], subject, mail_body)
+                email = form.cleaned_data["email"]
+                send_state = send_mail(
+                    subject=subject,
+                    message=strip_tags(body_html),  # plain text fallback
+                    recipient_list=[email],
+                    html_message=body_html,
+                    fail_silently=False,  # Important!
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                )
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
