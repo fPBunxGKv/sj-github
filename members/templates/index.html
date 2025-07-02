@@ -2,16 +2,30 @@
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
     {% load static %}
-    <div class="container-fluid">
-        <div class="row" align="center">
-            <div class="col align="center">
-                <br>
-                <img src="{% static 'logo_211x211.png' %}" width="auto" height="auto">
-                <br>
-                <br>
-                <h1>{{ event_info.name }}</h1>
-                <h5>{{ event_info.date | date:"d. F Y" }}</h5>
-            </div>
+    <div class="container-fluid text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <img src="{% static 'logo_211x211.png' %}" class="img-fluid mb-4" alt="Event Logo">
+
+            <h1 class="display-4">{{ event_info.name }}</h1>
+            <h5 class="text-muted mb-4">{{ event_info.date | date:"d. F Y" }}</h5>
+
+            {% if event_info.reg_open %}
+                <a href="/anmeldung/" class="btn btn-success btn-lg mb-3" role="button">Zur Anmeldung</a>
+            {% else %}
+                <p class="font-weight-bold text-danger mb-3">
+                    Voranmeldungen nehmen wir ab Anfang August entgegen.
+                </p>
+            {% endif %}
+
+            <a href="{% static 'calendar/sj2025.ics' %}" target="_blank" class="btn btn-outline-success btn-sm mb-4" role="button">
+                Im Kalender eintragen
+            </a>
+
+            <p class="mt-4">
+                Das OK freut sich auf einen fairen und spannenden Wettkampf.
+            </p>
         </div>
     </div>
+</div>
 {% endblock %}
