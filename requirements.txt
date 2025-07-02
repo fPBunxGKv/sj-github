@@ -5,10 +5,11 @@
 # python-escpos
 # reportlab
 # scipy
+# Django==4.2.20
 appdirs==1.4.4
 argcomplete==3.5.0
 asgiref==3.8.1
-Django==4.2.20
+Django==5.2
 django-bootstrap-static==5.3.3
 django-environ==0.11.2
 environ==1.0
