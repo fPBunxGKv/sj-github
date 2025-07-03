@@ -225,7 +225,7 @@ def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
     mymembers = sj_users.objects.exclude(state='DEL').exclude(admin_state='deleted').values().order_by('firstname', 'lastname')
 
-    logger.info(f"Users - begin: {mymembers.count()}")
+    logger.info(f"Users - begin, members count: {mymembers.count()}")
 
     searched = ""
 
@@ -246,30 +246,42 @@ def users(request):
             if int(pk) > 0:
                 user = sj_users.objects.get(id=pk)
                 form = UserForm(request.POST, instance=user)
+            else:
+                form = UserForm(request.POST or None)
+            
+            # check whether it's valid:
+            if form.is_valid():
                 obj = form.save(commit=False)
-            else:
-                form = UserForm(request.POST)
-                obj = form.save(commit=False)
-                obj.startnum = generate_startnumber()
 
-            # Startzettel ausdrucken
-            if obj.state == 'YES':
-                event_info = get_event_info()
-                event_year = event_info["date"].strftime("%Y")
+                # Generate a unique start number if not set
+                if not obj.startnum:
+                    logger.info("No start number provided, generating a new one.")
+                    obj.startnum = generate_startnumber()
 
-                prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
-            else:
-                logger.info(f"User {obj.firstname} {obj.lastname} is not registered: {obj.state}.")
-                prn_status=False
+                # Startzettel ausdrucken
+                if obj.state == 'YES':
+                    event_info = get_event_info()
+                    event_year = event_info["date"].strftime("%Y")
+                    prn_status = print_paper(user_data=obj, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
+                elif obj.state == 'NOMAIL':
+                    prn_status = False
+                    obj.email = ''
+                    logger.info(f"User {obj.firstname} {obj.lastname} email deleted: {obj.state}.")
+                else:
+                    logger.info(f"User {obj.firstname} {obj.lastname} is not registered: {obj.state}.")
+                    prn_status=False
 
-            if prn_status:
-                logger.info(f"Registration -> printed for {obj.firstname} {obj.lastname}")
-                obj.admin_state = "PRINTED"
-            else:
-                logger.info(f"Registration -> not printed: {prn_status}")
+                if prn_status:
+                    logger.info(f"Registration -> printed for {obj.firstname} {obj.lastname}")
+                    obj.admin_state = "PRINTED"
+                else:
+                    logger.info(f"Registration -> not printed: {prn_status}")
+                    obj.admin_state = "NOT_PRINTED"
 
-            obj.save()
-            form = UserForm(initial={'state': 'YES'})
+                obj.save()
+
+                # initialize the empty form for a new user
+                form = UserForm(initial={'state': 'YES'})
 
         elif 'print' in request.POST:
             pk = request.POST.get('print')
@@ -277,49 +289,34 @@ def users(request):
 
             event_info = get_event_info()
             event_year = event_info["date"].strftime("%Y")
-            logger.info(f'--> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
-            user.state = 'YES'
-            #prn_status = print_paper(user_data=user, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
-            prn_status = True
-            logger.info(f'----> Direct-Print: {user.firstname} {user.lastname} - {user.state}')
 
+            logger.info(f"User {user.firstname} {user.lastname} - Start print registration")
+            prn_status = print_paper(user_data=user, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
 
             if prn_status:
                 logger.info(f"Registration -> printed for {user.firstname} {user.lastname}")
+                user.state = 'YES'
                 user.admin_state = "PRINTED"
             else:
-                logger.info(f"Registration -> not printed: {prn_status}")
-
+                logger.info(f"Registration -> not printed for {user.firstname} {user.lastname}: {prn_status}")
+                user.admin_state = "NOT_PRINTED"
             user.save()
 
         elif 'delete' in request.POST:
             pk = request.POST.get('delete')
             delete_user(pk)
+
         elif 'edit' in request.POST:
             pk = request.POST.get('edit')
             user = sj_users.objects.get(id=pk)
 
-            # ToDo
-            # print(f'User {user.firstname} {user.lastname} - STATE {user.state}')
-            if user.state.upper() == 'EMAILSENT':
+            # If the user is not deleted
+            # then set the state to YES
+            if user.state.upper() not in ['DEL', ]:
                 user.state = 'YES'
-            elif user.state.upper() == 'NO':
-                user.state = 'YES'
-            elif user.state.upper() == 'YES':
-                user.state = 'YES'
-            elif user.state.upper() == '':
-                user.state = 'YES'
+                logger.info(f'User {user.firstname} {user.lastname} - STATE {user.state} -> set to YES')
 
             form = UserForm(instance=user)
-        # elif 'search' in request.POST:
-        #     print('query in post request...', searched)
-        #     print('in post search')
-        #     mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
-    # Create a paginator
-    # paginator = Paginator(mymembers, 12)
-    #page_number = request.GET.get("page")
-    # url_parameter = request.GET.get("q")
-    #page_obj = paginator.get_page(page_number)
 
     template = loader.get_template('users_show.html')
 
