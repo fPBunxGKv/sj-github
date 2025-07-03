@@ -1,5 +1,18 @@
-{% for field in form %}<td>{{ field }}</td>{% endfor %}
+{% for field in form %}
+    <td>
+        {{ field }}
+        {% if field.errors %}
+            <div class="text-danger">
+                {% for error in field.errors %}
+                    <small>{{ error }}</small><br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </td>
+{% endfor %}
 <td></td>
 <td>
-    <button class="btn btn-primary" name="save" value="{{ form.instance.id | default:'0' }}"">Speichern</button>
+    <button class="btn btn-primary" name="save" value="{{ form.instance.id|default:'0' }}">
+        Speichern
+    </button>
 </td>

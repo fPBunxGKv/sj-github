@@ -159,14 +159,14 @@ class UserForm(forms.ModelForm):
                 }),
             'email': forms.EmailInput(attrs={
                     'class': 'form-outline mb-4 form-control form-control-md',
-                    'placeholder': 'E-Mail *',
+                    'placeholder': 'E-Mail',
                 }),
             'phone': forms.TextInput(attrs={
                     'class': 'form-outline mb-4 form-control form-control-md',
                 }),
             'city': forms.TextInput(attrs={
                     'class': 'form-outline mb-4 form-control form-control-md',
-                    'placeholder': 'Ort *',
+                    'placeholder': 'Ort',
                 }),
             'state': forms.Select(attrs={
                     'class': 'form-control form-control-md',
@@ -180,9 +180,9 @@ class UserForm(forms.ModelForm):
             'lastname': "Nachname *",
             'byear' : 'Jahrgang *',
             'gender' : 'Geschlecht *',
-            'email' : 'E-Mail *',
+            'email' : 'E-Mail',
             'phone' : 'Telefon',
-            'city' : 'Ort *',
+            'city' : 'Ort',
             'state' : 'An/Abmelden *',
         }
 
@@ -191,17 +191,22 @@ class UserForm(forms.ModelForm):
 
         firstname = cleaned_data.get('firstname')
         if not re.match(NAME_REGEX, firstname):
-            self._errors['firstname'] = self.error_class(["Im Vorname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."])
+            self.add_error('firstname', f"Im Vorname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt.")
 
         lastname = cleaned_data.get('lastname')
         if not re.match(NAME_REGEX, lastname):
-            self._errors['lastname'] = self.error_class(["Im Nachname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."])
+            self.add_error('lastname', f"Im Nachname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt.")
 
         # Gültige Jahrgänge (aktuelles Jahr minus maxAge)
         maxAge = 100
 
         byear = cleaned_data.get('byear')
         if byear not in range(date.today().year-maxAge, date.today().year):
-            self._errors['byear'] = self.error_class(["Das Geburtsjahr muss zwischen " + str(date.today().year-maxAge) + " und " +str(date.today().year) + " liegen."])
+            error_message = f"Das Geburtsjahr muss zwischen {date.today().year - maxAge} und {date.today().year} liegen."
+            self.add_error('byear', error_message)
+        # Check if email is valid
+        email = cleaned_data.get('email')
+        if email and not re.match(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email):
+            self.add_error('email', f"Bitte geben Sie eine gültige E-Mail-Adresse ein.")
 
         return cleaned_data
