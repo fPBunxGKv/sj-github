@@ -1,47 +1,74 @@
 {% extends "base2.html" %}
-{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+
+{% block title %}
+    <title>{{ pagetitle | default:"SJ" }}</title>
+{% endblock %}
+
 {% block content %}
+    <style>
+        /* Print-specific styles */
+        @media print {
+            table {
+                width: 100%;
+                /* page-break-before: always; */
+            }
+
+            th, td {
+                padding: 0.5rem;
+                font-size: 14px;
+            }
+
+            caption {
+                font-size: 16px;
+                text-align: center;
+            }
+
+            hr.my-1 {
+                border: 2px solid #000000;
+                margin: 0;
+            }
+
+            /* Hide unwanted elements on print */
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+
     <section>
-        <!-- Tabelle mit eingeteilten Läufen 
-        <div class="container">
-            <div class="row">
-                <div class="col">-->
-                    <table class="table table-sm table-striped caption-top">
-                        <caption><b>Finalläufe</b></caption>
-                        <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% regroup runs by run_nr as new_runs %}
-                            {% for x in new_runs %}
-                                <tr>
-                                    <td class="align-middle">
-                                        <b>{{ x.grouper }}</b>
-                                    </td>
-                                    {% for line in num_lines %}
-                                        <td>
-                                            {% for y in x.list %}
-                                                {% if line|add:"1" == y.line_nr %}
-                                                    <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> 
-                                                    ({{ y.fk_sj_users.startnum }})
-                                                    <br>
-                                                    {{ y.fk_sj_users.byear }} / {{ y.result_category }}
-                                                    <br>
-                                                    _________________
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                    {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-         <!--    </div>
-        </div>
-    </div>-->
-</section>
+        <table class="table table-sm table-striped caption-top">
+            <caption><b>Finalläufe</b></caption>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    {% for line in num_lines %}
+                        <th scope="col">Bahn {{ line | add:"1" }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% regroup runs by run_nr as new_runs %}
+                {% for x in new_runs %}
+                    <tr>
+                        <td class="align-middle">
+                            <b>{{ x.grouper }}</b>
+                        </td>
+                        {% for line in num_lines %}
+                            <td>
+                                {% for y in x.list %}
+                                    {% if line|add:"1" == y.line_nr %}
+                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> 
+                                        ({{ y.fk_sj_users.startnum }})<br>
+                                        {{ y.fk_sj_users.byear }} / {{ y.result_category }}<br>
+                                        <br>
+                                        <hr class="my-1">
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
 {% endblock %}
