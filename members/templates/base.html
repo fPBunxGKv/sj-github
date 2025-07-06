@@ -47,7 +47,13 @@
                             {% endif %}
                         </div>
                         <div class="navbar-nav ms-auto">
-                            <a href="{% url 'logout' %}" class="nav-item nav-link">Logout ({{ user.username }})</a>
+                            <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">
+                                    Logout ({{ user.username }})
+                                </button>
+                            </form>
+                            {% comment %} <a href="{% url 'logout' %}" class="nav-item nav-link">Logout ({{ user.username }})</a> {% endcomment %}
                         {% else %}
                             <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
                             {% if event_info.reg_open %}
@@ -56,7 +62,8 @@
                             <a href="{% url 'ranking' %}" class="nav-item nav-link">Ranglisten</a>
                         </div>
                         <div class="navbar-nav ms-auto">
-                            <a href="{% url 'login' %}" class="nav-item nav-link">Login</a>
+                            {% comment %} <a href="{% url 'login' %}" class="nav-item nav-link">Login</a> {% endcomment %}
+                            <a href="{% url 'login' %}" class="nav-item nav-link btn btn-secondary">Login</a>
                         {% endif %}
                     </div>
                 </div>
