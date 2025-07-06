@@ -4,26 +4,21 @@ services:
     container_name: sj-prd
     ports:
       - "8000"
-    environment:
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
-      DJANGO_DEBUG: ${DJANGO_DEBUG}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
-      DJANGO_ENVIRONMENT: ${DJANGO_ENVIRONMENT}
     env_file:
       - ./.env
     volumes:
       # Source code
-      - static_sj_prod:/app/staticfiles
+      - static_sj_prd:/app/staticfiles
       # Database files
-      - /home/admsqline/projects/data/sj_prod/data:/app/data
+      - /home/admsqline/projects/data/sj_prd:/app/data
     networks:
-      - internal
+      - proxynet
 
 volumes:
-  static_sj_prod:
+  static_sj_prd:
     external: true
 
 networks:
-  internal:
-    name: internal
+  proxynet:
+    name: proxynet
     external: true
