@@ -437,50 +437,7 @@ def saveresults(request):
 
 
 
-### TeilnehmerIn erfassen
-@login_required
-def add(request):
-    event_info = get_event_info()
-
-    template = loader.get_template('add.html')
-    context = {
-        'pagetitle' : 'SJ - TeilnehmerIn hinzufügen',
-        'event_info' : event_info,
-    }
-    return HttpResponse(template.render(context, request))
-
-def addrecord(request):
-    first = request.POST['fname']
-    last = request.POST['lname']
-    byear = request.POST['byear']
-    gender = request.POST['gender']
-    email = request.POST['uemail']
-    phone = request.POST['phone']
-    city = request.POST['city']
-    state = request.POST['state']
-    seed()
-    i = 1
-    while i < 3:
-        startngen = randint(100000, 999999)
-        member_tst_startnr = sj_users.objects.filter(startnum=startngen)
-        if len(member_tst_startnr) < 1:
-            member = sj_users(
-                                firstname=first,
-                                lastname=last,
-                                byear=byear,
-                                gender=gender,
-                                email=email,
-                                phone=phone,
-                                city=city,
-                                startnum=startngen,
-                                state=state
-                                )
-            member.save()
-            break
-        i += 1
-
-    return HttpResponseRedirect(reverse('index'))
-
+### TeilnehmerIn löschen
 @login_required
 def delete(request, id):
     '''
@@ -506,55 +463,6 @@ def delete(request, id):
 
     return HttpResponseRedirect(reverse('users'))
 
-@login_required
-def edit(request, id):
-    # ToDo: Gültigkeit prüfen
-    #member = sj_users.objects.filter(uuid=id)
-    member = sj_users.objects.get(uuid=id)
-    #template = loader.get_template('edit.html')
-    template = loader.get_template('add.html')
-    if member.state != 'DEL':
-        context = {
-            'pagetitle' : 'SJ - TeilnehmerIn bearbeiten',
-            'temprequest' : 'edit',
-            'member': member,
-        }
-        return HttpResponse(template.render(context, request))
-    else:
-        template = loader.get_template('add.html')
-        context = {
-            'pagetitle' : 'SJ - TeilnehmerIn hinzufügen',
-        }
-        return HttpResponse(template.render(context, request))
-
-# ToDo: falls resultate vorhanden - Kategorie prüfen / updaten
-def updaterecord(request, id):
-    '''
-    Benutzerdaten updaten
-    Update Userdata
-    '''
-    fname = request.POST['fname']
-    lname = request.POST['lname']
-    byear = request.POST['byear']
-    gender = request.POST['gender']
-    email = request.POST['uemail']
-    phone = request.POST['phone']
-    city = request.POST['city']
-    state = request.POST['state']
-
-    member = sj_users.objects.get(uuid=id)
-
-    member.firstname = fname
-    member.lastname = lname
-    member.byear = byear
-    member.gender = gender
-    member.email = email
-    member.phone = phone
-    member.city = city
-    member.state = state
-
-    member.save()
-    return HttpResponseRedirect(reverse('users'))
 
 def getResultsPerCategory(event_id, stateStr):
     '''

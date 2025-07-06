@@ -15,12 +15,6 @@ urlpatterns = [
             path('thankyou/', views.thankyou, name='thankyou'),
 
             path('users/', views.users, name='users'),
-            path('users/edit/<uuid:id>', views.edit, name='edit'),
-            path('users/edit/updaterecord/<uuid:id>', views.updaterecord, name='updaterecord'),
-            
-            path('add/', views.add, name='add'),
-            path('add/addrecord/', views.addrecord, name='addrecord'),
-            path('edit/addrecord/', views.addrecord, name='addrecord'),
 
             path('delete/<uuid:id>', views.delete, name='delete'),
 
