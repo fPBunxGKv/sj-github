@@ -342,9 +342,10 @@ def print_final_runs(request):
 
     template = loader.get_template('run_print_final.html')
     context = {
+        'event_info' : event_info,
         'runs' : runs_all_data,
         'num_lines' : range(num_lines),
-        'pagetitle' : 'SJ - Laufeinteilung',
+        'pagetitle' : 'SJ - Final-Laufeinteilung',
     }
     return HttpResponse(template.render(context, request))
 

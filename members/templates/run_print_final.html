@@ -37,7 +37,7 @@
 
     <section>
         <table class="table table-sm table-striped caption-top">
-            <caption><b>Finalläufe</b></caption>
+            <caption><b>Finalläufe {{ event_info.date | date:"l, d. F Y" | default:"" }}</b></caption>
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -57,9 +57,8 @@
                             <td>
                                 {% for y in x.list %}
                                     {% if line|add:"1" == y.line_nr %}
-                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> 
-                                        ({{ y.fk_sj_users.startnum }})<br>
-                                        {{ y.fk_sj_users.byear }} / {{ y.result_category }}<br>
+                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
+                                        {{ y.fk_sj_users.byear }} | {{ y.result_category }} ({{ y.fk_sj_users.startnum }})<br>
                                         <br>
                                         <hr class="my-1">
                                     {% endif %}
