@@ -66,15 +66,21 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
     # DumPrn = Dummy()
 
     try:
-        NetPrn = Network(host=printer_ip, timeout=1)
+        
 
         if template == 'run':
             # DumPrn.ln(count=6)
             """
             Printer Model: TM-T88VI
             """
+            # NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T88VI')
+            NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T20II')
+            # Empty lines
+            NetPrn.set(align='center', font='a', bold=False, custom_size=True, width=3, height=1, density=1)
+            NetPrn.textln(f'---')
+            NetPrn.ln(count=5)
+            NetPrn.textln(f'-            -')
             # Logo
-            NetPrn.ln(count=4)
             NetPrn.set(align='center')
             NetPrn.image("members/static/logo_211x211.png")
             NetPrn.ln(count=1)
@@ -103,7 +109,8 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
 
             # Startnumber as barcode inkl. text
             NetPrn.ln(count=2)
-            NetPrn.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+            # NetPrn.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+            NetPrn.barcode(str(user_data.fk_sj_users.startnum), 'CODE39', height=80, width=2, pos='BELOW', font='a', align_ct=True, function_type=None, check=True)
 
             # Cut the paper & close the connection
             NetPrn.cut()
@@ -113,9 +120,12 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             """
             Printer Model: TM-T20II
             """
+            NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T20II')
             print_cat = calc_cat(user_data.gender, user_data.byear, event_year)
+            print(f"Number of copies: {num_copies}")
             for n in range(num_copies):
 
+                
                 # Logo
                 NetPrn.ln(count=6)
                 NetPrn.set(align='center')
@@ -137,9 +147,10 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
                 NetPrn.textln(f'{print_cat}')
 
                 # Startnumber as barcode inkl. text
-                NetPrn.ln(count=3)
-                NetPrn.barcode(str(user_data.startnum), 'CODE39', height=90, width=3, pos='OFF', font='a', align_ct=True, function_type=None, check=True, force_software=False)
-                
+                NetPrn.ln(count=2)
+                # NetPrn.barcode(str(user_data.startnum), 'CODE39', height=90, width=3, pos='OFF', font='a', align_ct=True, function_type=None, check=True, force_software=False)
+                NetPrn.barcode(str(user_data.startnum), 'CODE39', height=90, width=3, pos='OFF', font='a', align_ct=True, function_type=None, check=True)
+
                 NetPrn.ln(count=1)
                 NetPrn.set(align='center', font='a', bold=False, custom_size=True, width=2, height=2, density=8)
                 NetPrn.textln(f'* {user_data.startnum} *')
@@ -158,16 +169,6 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
         print("Printing error:", type(error).__name__, "-", error)
         return False
     
-    # send code to printer
-    # try:
-    #     p = Network(host=printer_ip, timeout=1)
-        
-    #     p._raw(d.output)
-    #     return True
-
-    # except Exception as error:
-    #     print("Printing error:", type(error).__name__, "-", error)
-    #     return False
 
 def is_valid_uuid(value):
     try:

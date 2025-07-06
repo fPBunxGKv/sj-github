@@ -7,7 +7,6 @@ from datetime import date
 NAME_REGEX = "^[a-zA-ZÀ-ÿ]+(?:[- ][a-zA-ZÀ-ÿ]+)*$"
 
 class RegisterRunsForm(forms.ModelForm):
-    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,7 +80,6 @@ class RegisterUserForm(forms.ModelForm):
                 'class': 'form-outline mb-4 form-control form-control-lg',
                 'required': True,
                 }),
-
         }
 
         labels = {
@@ -112,7 +110,7 @@ class RegisterUserForm(forms.ModelForm):
         if byear not in range(date.today().year - maxAge, date.today().year):
             self.add_error('byear', f"Das Geburtsjahr muss zwischen {date.today().year - maxAge} und {date.today().year} liegen.")
 
-        return cleaned_data        
+        return cleaned_data
 
 
 # UserForm is used to update user data as logged in user
@@ -172,7 +170,6 @@ class UserForm(forms.ModelForm):
                     'class': 'form-control form-control-md',
                     'required': True,
                 }),
-
         }
 
         labels = {
