@@ -55,7 +55,7 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
-def register_new(request,id=''):
+def register_new(request, id=''):
     event_info = get_event_info()
 
     isUUID, id = is_valid_uuid(id)
@@ -190,7 +190,7 @@ def register_new(request,id=''):
         'form' : form,
         }
 
-    return render(request, "register_new_2.html", context)
+    return render(request, "register_new.html", context)
 
 def register_string(request, id):
     isUUID, id = is_valid_uuid(id)
