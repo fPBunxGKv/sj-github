@@ -59,10 +59,11 @@ def register_new(request, id=''):
     event_info = get_event_info()
 
     if not event_info["event_reg_open"]:
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(reverse('index'))
+        #return HttpResponseRedirect('/')
 
     if event_info["event_reg_start"] > datetime.now():
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect(reverse('index'))
 
     isUUID, id = is_valid_uuid(id)
     logger.info(f"Register NEW - isUUID: {isUUID}, uuid: {id}")
