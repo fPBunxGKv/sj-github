@@ -33,9 +33,21 @@ class sj_resultsAdmin(admin.ModelAdmin):
             'state',
             )
 
+class sj_usersAdmin(admin.ModelAdmin):
+    search_fields = ('lastname', 'firstname', 'state', 'admin_state', 'email')
+    list_filter = ('state', 'admin_state',)
+
+    list_display = (
+            'lastname',
+            'firstname',
+            'email',
+            'state',
+            'admin_state',
+            )
+
 
 
 # Register your models here.
-admin.site.register(sj_users)
+admin.site.register(sj_users, sj_usersAdmin)
 admin.site.register(sj_events, sj_eventsAdmin)
 admin.site.register(sj_results, sj_resultsAdmin)
