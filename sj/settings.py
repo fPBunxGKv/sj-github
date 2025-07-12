@@ -168,6 +168,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD", default="")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", default="False") == "True"
 EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", default="False") == "True"
 DEFAULT_FROM_EMAIL = f'{EMAIL_FROM_DISPLAY_NAME} <{EMAIL_FROM}>'  # Default sender format
+EMAIL_BCC = f'{EMAIL_BCC_DISPLAY_NAME} <{EMAIL_BCC}>'  # Default Bcc format
 
 
 # Printer Settings
@@ -185,7 +186,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            'level': os.getenv("LOGGING_LEVEL", "INFO"),
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'data', 'app.log'),
             'formatter': 'verbose',
@@ -201,19 +202,14 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': False,
         },
-        'sj.console.logger': {
-            'handlers': ['console'],
-            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            'propagate': False,
-        },
-        'sj.file.logger': {
-            'handlers': ['file'],
-            'level': os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        'sj.logger': {
+            'handlers': [os.getenv("LOGGING_DESTINATION", "console")],
+            'level': os.getenv("LOGGING_LEVEL", "INFO"),
             'propagate': False,
         },
     },
     'root': {
         'handlers': ['console', 'file'],
-        'level': os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+        'level': os.getenv("LOGGING_LEVEL", "WARNING"),
     }
 }

@@ -13,8 +13,7 @@ from ..sj_utils import get_event_info, sendmail
 
 # Logging setup
 from django.conf import settings
-logger = logging.getLogger('sj.console.logger')
-#logger = logging.getLogger('sj.file.logger')
+logger = logging.getLogger('sj.logger')
 
 # Utility to check if user is in admin group
 def is_admin(user):

@@ -18,6 +18,10 @@ from email.message import EmailMessage
 # ENV Settings (E-Mail)
 from django.conf import settings
 
+import logging
+# Logging setup
+logger = logging.getLogger('sj.logger')
+
 def calc_cat(u_gender, u_byear, event_year):
     """ Berechnet die Kategorie
 
@@ -31,7 +35,7 @@ def calc_cat(u_gender, u_byear, event_year):
             -
     """
     u_age = event_year - u_byear
-    # print('Kategorie berechnen, Gender:', u_gender, 'u_byear:', u_byear, 'u_age:', u_age, 'event_year:', event_year)
+    logger.debug(f"Kategorie berechnen, Gender: {u_gender}, u_byear: {u_byear}, u_age: {u_age}, event_year: {event_year}")
     mstring = str(u_age)
     match mstring:
         case '0' | '1' | '2' | '3' | '4' | '5':
@@ -58,7 +62,7 @@ def calc_cat(u_gender, u_byear, event_year):
 
 
 def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1, event_year=2020):
-    print(f"Print-Templatename: { template }")
+    logger.debug(f"Print-Templatename: { template }")
     # ToDo - test if logo file is present
     #        via dummy printer ?
     
@@ -66,8 +70,6 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
     # DumPrn = Dummy()
 
     try:
-        
-
         if template == 'run':
             # DumPrn.ln(count=6)
             """
@@ -122,7 +124,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             """
             NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T20II')
             print_cat = calc_cat(user_data.gender, user_data.byear, event_year)
-            print(f"Number of copies: {num_copies}")
+            logger.debug(f"Number of copies: {num_copies}")
             for n in range(num_copies):
 
                 
@@ -166,7 +168,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             NetPrn.cut()
 
     except Exception as error:
-        print("Printing error:", type(error).__name__, "-", error)
+        logger.error("Printing error:", type(error).__name__, "-", error)
         return False
     
 
@@ -181,6 +183,8 @@ def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_
 
     # print("Will send Email for:", value, state, firstname, email)
     # print(f'SEND-MAIL - Server: {settings.SMTP_SERVER}, Port: {settings.SMTP_PORT}, Sender: {settings.SENDER_EMAIL}')
+    logger.debug(f'SEND-MAIL - Server: {settings.SMTP_SERVER}, Port: {settings.SMTP_PORT}, Sender: {settings.EMAIL_FROM}')
+    logger.debug(f'SEND-MAIL - Bcc: {settings.EMAIL_BCC}, Subject: {msg_subj}')
 
     msg = EmailMessage()
     msg.set_content(msg_body)
@@ -234,10 +238,10 @@ def delete_user(id, state='DEL'):
     user = sj_users.objects.get(id=id)
 
     if sj_results.objects.filter(fk_sj_users=user.id).count() < 1:
-        print(" - No results, delete the user - ")
+        logger.info("Delete user -> No results, delete the user")
         user.delete()
     elif state == 'DEL':
-        print(" - Member has results, keep but clean it - ")
+        logger.info("Delete user -> Member has results, keep but clean it")
         user.firstname = '***'
         user.lastname = '***'
         user.email = ''
@@ -251,7 +255,7 @@ def delete_user(id, state='DEL'):
         user.state = 'NOMAIL'
         user.save()
     else:
-        print(" - No action taken - ")
+        logger.info("Delete user -> No action taken")
 
 def generate_startnumber():
     seed()

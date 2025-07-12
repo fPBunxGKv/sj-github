@@ -16,7 +16,7 @@ urlpatterns = [
 
             path('users/', views.users, name='users'),
 
-            path('delete/<uuid:id>', views.delete, name='delete'),
+            #path('delete/<uuid:id>', views.delete, name='delete'),
 
             path('run/', views.run, name='run'),
             path('run/addrun/', views.addrun, name='addrun'),

@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
@@ -39,10 +40,8 @@ from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, dele
 import logging
 # Logging setup
 from django.conf import settings
-logger = logging.getLogger('sj.console.logger')
+logger = logging.getLogger('sj.logger')
 
-
-debug_level = 1
 
 # ---------- Pages ----------
 def index(request):
@@ -58,16 +57,13 @@ def index(request):
 def register_new(request, id=''):
     event_info = get_event_info()
 
-    if not event_info["event_reg_open"]:
-        return HttpResponseRedirect(reverse('index'))
-        #return HttpResponseRedirect('/')
-
-    if event_info["event_reg_start"] > datetime.now():
+    if not event_info["reg_open"]:
+        logger.info("Register NEW - Registration is closed")
         return HttpResponseRedirect(reverse('index'))
 
     isUUID, id = is_valid_uuid(id)
-    logger.info(f"Register NEW - isUUID: {isUUID}, uuid: {id}")
-
+    logger.debug(f"Register NEW - isUUID: {isUUID}, uuid: {id}")
+    
     if isUUID:
         '''
         If we get a valid UUID out of a string and userdata not with state "DEL",
@@ -128,9 +124,6 @@ def register_new(request, id=''):
                 'event_info': event_info,
                 }
 
-            # Render the email body HTML
-            body_html = render_to_string('emails/confirm_registation.html', ctx_body)
-
             # Generate email subject
             subject = None
             if form.cleaned_data["state"] == 'YES':
@@ -152,14 +145,23 @@ def register_new(request, id=''):
 
             if subject:
                 email = form.cleaned_data["email"]
-                send_state = send_mail(
-                    subject=subject,
-                    message=strip_tags(body_html),  # plain text fallback
-                    recipient_list=[email],
-                    html_message=body_html,
-                    fail_silently=False,  # Important!
-                    from_email=settings.DEFAULT_FROM_EMAIL,
+                # Render the email body HTML
+                body_html = render_to_string('emails/confirm_registation.html', ctx_body)
+                # Strip HTML tags to create a plain text version of the email body.
+                body_plain = strip_tags(body_html)
+
+                # Then, create a multipart email instance.
+                msg = EmailMultiAlternatives(
+                    subject,
+                    body_plain,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    bcc=[settings.EMAIL_BCC],  # Bcc list
                 )
+
+                # Lastly, attach the HTML content to the email instance and send.
+                msg.attach_alternative(body_html, "text/html")
+                msg.send()
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
@@ -216,7 +218,7 @@ def register_string(request, id):
     return HttpResponseRedirect('/register/')
 
 def thankyou(request, state=''):
-    logger.info(f"IN view THANKYOU - {state}")
+    logger.debug(f"IN view THANKYOU - {state}")
     event_info = get_event_info()
 
     template = loader.get_template('thankyou.html')
@@ -232,7 +234,7 @@ def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
     mymembers = sj_users.objects.exclude(state='DEL').exclude(admin_state='deleted').values().order_by('firstname', 'lastname')
 
-    logger.info(f"Users - begin, members count: {mymembers.count()}")
+    logger.debug(f"Users - begin, members count: {mymembers.count()}")
 
     searched = ""
 
@@ -249,7 +251,7 @@ def users(request):
             mymembers = mymembers.filter(Q(firstname__icontains=searched) | Q(lastname__icontains=searched))
         if 'save' in request.POST:
             pk = request.POST.get('save')
-            logger.info(f"User {pk} - Save form")
+            logger.debug(f"User {pk} - Save form")
             if int(pk) > 0:
                 user = sj_users.objects.get(id=pk)
                 form = UserForm(request.POST, instance=user)
@@ -262,7 +264,7 @@ def users(request):
 
                 # Generate a unique start number if not set
                 if not obj.startnum:
-                    logger.info("No start number provided, generating a new one.")
+                    logger.debug("No start number provided, generating a new one.")
                     obj.startnum = generate_startnumber()
 
                 # Startzettel ausdrucken
@@ -273,16 +275,16 @@ def users(request):
                 elif obj.state == 'NOMAIL':
                     prn_status = False
                     obj.email = ''
-                    logger.info(f"User {obj.firstname} {obj.lastname} email deleted: {obj.state}.")
+                    logger.debug(f"User {obj.firstname} {obj.lastname} email deleted: {obj.state}.")
                 else:
-                    logger.info(f"User {obj.firstname} {obj.lastname} is not registered: {obj.state}.")
+                    logger.debug(f"User {obj.firstname} {obj.lastname} is not registered: {obj.state}.")
                     prn_status=False
 
                 if prn_status:
-                    logger.info(f"Registration -> printed for {obj.firstname} {obj.lastname}")
+                    logger.debug(f"Registration -> printed for {obj.firstname} {obj.lastname}")
                     obj.admin_state = "PRINTED"
                 else:
-                    logger.info(f"Registration -> not printed: {prn_status}")
+                    logger.debug(f"Registration -> not printed: {prn_status}")
                     obj.admin_state = "NOT_PRINTED"
 
                 obj.save()
@@ -297,15 +299,15 @@ def users(request):
             event_info = get_event_info()
             event_year = event_info["date"].strftime("%Y")
 
-            logger.info(f"User {user.firstname} {user.lastname} - Start print registration")
+            logger.debug(f"User {user.firstname} {user.lastname} - Start print registration")
             prn_status = print_paper(user_data=user, printer_ip=settings.PRINTER_REG_IP, template='register', num_copies=3, event_year=int(event_year))
 
             if prn_status:
-                logger.info(f"Registration -> printed for {user.firstname} {user.lastname}")
+                logger.debug(f"Registration -> printed for {user.firstname} {user.lastname}")
                 user.state = 'YES'
                 user.admin_state = "PRINTED"
             else:
-                logger.info(f"Registration -> not printed for {user.firstname} {user.lastname}: {prn_status}")
+                logger.warning(f"Registration -> not printed for {user.firstname} {user.lastname}: {prn_status}")
                 user.admin_state = "NOT_PRINTED"
             user.save()
 
@@ -321,7 +323,7 @@ def users(request):
             # then set the state to YES
             if user.state.upper() not in ['DEL', ]:
                 user.state = 'YES'
-                logger.info(f'User {user.firstname} {user.lastname} - STATE {user.state} -> set to YES')
+                logger.debug(f'User {user.firstname} {user.lastname} - STATE {user.state} -> set to YES')
 
             form = UserForm(instance=user)
 
@@ -340,7 +342,7 @@ def users(request):
 @login_required
 def results(request):
     # DEBUG
-    if (debug_level >= 2): logger.info('RESULTS -- request')
+    logger.debug('RESULTS -- request')
 
     # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
@@ -351,7 +353,7 @@ def results(request):
     runs_all_data = sj_results.objects.select_related().filter(fk_sj_events=event_id).order_by('-run_nr','line_nr')
 
     # DEBUG
-    if (debug_level >= 2): logger.info(f"EVENT-ID: {event_id}, NUMBER-LINES: {num_lines}")
+    logger.debug(f"EVENT-ID: {event_id}, NUMBER-LINES: {num_lines}")
 
     template = loader.get_template('results_show.html')
     context = {
@@ -364,7 +366,7 @@ def results(request):
 @login_required
 def addresults(request, id):
     # DEBUG
-    if (debug_level >= 2): logger.info(f'ADD-RESULTS --> request / ID: {id}')
+    logger.debug(f'ADD-RESULTS --> request / ID: {id}')
 
     # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
     event_info = get_event_info()
@@ -385,8 +387,7 @@ def addresults(request, id):
 @login_required
 def saveresults(request):
     # DEBUG
-    #debug_level = 2
-    if (debug_level >= 2): logger.info('SAVE-RESULTS --> request')
+    logger.debug('SAVE-RESULTS --> request')
 
     event_info = get_event_info()
     num_lines = event_info['lines']
@@ -406,26 +407,26 @@ def saveresults(request):
         except:
             lines[i] = -1
 
-        if (debug_level >= 2): logger.info(f'SAVE-RESULTS --> request, run-num = {num}, lines {i}: {lines[i]}')
+        logger.debug(f'SAVE-RESULTS --> request, run-num = {num}, lines {i}: {lines[i]}')
 
         if lines[i] != -1:
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
-            if (debug_level >= 2): logger.info(f'  --> resulte state: {result_add_res.state}')
+            logger.debug(f'  --> resulte state: {result_add_res.state}')
 
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
                 previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
-                if (debug_level >= 2): logger.info(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+                logger.debug(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
 
                 # Print or not (paper)
                 if (previous_min == None):
-                    if (debug_level >= 2): logger.info(" - Zettel für Wäscheleine drucken (none)!")
+                    logger.debug(" - Zettel für Wäscheleine drucken (none)!")
                     print_paper(user_data=result_add_res,  run_time=lines[i], template='run',printer_ip=settings.PRINTER_RUN_IP)
                 elif (lines[i] < previous_min):
-                    if (debug_level >= 2): logger.info(" - Zettel für Wäscheleine drucken (besser)!")
+                    logger.debug(" - Zettel für Wäscheleine drucken (besser)!")
                     print_paper(user_data=result_add_res,  run_time=lines[i], template='run', printer_ip=settings.PRINTER_RUN_IP)
                 else:
-                    if (debug_level >= 2): logger.info(" - Leider keine neue Bestzeit!")
+                    logger.debug(" - Leider keine neue Bestzeit!")
 
                 # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RQR'
@@ -434,7 +435,7 @@ def saveresults(request):
                 # Set the sate for the result - used for ranking (qualy/final)
                 result_add_res.state = 'RFR'
             else:
-                if (debug_level >= 2): logger.info("!!! Resultat: Kein gültiger Status !!!")
+                logger.warning("!!! Resultat: Kein gültiger Status !!!")
                 result_add_res.state = 'DNF'
 
             result_add_res.result = lines[i]
@@ -444,31 +445,39 @@ def saveresults(request):
 
 
 
-### TeilnehmerIn löschen
-@login_required
-def delete(request, id):
-    '''
-    Delete all data of a user if he has no results in the database.
-    Else just overwrite first/lastname with "***" and only keep ranking/result
-    relevant values.
-    Set state to DEL.
-    '''
-    member = sj_users.objects.get(uuid=id)
+# ### TeilnehmerIn löschen
+# @login_required
+# def delete(request, id):
+#     '''
+#     Delete all data of a user if they have no results in the database.
+#     If there are results, anonymize personal information and set state to 'DEL'.
+#     '''
+#     try:
+#         # Get the member by UUID
+#         member = sj_users.objects.get(uuid=id)
+#     except ObjectDoesNotExist:
+#         logger.error(f"User with UUID {id} does not exist.")
+#         return HttpResponseRedirect(reverse('users'))
 
-    if sj_results.objects.filter(fk_sj_users=member.id).count() < 1:
-        logger.info(f"Delete user {member.firstname} {member.lastname} with UUID {id} - no results found")
-        member.delete()
-    else:
-        logger.info(f"User {member.firstname} {member.lastname} with UUID {id} has results - anonymizing")
-        member.firstname = '***'
-        member.lastname = '***'
-        member.email = ''
-        member.phone = ''
-        member.city = ''
-        member.state = 'DEL'
-        member.save()
+#     # Check if user has any associated results
+#     result_count = sj_results.objects.filter(fk_sj_users=member.id).count()
 
-    return HttpResponseRedirect(reverse('users'))
+#     if result_count < 1:
+#         # No results, proceed with deletion
+#         logger.info(f"User {member.firstname} {member.lastname} with UUID {id} has no results. Deleting user.")
+#         member.delete()
+#     else:
+#         # User has results, anonymize personal data
+#         logger.info(f"User {member.firstname} {member.lastname} with UUID {id} has results. Anonymizing user data.")
+#         member.firstname = '***'
+#         member.lastname = '***'
+#         member.email = ''
+#         member.phone = ''
+#         member.city = ''
+#         member.state = 'DEL'
+#         member.save()
+
+#     return HttpResponseRedirect(reverse('users'))
 
 
 def getResultsPerCategory(event_id, stateStr):
