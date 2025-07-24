@@ -280,6 +280,7 @@ def set_final_runs(request):
                     ).order_by(
                         'result_category'
                     )
+
             desired_order = [
                 'W05', 'M05',
                 'W06', 'M06',
@@ -303,6 +304,7 @@ def set_final_runs(request):
             )
 
             logger.debug(f'Distinct categories: {[d["result_category"] for d in dist_cat]}')
+
             top_n_results_per_cat = []
 
             for q in dist_cat:
