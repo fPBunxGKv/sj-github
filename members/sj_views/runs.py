@@ -128,7 +128,7 @@ def addrun(request):
     num_lines = event_info['lines']
 
     form = AddRunForm(request.POST or None)
-    
+
     if form.is_valid():
         run_num = form.cleaned_data['run_nr']
         lines = [form.cleaned_data[f'addline{i+1}'] or 0 for i in range(num_lines)]
@@ -252,13 +252,13 @@ def set_final_runs(request):
     event_info = get_event_info()
     event_id = event_info['id']
     num_lines = event_info['lines']
-    
+
     if request.method == 'POST':
         if 'delete-final' in request.POST:
-            print("DELETE Final runs")
+            logger.info('Delete final runs')
             sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
         elif 'generate-final' in request.POST:
-            print("GENERATE Final runs")
+            logger.info('Generate final runs')
 
 
             # delete qualification runs without results of the actual event
@@ -267,7 +267,7 @@ def set_final_runs(request):
 
             # get latest run number
             run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
-            run_next = run_max['run_nr__max'] + 1 
+            run_next = run_max['run_nr__max'] + 1
 
             # Kategorien mit Resultaten auslesen
             dist_cat = sj_results.objects.filter(
@@ -280,7 +280,29 @@ def set_final_runs(request):
                     ).order_by(
                         'result_category'
                     )
-            
+            desired_order = [
+                'W05', 'M05',
+                'W06', 'M06',
+                'W07', 'M07',
+                'W08', 'M08',
+                'W09', 'M09',
+                'W10', 'M10',
+                'W11', 'M11',
+                'W12/13', 'M12/13',
+                'W14/15', 'M14/15',
+                'W16/Open', 'M16/Open'
+                ]
+
+            # Create order index map
+            order_index = {value: index for index, value in enumerate(desired_order)}
+
+            # Sort using the custom order
+            dist_cat = sorted(
+                dist_cat,
+                key=lambda x: order_index.get(x['result_category'], len(order_index))
+            )
+
+            logger.debug(f'Distinct categories: {[d["result_category"] for d in dist_cat]}')
             top_n_results_per_cat = []
 
             for q in dist_cat:
@@ -305,7 +327,7 @@ def set_final_runs(request):
                         # 'fast_run'
                         'rank'
                     )
-                
+
                 # ToDo: define n in the event settings
                 # Add best n per category to the final runs
                 num_finalists = result_best_cat.filter(rank__lte = 4).count()
