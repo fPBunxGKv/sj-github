@@ -25,7 +25,8 @@ def administration(request):
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
             logger.info('Resetting admin_state ...')
-            sj_users.objects.exclude(state='DEL').exclude(email='').update(admin_state='', state='')
+            sj_users.objects.update(admin_state='')
+            sj_users.objects.exclude(state__in=['DEL', 'NOMAIL']).update(state='')
 
         elif 'send_invitation_email' in request.POST:
             logger.info('Load event info ...')
