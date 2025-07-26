@@ -36,8 +36,12 @@
     </style>
 
     <section>
+       <!-- Print Button -->
+        <button class="btn btn-primary no-print" onclick="window.print()">Print</button>
+
         <table class="table table-sm table-striped caption-top">
-            <caption><b>Finalläufe {{ event_info.date | date:"l, d. F Y" | default:"" }}</b></caption>
+            <caption><b>Finalläufe </b><br>
+            {{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</b></caption>
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -51,7 +55,7 @@
                 {% for x in new_runs %}
                     <tr>
                         <td class="align-middle">
-                            <b>{{ x.grouper }}</b>
+                            <b>{{ x.list.0.result_category }} ({{ x.grouper }})</b>
                         </td>
                         {% for line in num_lines %}
                             <td>

@@ -362,13 +362,45 @@ def print_final_runs(request):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    runs_all_data = sj_results.objects.prefetch_related('fk_sj_events').filter(fk_sj_events=event_id, state='SFR').order_by('-run_nr','line_nr')
+    # Kategorien mit Finalläufen auslesen
+    final_categories = sj_results.objects.filter(
+            fk_sj_events=event_id,
+            state='SFR'  # Set for final runs
+            ).values(
+                'result_category'
+            ).distinct()
+    # add a special category for page break in print_final_runs.html
+    final_categories = list(final_categories)
+    # Add a special category for page break in print_final_runs.html
+    final_categories.append({'result_category': 'PageBreak'})
+    desired_order = [
+        'W05', 'W06', 'W07', 'W08', 'W09', 'W10', 'W11', 'W12/13', 'W14/15', 'W16/Open', 'PageBreak', # Women -> Add Page break in print_final_runs.html
+        'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12/13', 'M14/15', 'M16/Open', # Men
+    ]
+    # # Create order index map
+    # order_index = {value: index for index, value in enumerate(desired_order)}
+    # # Sort using the custom order
+    # final_categories = sorted(
+    #     final_categories,
+    #     key=lambda x: order_index.get(x['result_category'], len(order_index))
+    # )
+
+    # print(f'Final categories: {[cat["result_category"] for cat in final_categories]}')
+
+    final_runs_all_data = sj_results.objects.prefetch_related('fk_sj_events').filter(fk_sj_events=event_id, state='SFR').order_by('run_nr','line_nr')
+
+    # Sort the list using the 'desired_order' list based on the 'result_category'
+    final_runs_all_data_sorted = sorted(final_runs_all_data, key=lambda run: desired_order.index(run.result_category))
+
+    for run in final_runs_all_data_sorted:
+        print(f"Run {run.run_nr}, Line {run.line_nr}, Category {run.result_category}")
 
     template = loader.get_template('run_print_final.html')
     context = {
         'event_info' : event_info,
-        'runs' : runs_all_data,
+        'runs' : final_runs_all_data_sorted,
         'num_lines' : range(num_lines),
+        'final_categories' : final_categories,
         'pagetitle' : 'SJ - Final-Laufeinteilung',
     }
     return HttpResponse(template.render(context, request))
