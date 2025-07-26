@@ -10,7 +10,6 @@
         @media print {
             table {
                 width: 100%;
-                /* page-break-before: always; */
             }
 
             th, td {
@@ -32,16 +31,24 @@
             .no-print {
                 display: none;
             }
+
+            /* Page break */
+            .page-break {
+                page-break-before: always;
+            }
         }
     </style>
 
     <section>
-       <!-- Print Button -->
-        <button class="btn btn-primary no-print" onclick="window.print()">Print</button>
+        {% regroup runs by run_nr as new_runs %}
 
+        <!-- Print Button -->
+        <button class="btn btn-primary no-print" onclick="window.print()">Print</button>
+        
         <table class="table table-sm table-striped caption-top">
-            <caption><b>Finalläufe </b><br>
-            {{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</b></caption>
+            <caption><b>Finalläufe</b><br>
+            {{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</caption>
+            
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -51,11 +58,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% regroup runs by run_nr as new_runs %}
+                <!-- First, print all 'W' (Women) entries -->
                 {% for x in new_runs %}
+                    {% if x.list.0.result_category|slice:":1" == "W" %}
                     <tr>
                         <td class="align-middle">
-                            <b>{{ x.list.0.result_category }} ({{ x.grouper }})</b>
+                            <b>{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
                         </td>
                         {% for line in num_lines %}
                             <td>
@@ -70,7 +78,49 @@
                             </td>
                         {% endfor %}
                     </tr>
-                {% endfor %}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Page break -->
+        <div class="page-break"></div>
+
+        <table class="table table-sm table-striped caption-top">
+            <caption><b>Finalläufe</b><br>
+            {{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</caption>
+            
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    {% for line in num_lines %}
+                        <th scope="col">Bahn {{ line | add:"1" }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Then, print all 'M' (Men) entries -->
+                {% for x in new_runs %}
+                    {% if x.list.0.result_category|slice:":1" == "M" %}
+                    <tr>
+                        <td class="align-middle">
+                            <b>{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
+                        </td>
+                        {% for line in num_lines %}
+                            <td>
+                                {% for y in x.list %}
+                                    {% if line|add:"1" == y.line_nr %}
+                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
+                                        {{ y.fk_sj_users.byear }} | {{ y.result_category }} ({{ y.fk_sj_users.startnum }})<br>
+                                        <br>
+                                        <hr class="my-1">
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
             </tbody>
         </table>
     </section>
