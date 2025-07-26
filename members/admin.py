@@ -23,11 +23,12 @@ class sj_eventsAdmin(admin.ModelAdmin):
     )
 
 class sj_resultsAdmin(admin.ModelAdmin):
-    search_fields = ('fk_sj_users__lastname', 'fk_sj_users__firstname')
+    search_fields = ('fk_sj_users__lastname', 'fk_sj_users__firstname', 'fk_sj_users__startnum')
     list_filter = ('fk_sj_events', 'state',)
 
     list_display = (
             'fk_sj_users',
+            'fk_sj_users__startnum',
             'result_category',
             'result',
             'state',
