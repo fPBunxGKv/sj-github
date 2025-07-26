@@ -1,31 +1,19 @@
+### pip install --upgrade pip
 ### pip install -r requirements.txt
-# django-bootstrap-static
-# django-bootstrap5
-# django-environ
-# python-escpos
-# reportlab
-# scipy
-# Django==4.2.20
 appdirs==1.4.4
-argcomplete==3.5.0
-asgiref==3.8.1
-Django==5.2
+argcomplete==3.6.2
+asgiref==3.9.1
+Django==5.2.4
 django-bootstrap-static==5.3.3
-django-environ==0.11.2
-environ==1.0
-escpos==2.0.0
-future==1.0.0
-numpy==2.1.1
-pillow==10.4.0
-pypng==0.20220715.0
-pyserial==3.5
+importlib_resources==6.5.2
+numpy==2.3.2
+pillow==11.3.0
 python-barcode==0.15.1
-pyusb==1.2.1
+python-escpos==3.1
 PyYAML==6.0.2
-qrcode==7.4.2
-scipy==1.14.1
-six==1.16.0
-sqlparse==0.5.1
-typing_extensions==4.12.2
-viivakoodi==0.8.0
+qrcode==8.2
+scipy==1.16.0
+setuptools==80.9.0
+six==1.17.0
+sqlparse==0.5.3
 gunicorn==23.0.0
