@@ -28,6 +28,7 @@ class sj_resultsAdmin(admin.ModelAdmin):
 
     list_display = (
             'fk_sj_users',
+            'fk_sj_users__byear',
             'fk_sj_users__startnum',
             'result_category',
             'result',

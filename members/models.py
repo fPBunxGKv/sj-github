@@ -73,7 +73,7 @@ class sj_results(models.Model):
     run_nr = models.IntegerField(verbose_name="Lauf Nr.", null=False, default=0)
     line_nr = models.IntegerField(verbose_name="Bahn", null=False, default=0)
     result = models.FloatField(verbose_name="Resultat", null=False, default=-1)
-    result_category = models.CharField(verbose_name="Kategorie", null=False, default='', max_length=3)
+    result_category = models.CharField(verbose_name="Kategorie", null=False, default='', max_length=20)
     state = models.CharField(verbose_name="Status", max_length=3, null=False, choices=RESULT_STATE, default='DNF')
 
 # Printer configuration
