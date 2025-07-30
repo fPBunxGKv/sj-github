@@ -15,7 +15,8 @@ ENV PYTHONUNBUFFERED=1
  
 # Upgrade pip
 RUN pip install --upgrade pip 
- 
+RUN pip install gunicorn
+
 # Copy the Django project  and install dependencies
 COPY requirements.txt  /app/
  
@@ -25,14 +26,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the Django project to the container
 COPY . /app/
  
-# Expose the Django port
-EXPOSE 8000
-
-# Copy the entrypoint script
-COPY entrypoint.sh /app/entrypoint.sh
-
-# Make sure it's executable
-RUN chmod +x /app/entrypoint.sh
-
-# Set the entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
+RUN chmod +x /app/docker/server-entrypoint.sh
+RUN chmod +x /app/docker/worker-entrypoint.sh

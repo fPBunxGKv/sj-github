@@ -1,6 +1,10 @@
 services:
   sj-dev-web:
-    build: .
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    entrypoint: /app/docker/server-entrypoint.sh
     container_name: sj-dev
     ports:
       - "8000"
@@ -11,6 +15,34 @@ services:
       - static_sj_dev:/app/staticfiles
       # Database files
       - /home/admsqline/projects/data/sj_dev:/app/data
+    networks:
+      - proxynet
+
+  sj-dev-worker:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    entrypoint: /app/docker/worker-entrypoint.sh
+    container_name: sj-dev-worker
+    env_file:
+      - ./.env
+    volumes:
+      # Static files
+      - static_sj_dev:/app/staticfiles
+    depends_on:
+      - sj-dev-web
+      - sj-dev-redis
+    networks:
+      - proxynet
+
+
+  sj-dev-redis:
+    restart: unless-stopped
+    image: redis:8.0.3-alpine
+    container_name: sj-dev-redis
+    expose:
+        - 6379
     networks:
       - proxynet
 

@@ -170,6 +170,10 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", default="False") == "True"
 DEFAULT_FROM_EMAIL = f'{EMAIL_FROM_DISPLAY_NAME} <{EMAIL_FROM}>'  # Default sender format
 EMAIL_BCC = f'{EMAIL_BCC_DISPLAY_NAME} <{EMAIL_BCC}>'  # Default Bcc format
 
+# Celery Settings
+# Celery broker and result backend using Redis
+CELERY_BROKER_URL = os.environ.get("BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("RESULT_BACKEND", "redis://localhost:6379/0")
 
 # Printer Settings
 PRINTER_RUN_IP = os.getenv("PRINTER_RUN_IP", default="192.168.0.10")
