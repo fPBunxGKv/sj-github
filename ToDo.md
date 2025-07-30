@@ -17,13 +17,13 @@
 ...
 
 ## Anmeldung
-- [ ] Daten prüfen
-- [ ] Doppelte Anmeldungen erkennen (Name,Vorname,Jahrgang,...)
-- [ ] Life suche über alle User -> Laufzettel drucken
+- [x] Daten prüfen
+- [x] Doppelte Anmeldungen erkennen (Name,Vorname,Jahrgang,...)
+- [x] Life suche über alle User -> Laufzettel drucken
 ...  
 
 ## Event
-- [ ] Drucken der Laufzettel / Zettel für Wäscheleine
+- [x] Drucken der Laufzettel / Zettel für Wäscheleine
     - [ ] Drucker Typ: Epson TM-T88II
     - [ ] Drucker Typ: EPSON TM-T20II  
 
@@ -34,10 +34,10 @@
 
 - [ ] Nach den Vorläufen die Finalläufe generieren
     - [ ] Vorläufe sperren
-    - [ ] Für die besten vier pro Kategorie ein "Resultat" mit status SFR
+    - [x] Für die besten vier pro Kategorie ein "Resultat" mit status SFR
 
 ## Auswertung
-- [ ] Ranglisten für das aktive Event generieren
+- [x] Ranglisten für das aktive Event generieren
 - [ ] Ranglisten pro Event und nicht nur für aktuelles
 ...  
 
