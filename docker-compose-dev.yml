@@ -30,6 +30,8 @@ services:
     volumes:
       # Static files
       - static_sj_dev:/app/staticfiles
+      # Database files
+      - /home/admsqline/projects/data/sj_dev:/app/data
     depends_on:
       - sj-dev-web
       - sj-dev-redis
