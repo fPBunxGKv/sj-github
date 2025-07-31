@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 from members.models import sj_users
-from memers.sj_utils import get_event_info, sendmail
+from members.sj_utils import get_event_info, sendmail
 
 from members.tasks import send_invitation_email_task
 
