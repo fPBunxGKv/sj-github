@@ -1,17 +1,21 @@
-# members/tasks.py
-
+import time
+import random
+import logging
 from celery import shared_task
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from .models import sj_users  # adjust import as needed
-import logging
+from .models import sj_users
 
 logger = logging.getLogger(__name__)
 
 @shared_task
 def send_invitation_email_task(email, event_info):
+    # Add random delay between 1 and 5 seconds
+    delay = random.uniform(1, 5)
+    time.sleep(delay)
+
     user_records = sj_users.objects.filter(email=email)
     num_runners = user_records.count()
 
