@@ -11,6 +11,8 @@ from django.utils.html import strip_tags
 from members.models import sj_users
 from ..sj_utils import get_event_info, sendmail
 
+from .tasks import send_invitation_email_task
+
 # Logging setup
 from django.conf import settings
 logger = logging.getLogger('sj.logger')
@@ -30,7 +32,6 @@ def administration(request):
 
         elif 'send_invitation_email' in request.POST:
             logger.info('Load event info ...')
-            # Load event information
             event_info = get_event_info()
             if not event_info:
                 logger.error('No event information found.')
@@ -40,45 +41,15 @@ def administration(request):
             user_emails = (
                 sj_users.objects
                 .filter(admin_state='', email__isnull=False)
-                .exclude(state__in=['DEL'])
+                .exclude(state__in=['DEL', 'NOMAIL'])
                 .values_list('email', flat=True)
                 .distinct()
                 .order_by('email')
             )
 
             for email in user_emails:
-                user_records = (
-                    sj_users.objects
-                    .filter(email=email)
-                )
-
-                num_runners = user_records.count()
-
-                ctx_body = {
-                    'num_runners': num_runners,
-                    'user_datasets': user_records,
-                    'event_info': event_info,
-                    'main_url': settings.MAIN_URL,
-                }
-
-                body_html = render_to_string('emails/invite_registation.html', ctx_body)
-
-                send_state = send_mail(
-                    subject=f"Voranmeldung für den {event_info['name']}",
-                    message=strip_tags(body_html),  # plain text fallback
-                    recipient_list=[email],
-                    html_message=body_html,
-                    fail_silently=False,  # Important!
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                )
-
-                # Set state to 'EMAIL_SENT'
-                if send_state:
-                    user_records.update(admin_state='EMAIL_SENT')
-                    logger.info(f'Email sent to: {email}')
-                else:
-                    user_records.update(admin_state='EMAIL_FAILED')
-                    logger.warning(f'Email was not sent to: {email}')
+                # Queue the email task
+                send_invitation_email_task.delay(email, event_info)
 
     context = {'pagetitle': 'SJ - Administration'}
     return render(request, 'administration_show.html', context)
