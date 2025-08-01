@@ -36,6 +36,7 @@ def send_invitation_email_task(email, event_info):
             html_message=body_html,
             fail_silently=False,
             from_email=settings.DEFAULT_FROM_EMAIL,
+            # bcc=[settings.EMAIL_BCC]
         )
         if send_state:
             user_records.update(admin_state='EMAIL_SENT')

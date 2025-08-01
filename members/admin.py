@@ -26,14 +26,35 @@ class sj_resultsAdmin(admin.ModelAdmin):
     search_fields = ('fk_sj_users__lastname', 'fk_sj_users__firstname', 'fk_sj_users__startnum')
     list_filter = ('fk_sj_events', 'state',)
 
+    # list_display = (
+    #         'fk_sj_users',
+    #         'fk_sj_users__byear',
+    #         'fk_sj_users__startnum',
+    #         'result_category',
+    #         'result',
+    #         'state',
+    #         )
+
     list_display = (
-            'fk_sj_users',
-            'fk_sj_users__byear',
-            'fk_sj_users__startnum',
-            'result_category',
-            'result',
-            'state',
-            )
+        'get_user_name',
+        'get_user_byear',
+        'get_user_startnum',
+        'result_category',
+        'result',
+        'state',
+    )
+
+    @admin.display(description='Name')
+    def get_user_name(self, obj):
+        return str(obj.fk_sj_users)  # Adjust if you want first + last name manually
+
+    @admin.display(description='Jahrgang')
+    def get_user_byear(self, obj):
+        return obj.fk_sj_users.byear
+
+    @admin.display(description='Startnummer')
+    def get_user_startnum(self, obj):
+        return obj.fk_sj_users.startnum            
 
 class sj_usersAdmin(admin.ModelAdmin):
     search_fields = ('lastname', 'firstname', 'state', 'admin_state', 'email')
@@ -42,9 +63,12 @@ class sj_usersAdmin(admin.ModelAdmin):
     list_display = (
             'lastname',
             'firstname',
+            'byear',
             'email',
             'state',
             'admin_state',
+            'created_at',
+            'updated_at',
             )
 
 
