@@ -31,14 +31,14 @@ def send_invitation_email_task(email, event_info):
     body_html = render_to_string('emails/invite_registation.html', ctx_body)
     
     # Strip HTML tags to create a plain text version of the email body.
-    body_text = strip_tags(body_html)
+    body_plain = strip_tags(body_html)
     
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
-        subject,
-        body_plain,
-        settings.DEFAULT_FROM_EMAIL,
-        [email],
+        subject=f"Voranmeldung für den {event_info['name']}",
+        body=body_plain,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email],
         bcc=[settings.EMAIL_BCC],  # Bcc list
     )
 
