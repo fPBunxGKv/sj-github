@@ -1,4 +1,5 @@
 import logging
+import random
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -47,9 +48,11 @@ def administration(request):
                 .order_by('email')
             )
 
-            for email in user_emails:
-                # Queue the email task
-                send_invitation_email_task.delay(email, event_info)
+            for i, email in enumerate(user_emails):
+                jitter = random.randint(0, 2)
+                total_delay = i + jitter
+                # Queue the email task with a delay
+                send_invitation_email_task.apply_async(args=[email], countdown=total_delay)
 
     context = {'pagetitle': 'SJ - Administration'}
     return render(request, 'administration_show.html', context)
