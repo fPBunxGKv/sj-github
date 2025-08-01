@@ -52,7 +52,7 @@ def administration(request):
                 jitter = random.randint(0, 2)
                 total_delay = i + jitter
                 # Queue the email task with a delay
-                send_invitation_email_task.apply_async(args=[email], countdown=total_delay)
+                send_invitation_email_task.apply_async(args=[email, event_info], countdown=total_delay)
 
     context = {'pagetitle': 'SJ - Administration'}
     return render(request, 'administration_show.html', context)
