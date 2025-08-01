@@ -26,7 +26,8 @@ def send_invitation_email_task(email, event_info):
         'event_info': event_info,
         'main_url': settings.MAIN_URL,
     }
-
+    subject=f"Voranmeldung für den {event_info['name']}"
+    
     # Render the email body HTML
     body_html = render_to_string('emails/invite_registation.html', ctx_body)
     
@@ -35,7 +36,7 @@ def send_invitation_email_task(email, event_info):
     
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
-        subject=f"Voranmeldung für den {event_info['name']}",
+        subject=subject,
         body=body_plain,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[email],
@@ -57,7 +58,7 @@ def send_invitation_email_task(email, event_info):
             user_records.update(admin_state='EMAIL_FAILED')
             logger.warning(f"Email not sent to {email}")
     except Exception as e:
-        user_records.update(admin_state='EMAIL_FAILED')
+        user_records.update(admin_state='EMAIL_ERROR')
         logger.exception(f"Error sending email to {email}: {e}")
 
     # try:
