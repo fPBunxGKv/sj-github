@@ -165,7 +165,6 @@ def register_new(request, id=''):
 
             # show thankyou page
             return HttpResponseRedirect(reverse('thankyou'))
-            # return HttpResponseRedirect("/thanks/")
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -179,7 +178,7 @@ def register_new(request, id=''):
                 logger.info(f"Register NEW - Found user with UUID {id}, loading data")
                 member = sj_users.objects.get(uuid=id)
 
-                # already registerd
+                # already registered
                 if member.state == 'YES':
                     messages.success(request, 'Du bist bereits angemeldet!')
                     return HttpResponseRedirect(reverse('thankyou'))
