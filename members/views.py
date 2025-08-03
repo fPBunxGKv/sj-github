@@ -181,7 +181,7 @@ def register_new(request, id=''):
 
                 # already registerd
                 if member.state == 'YES':
-                    messages.success(request, 'Du bist bereits registriert!')
+                    messages.success(request, 'Du bist bereits angemeldet!')
                     return HttpResponseRedirect(reverse('thankyou'))
                 elif member.state != 'DEL':
                     logger.info(f"Register NEW - Loading form for user {member.firstname} {member.lastname}, State: {member.state}")
