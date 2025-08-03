@@ -31,10 +31,10 @@ services:
       # Static files
       - static_sj_prd:/app/staticfiles
       # Database files
-      - /home/admsqline/projects/data/sj_dev:/app/data
+      - /home/admsqline/projects/data/sj_prd:/app/data
     depends_on:
-      - sj-dev-web
-      - sj-dev-redis
+      - sj-prd-web
+      - sj-prd-redis
     networks:
       - proxynet
 
