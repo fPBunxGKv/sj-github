@@ -13,7 +13,11 @@ logger = logging.getLogger('sj.logger')
 @shared_task
 def send_invitation_email_task(email, event_info):
 
-    user_records = sj_users.objects.filter(email=email)
+    user_records = (sj_users.objects
+        .filter(email=email)
+        .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
+        .exclude(admin_state='EMAIL_SENT')
+    )
     num_runners = user_records.count()
 
     ctx_body = {

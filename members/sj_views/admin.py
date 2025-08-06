@@ -42,7 +42,7 @@ def administration(request):
             user_emails = (
                 sj_users.objects
                 .filter(admin_state='', email__isnull=False)
-                .exclude(state__in=['DEL', 'NOMAIL'])
+                .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
                 .values_list('email', flat=True)
                 .distinct()
                 .order_by('email')
