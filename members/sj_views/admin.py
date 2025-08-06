@@ -47,11 +47,13 @@ def administration(request):
                 .distinct()
                 .order_by('email')
             )
-
+            logger.info(f'Found {user_emails.count()} users to send emails to.')
+            
             for i, email in enumerate(user_emails):
                 jitter = random.randint(0, 2)
                 total_delay = i + jitter
                 # Queue the email task with a delay
+                logger.info(f'Scheduling email to {email} with delay {total_delay} seconds.')
                 send_invitation_email_task.apply_async(args=[email, event_info], countdown=total_delay)
 
     context = {'pagetitle': 'SJ - Administration'}
