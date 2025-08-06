@@ -60,3 +60,27 @@ def send_invitation_email_task(email, event_info):
     except Exception as e:
         user_records.update(admin_state='EMAIL_ERROR')
         logger.exception(f"Error sending email to {email}: {e}")
+
+
+@shared_task
+def print_registered_users_task():
+    """
+    Task to print registered users.
+    This is a placeholder for the actual printing logic.
+    """
+    logger.info("Printing registered users...")
+    
+    # Simulate a delay for printing
+    time.sleep(2)
+    
+    # Fetch all registered users
+    users = sj_users.objects.filter(state='YES').exclude(admin_state='PRINTED').order_by('lastname', 'firstname')
+
+    if not users:
+        logger.info("Nothing to print")
+        return
+    
+    for user in users:
+        logger.info(f"Registered User: {user.firstname} {user.lastname}")
+    
+    logger.info("Finished printing registered users.")

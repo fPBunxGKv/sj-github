@@ -46,10 +46,10 @@
                             <form action="/setfinal/" method="post">
                                 <td>
                                     {% csrf_token %}
-                                    <button formnovalidate class="btn btn-success btn-sm" name="generate-final">Finalläufe erstellen</button>
-                                    
+                                    <button formnovalidate class="btn btn-success" name="generate-final">Finalläufe erstellen</button>
+
                                     <button formnovalidate
-                                            class="btn btn-danger btn-sm"
+                                            class="btn btn-danger"
                                             name="delete-final"
                                             onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
                                         </form>
@@ -66,6 +66,18 @@
                                     {% csrf_token %}
                                     <button formnovalidate class="btn btn-danger" name="reset_admin_state">1. User admin Status zurücksetzen</button>
                                     <button formnovalidate class="btn btn-success" name="send_invitation_email">2. Email Einladungen senden</button>
+                                </td>
+                            </form>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <!-- Print registered users -->
+                            <form method="post" action="{% url 'administration' %}">
+                                <td>
+                                    {% csrf_token %}
+                                    <button formnovalidate class="btn btn-danger" name="print_registered_users">1. Registrierte Benutzer drucken</button>
                                 </td>
                             </form>
                         </tr>

@@ -13,10 +13,9 @@ from django.db.models import Q
 from members.models import sj_users
 from members.sj_utils import get_event_info, sendmail
 
-from members.tasks import send_invitation_email_task
+from members.tasks import print_registered_users_task, send_invitation_email_task
 
 # Logging setup
-from django.conf import settings
 logger = logging.getLogger('sj.logger')
 
 # Utility to check if user is in admin group
@@ -32,7 +31,7 @@ def administration(request):
             sj_users.objects.update(admin_state='')
             sj_users.objects.exclude(state__in=['DEL', 'NOMAIL']).update(state='')
 
-        elif 'send_invitation_email' in request.POST:
+        if 'send_invitation_email' in request.POST:
             logger.info('Load event info ...')
             event_info = get_event_info()
             if not event_info:
@@ -58,6 +57,11 @@ def administration(request):
                 # Queue the email task with a delay
                 logger.info(f'Scheduling email to {email} with delay {total_delay} seconds.')
                 send_invitation_email_task.apply_async(args=[email, event_info], countdown=total_delay)
+
+        if 'print_registered_users' in request.POST:
+            logger.info('Printing registered users ...')
+            # Logic to print registered users
+            print_registered_users_task.delay(1)  # Delay for 10 seconds before executing the task
 
     context = {'pagetitle': 'SJ - Administration'}
     return render(request, 'administration_show.html', context)
