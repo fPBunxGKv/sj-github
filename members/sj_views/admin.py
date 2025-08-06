@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.db.models import Q
 
 from members.models import sj_users
 from members.sj_utils import get_event_info, sendmail
@@ -41,14 +42,16 @@ def administration(request):
             logger.info('Sending invitation emails ...')
             user_emails = (
                 sj_users.objects
-                .filter(admin_state='', email__isnull=False)
+                .filter(
+                    Q(admin_state='') | Q(admin_state__isnull=True),
+                    email__isnull=False
+                )
                 .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
                 .values_list('email', flat=True)
                 .distinct()
-                .order_by('email')
             )
             logger.info(f'Found {user_emails.count()} users to send emails to.')
-            
+
             for i, email in enumerate(user_emails):
                 jitter = random.randint(0, 2)
                 total_delay = i + jitter
