@@ -89,7 +89,7 @@ def print_registered_users_task():
         pdf = FPDF()
         
         tpl = Template(format="A5", title="Template Demo")
-        tpl.parse_json("templates/printer/starting_coupons_a5.json")
+        tpl.parse_json("members/templates/printer/starting_coupons_a5.json")
 
         f = FlexTemplate(pdf, tpl)
         for i in [5,55,103]:
