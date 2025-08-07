@@ -8,6 +8,9 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from members.models import sj_users
 
+from fpdf import Template, FlexTemplate, FPDF
+
+# Configure logging
 logger = logging.getLogger('sj.logger')
 
 @shared_task
@@ -83,4 +86,29 @@ def print_registered_users_task():
     for user in users:
         logger.info(f"Registered User: {user.firstname} {user.lastname}")
     
+        pdf = FPDF()
+        
+        tpl = Template(format="A5", title="Template Demo")
+        tpl.parse_json("templates/print_template.json")
+
+        f = FlexTemplate(pdf, tpl)
+        for i in [5,55,103]:
+        # for i in [5]:
+            f["logo"] = "./logo_211x211.png"
+            f["event_name"] = "event_name"
+            f["firstname"] = f"Vorname: {user.firstname}"
+            f["lastname"] = f"Name: {user.lastname}"
+            f["byear"] = f"Jahrgang: {user.byear}"
+            f["category"] = "XX"
+            f["start_nr_bc"] = f"*{user.start_nr}*"
+            f["start_nr_str"] = f"{user.start_nr}"
+            f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
+        
+        pdf.set_line_width(0.1)
+        # pdf.set_draw_color(r=255, g=128, b=0)
+        pdf.line(x1=50, y1=110, x2=50, y2=190)
+        pdf.line(x1=99, y1=110, x2=99, y2=190)
+
+    pdf.output("example.pdf")
+
     logger.info("Finished printing registered users.")
