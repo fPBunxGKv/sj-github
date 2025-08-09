@@ -61,7 +61,8 @@ def administration(request):
         if 'print_registered_users' in request.POST:
             logger.info('Printing registered users ...')
             # Logic to print registered users
-            print_registered_users_task.delay()  # Delay for 10 seconds before executing the task
+            event_info = get_event_info()
+            print_registered_users_task.delay(event_info)
 
     context = {'pagetitle': 'SJ - Administration'}
     return render(request, 'administration_show.html', context)

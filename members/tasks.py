@@ -8,6 +8,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from members.models import sj_users
+from members.sj_utils import calc_cat
 
 from fpdf import FlexTemplate, FPDF
 import json
@@ -68,7 +69,7 @@ def send_invitation_email_task(email, event_info):
 
 
 @shared_task
-def print_registered_users_task():
+def print_registered_users_task(event_info):
     """
     Task to print registered users.
     This is a placeholder for the actual printing logic.
@@ -95,23 +96,23 @@ def print_registered_users_task():
     if not users:
         logger.info("Nothing to print")
         return
-
     pdf = FPDF()
     pdf.add_page(format="A5")
     f = FlexTemplate(pdf, elements)
 
     for user in users:
-        logger.info(f"Registered User: {user.firstname} {user.lastname}")
+        result_category = calc_cat(user.gender, user.byear, event_info['date'].year)
+        logger.info(f"Registered User: {user.firstname} {user.lastname}, Birth Year: {user.byear}, Category: {result_category}, Start Number: {user.startnum}")
 
 
         for i in [5,55,103]:
         # for i in [5]:
             f["logo"] = "members/static/logo_211x211.png"
-            f["event_name"] = "event_name"
+            f["event_name"] = f"{event_info['name']}"
             f["firstname"] = f"Vorname: {user.firstname}"
             f["lastname"] = f"Name: {user.lastname}"
             f["byear"] = f"Jahrgang: {user.byear}"
-            f["category"] = "XX"
+            f["category"] = f"{result_category}"
             f["start_nr_bc"] = f"*{user.startnum}*"
             f["start_nr_str"] = f"{user.startnum}"
             f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
