@@ -100,7 +100,7 @@ def print_registered_users_task(event_info):
     pdf.add_page(format="A5")
     f = FlexTemplate(pdf, elements)
 
-    for user in users:
+    for index, user in enumerate(users):
         result_category = calc_cat(user.gender, user.byear, event_info['date'].year)
         logger.info(f"Registered User: {user.firstname} {user.lastname}, Birth Year: {user.byear}, Category: {result_category}, Start Number: {user.startnum}")
 
@@ -120,9 +120,11 @@ def print_registered_users_task(event_info):
         pdf.set_line_width(0.1)
         pdf.line(x1=50, y1=110, x2=50, y2=190)
         pdf.line(x1=99, y1=110, x2=99, y2=190)
-        
-    pdf.add_page(same=True)
+        if index != len(users) - 1:
+            # Add a new page for the next user
+            pdf.add_page(format="A5")
 
+    # Save the PDF to a file
     pdf.output(f"data/{timestamp}_registered_users_a5.pdf")
 
     logger.info("Finished printing registered users.")
