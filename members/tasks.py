@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 import random
 import logging
 from celery import shared_task
@@ -76,6 +77,8 @@ def print_registered_users_task():
 
     # Simulate a delay for printing
     time.sleep(2)
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d_%H%M%S")
 
     # TODO: filepath via environment variable
     # Path to your JSON file
@@ -103,7 +106,7 @@ def print_registered_users_task():
 
         for i in [5,55,103]:
         # for i in [5]:
-            f["logo"] = "./logo_211x211.png"
+            f["logo"] = "members/static/logo_211x211.png"
             f["event_name"] = "event_name"
             f["firstname"] = f"Vorname: {user.firstname}"
             f["lastname"] = f"Name: {user.lastname}"
@@ -119,6 +122,6 @@ def print_registered_users_task():
         
     pdf.add_page(same=True)
 
-    pdf.output("example.pdf")
+    pdf.output(f"data/{timestamp}_registered_users_a5.pdf")
 
     logger.info("Finished printing registered users.")
