@@ -107,8 +107,8 @@ def print_registered_users_task():
             f["lastname"] = f"Name: {user.lastname}"
             f["byear"] = f"Jahrgang: {user.byear}"
             f["category"] = "XX"
-            f["start_nr_bc"] = f"*{user.start_nr}*"
-            f["start_nr_str"] = f"{user.start_nr}"
+            f["start_nr_bc"] = f"*{user.startnum}*"
+            f["start_nr_str"] = f"{user.startnum}"
             f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
 
         pdf.set_line_width(0.1)
