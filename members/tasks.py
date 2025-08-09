@@ -74,6 +74,7 @@ def print_registered_users_task(event_info):
     Task to print registered users.
     This is a placeholder for the actual printing logic.
     """
+    users_printed = []
     logger.info("Printing registered users...")
 
     # Simulate a delay for printing
@@ -96,35 +97,56 @@ def print_registered_users_task(event_info):
     if not users:
         logger.info("Nothing to print")
         return
-    pdf = FPDF()
-    pdf.add_page(format="A5")
-    f = FlexTemplate(pdf, elements)
+    
+    users_to_update = []
 
-    for index, user in enumerate(users):
-        result_category = calc_cat(user.gender, user.byear, event_info['date'].year)
-        logger.info(f"Registered User: {user.firstname} {user.lastname}, Birth Year: {user.byear}, Category: {result_category}, Start Number: {user.startnum}")
+    try:
+        pdf = FPDF()
+        pdf.add_page(format="A5")
+        f = FlexTemplate(pdf, elements)
+
+        for index, user in enumerate(users):
+            result_category = calc_cat(user.gender, user.byear, event_info['date'].year)
+            logger.info(f"Registered User: {user.firstname} {user.lastname}, Birth Year: {user.byear}, Category: {result_category}, Start Number: {user.startnum}")
 
 
-        for i in [5,55,103]:
-        # for i in [5]:
-            f["logo"] = "members/static/logo_211x211.png"
-            f["event_name"] = f"{event_info['name']}"
-            f["firstname"] = f"Vorname: {user.firstname}"
-            f["lastname"] = f"Name: {user.lastname}"
-            f["byear"] = f"Jahrgang: {user.byear}"
-            f["category"] = f"{result_category}"
-            f["start_nr_bc"] = f"*{user.startnum}*"
-            f["start_nr_str"] = f"{user.startnum}"
-            f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
+            for i in [5,55,103]:
+            # for i in [5]:
+                f["logo"] = "members/static/logo_211x211.png"
+                f["event_name"] = f"{event_info['name']}"
+                f["firstname"] = f"{user.firstname}"
+                f["lastname"] = f"{user.lastname}"
+                f["byear"] = f"{user.byear}"
+                f["category"] = f"{result_category}"
+                f["start_nr_bc"] = f"*{user.startnum}*"
+                f["start_nr_str"] = f"{user.startnum}"
+                f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
 
-        pdf.set_line_width(0.1)
-        pdf.line(x1=50, y1=110, x2=50, y2=190)
-        pdf.line(x1=99, y1=110, x2=99, y2=190)
-        if index != len(users) - 1:
-            # Add a new page for the next user
-            pdf.add_page(format="A5")
+            pdf.set_line_width(0.1)
+            pdf.line(x1=50, y1=110, x2=50, y2=190)
+            pdf.line(x1=99, y1=110, x2=99, y2=190)
 
-    # Save the PDF to a file
-    pdf.output(f"data/{timestamp}_registered_users_a5.pdf")
+            # Update the user's admin state to 'PRINTED'
+            users_printed.append(user)
+            users_to_update.append(user.id)
 
-    logger.info("Finished printing registered users.")
+
+            if index != len(users) - 1:
+                # Add a new page for the next user
+                pdf.add_page(format="A5")
+
+        # Save the PDF to a file
+        pdf.output(f"data/{timestamp}_registered_users_a5.pdf")
+    
+        logger.info("Finished printing registered users.")
+    
+    except Exception as e:
+        logger.error(f"Error while printing registered users: {e}")
+        return
+
+    # Update the admin state of all printed users
+    logger.debug(f"User IDs: {users_to_update}")
+    for user in users_printed:
+        logger.info(f"User {user.firstname} {user.lastname} marked as PRINTED.")
+        user.admin_state = 'PRINTED'
+        user.save()

@@ -42,7 +42,7 @@
     "y2": 55.0,
     "font": "helvetica",
     "size": 11.0,
-    "bold": 0,
+    "bold": 1,
     "italic": 0,
     "underline": 0,
     "align": "C",
