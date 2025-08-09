@@ -93,12 +93,14 @@ def print_registered_users_task():
         logger.info("Nothing to print")
         return
 
+    pdf = FPDF()
+    pdf.add_page(format="A5")
+    f = FlexTemplate(pdf, elements)
+
     for user in users:
         logger.info(f"Registered User: {user.firstname} {user.lastname}")
 
-        pdf = FPDF()
 
-        f = FlexTemplate(pdf, elements)
         for i in [5,55,103]:
         # for i in [5]:
             f["logo"] = "./logo_211x211.png"
@@ -114,6 +116,8 @@ def print_registered_users_task():
         pdf.set_line_width(0.1)
         pdf.line(x1=50, y1=110, x2=50, y2=190)
         pdf.line(x1=99, y1=110, x2=99, y2=190)
+        
+    pdf.add_page(same=True)
 
     pdf.output("example.pdf")
 
