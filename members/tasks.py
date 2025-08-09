@@ -12,6 +12,7 @@ from members.sj_utils import calc_cat
 
 from fpdf import FlexTemplate, FPDF
 import json
+import os
 
 # Configure logging
 logger = logging.getLogger('sj.logger')
@@ -74,22 +75,17 @@ def print_registered_users_task(event_info):
     Task to print registered users.
     This is a placeholder for the actual printing logic.
     """
-    users_printed = []
-    logger.info("Printing registered users...")
+    logger.info("Start printing registered users...")
 
     # Simulate a delay for printing
-    time.sleep(2)
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d_%H%M%S")
 
-    # TODO: filepath via environment variable
-    # Path to your JSON file
-    json_file_path = "members/templates/printer/starting_coupons_a5.json"
-
-    # Open and load the JSON file
-    with open(json_file_path, 'r', encoding='utf-8') as infile:
-        elements = json.load(infile)
-    logger.info(f"Loaded JSON file: {json_file_path}")
+    # Use env var or default to known path
+    json_file_path = os.getenv('PRINT_TEMPLATE_PATH', "members/templates/printer/starting_coupons_a5.json")
+    if not os.path.exists(json_file_path):
+        logger.error(f"Template JSON file not found at: {json_file_path}")
+        return
 
     # Fetch all registered users
     users = sj_users.objects.filter(state='YES').exclude(admin_state='PRINTED').order_by('lastname', 'firstname')
@@ -98,29 +94,30 @@ def print_registered_users_task(event_info):
         logger.info("Nothing to print")
         return
     
+    users_printed = []
     users_to_update = []
 
     try:
         pdf = FPDF()
-        pdf.add_page(format="A5")
-        f = FlexTemplate(pdf, elements)
+        f_templ = FlexTemplate(pdf)
+        f_templ.parse_json(json_file_path)
 
-        for index, user in enumerate(users):
+        for user in users:
+            pdf.add_page(format="A5")
             result_category = calc_cat(user.gender, user.byear, event_info['date'].year)
             logger.info(f"Registered User: {user.firstname} {user.lastname}, Birth Year: {user.byear}, Category: {result_category}, Start Number: {user.startnum}")
 
 
             for i in [5,55,103]:
-            # for i in [5]:
-                f["logo"] = "members/static/logo_211x211.png"
-                f["event_name"] = f"{event_info['name']}"
-                f["firstname"] = f"{user.firstname}"
-                f["lastname"] = f"{user.lastname}"
-                f["byear"] = f"{user.byear}"
-                f["category"] = f"{result_category}"
-                f["start_nr_bc"] = f"*{user.startnum}*"
-                f["start_nr_str"] = f"{user.startnum}"
-                f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
+                f_templ["logo"] = "members/static/logo_211x211.png"
+                f_templ["event_name"] = f"{event_info['name']}"
+                f_templ["firstname"] = f"{user.firstname}"
+                f_templ["lastname"] = f"{user.lastname}"
+                f_templ["byear"] = f"{user.byear}"
+                f_templ["category"] = f"{result_category}"
+                f_templ["start_nr_bc"] = f"*{user.startnum}*"
+                f_templ["start_nr_str"] = f"{user.startnum}"
+                f_templ.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
 
             pdf.set_line_width(0.1)
             pdf.line(x1=50, y1=110, x2=50, y2=190)
@@ -130,10 +127,6 @@ def print_registered_users_task(event_info):
             users_printed.append(user)
             users_to_update.append(user.id)
 
-
-            if index != len(users) - 1:
-                # Add a new page for the next user
-                pdf.add_page(format="A5")
 
         # Save the PDF to a file
         pdf.output(f"data/{timestamp}_registered_users_a5.pdf")
