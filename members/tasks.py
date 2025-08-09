@@ -8,7 +8,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from members.models import sj_users
 
-from fpdf import Template, FlexTemplate, FPDF
+from fpdf import FlexTemplate, FPDF
+import json
 
 # Configure logging
 logger = logging.getLogger('sj.logger')
@@ -30,13 +31,13 @@ def send_invitation_email_task(email, event_info):
         'main_url': settings.MAIN_URL,
     }
     subject=f"Voranmeldung für den {event_info['name']}"
-    
+
     # Render the email body HTML
     body_html = render_to_string('emails/invite_registation.html', ctx_body)
-    
+
     # Strip HTML tags to create a plain text version of the email body.
     body_plain = strip_tags(body_html)
-    
+
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
         subject=subject,
@@ -51,7 +52,7 @@ def send_invitation_email_task(email, event_info):
 
     # If you want to log the email content for debugging, you can do so here
     logger.debug(f"Sending email to {email} with subject: {subject}")
-    
+
     try:
         result = msg.send()
         if result:
@@ -72,26 +73,32 @@ def print_registered_users_task():
     This is a placeholder for the actual printing logic.
     """
     logger.info("Printing registered users...")
-    
+
     # Simulate a delay for printing
     time.sleep(2)
-    
+
+    # TODO: filepath via environment variable
+    # Path to your JSON file
+    json_file_path = "members/templates/printer/starting_coupons_a5.json"
+
+    # Open and load the JSON file
+    with open(json_file_path, 'r', encoding='utf-8') as infile:
+        elements = json.load(infile)
+    logger.info(f"Loaded JSON file: {json_file_path}")
+
     # Fetch all registered users
     users = sj_users.objects.filter(state='YES').exclude(admin_state='PRINTED').order_by('lastname', 'firstname')
 
     if not users:
         logger.info("Nothing to print")
         return
-    
+
     for user in users:
         logger.info(f"Registered User: {user.firstname} {user.lastname}")
-    
-        pdf = FPDF()
-        
-        tpl = Template(format="A5", title="Template Demo")
-        tpl.parse_json("members/templates/printer/starting_coupons_a5.json")
 
-        f = FlexTemplate(pdf, tpl)
+        pdf = FPDF()
+
+        f = FlexTemplate(pdf, elements)
         for i in [5,55,103]:
         # for i in [5]:
             f["logo"] = "./logo_211x211.png"
@@ -103,9 +110,8 @@ def print_registered_users_task():
             f["start_nr_bc"] = f"*{user.start_nr}*"
             f["start_nr_str"] = f"{user.start_nr}"
             f.render(offsetx=i, offsety=110, rotate=0.0, scale=1.0)
-        
+
         pdf.set_line_width(0.1)
-        # pdf.set_draw_color(r=255, g=128, b=0)
         pdf.line(x1=50, y1=110, x2=50, y2=190)
         pdf.line(x1=99, y1=110, x2=99, y2=190)
 
