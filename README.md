@@ -10,6 +10,77 @@
 ### Ideen
 [ideas.md](ideas.md)
 
+## Installation mit Docker
+Ubuntu 24.04.3 LTS
+
+Docker installieren (via snap)
+```bash
+sudo snap install docker
+```
+
+Verzeichnis erstellen
+```bash
+mkdir projects
+cd projects
+```
+Proxynetzwerk erstellen
+```bash
+sudo docker network create --subnet=172.20.60.0/24 -d=bridge proxynet
+```
+Volume erstellen
+```bash
+sudo docker volume create static_sj_prd
+```
+Nginx Proxy Manager installieren
+https://nginxproxymanager.com/setup/
+
+docker-compose.yml vom Proxy Manager erweitern
+```bash
+    volumes:
+      ...
+      - static_sj_prd:/static_sj_prd
+
+    networks:
+      - proxynet
+
+
+volumes:
+  static_sj_prd:
+    external: true
+
+networks:
+  proxynet:
+    name: proxynet
+    external: true
+```
+
+
+Falls das Repo nicht public ist, ssh-keygen und den public-key im Repo einpflegen.
+Repo clonen
+```bash
+git clone git@github.com:fPBunxGKv/sj-github.git
+```
+.env Datei erstellen/anpassen
+
+```bash
+cp example.env.prd .env
+vi .env
+```
+Datenverzeichnis erstellen
+```bash
+projects/
+├── data
+│   └── sj_prd
+└── sj-github
+...
+```
+
+Dockercontainer starten
+```bash
+sudo docker compose -f docker-compose-prd.yml up --build --force-recreate
+```
+
+
 ## Installation
 - Getestet mit Python 3.10.6
 
