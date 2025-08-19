@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
@@ -363,7 +363,8 @@ def print_final_runs(request):
     event_id = event_info['id']
 
     desired_order = [
-        'W05', 'W06', 'W07', 'W08', 'W09', 'W10', 'W11', 'W12/13', 'W14/15', 'W16/Open', 'PageBreak', # Women -> Add Page break in print_final_runs.html
+        'W05', 'W06', 'W07', 'W08', 'W09', 'W10', 'W11', 'W12/13', 'W14/15', 'W16/Open', # Women
+        'PageBreak', # -> Add Page break in print_final_runs.html
         'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12/13', 'M14/15', 'M16/Open', # Men
     ]
 
@@ -385,58 +386,53 @@ def print_final_runs(request):
 ### add testdata
 # ToDo: Nur möglich falls beim aktuellen Event noch keine Laufeinteilung / Resultate vorhanden sind.
 @login_required
-def addrun_testdata(request, add_lines = 1):
-
+def addrun_testdata(request, add_lines=1):
     form = UpdateRunForm(request.POST or None)
-
+    
     if form.is_valid():
-        add_count_runs = form.cleaned_data['add_count_runs']
-        print('Add result numbers:', add_count_runs )
+        add_lines = form.cleaned_data.get('add_count_runs', add_lines)
+        logger.info(f'Add result numbers: {add_lines}')
 
-    try:
-        num_runs = add_lines
-    except:
-        num_runs = 1
-
+    # Get event and current max run number
     event_info = get_event_info()
+    event_id = event_info['id']
+    event_year = int(event_info['date'].strftime("%Y"))
+    lines_per_run = event_info['lines']
 
-    run_max = sj_results.objects.filter(fk_sj_events=event_info['id']).aggregate(Max('run_nr'))
+    current_max_run = (
+        sj_results.objects
+        .filter(fk_sj_events=event_id)
+        .aggregate(Max('run_nr'))
+        .get('run_nr__max') or 1
+    )
+
+    all_users = list(sj_users.objects.values('byear', 'gender', 'startnum'))
+    total_runs_to_add = current_max_run + add_lines
     seed()
 
-    if len(run_max) > 0 and run_max['run_nr__max']:
-        run_max_1 = run_max['run_nr__max']
-    else:
-        run_max_1 = 1
+    active_event = sj_events.objects.get(event_active=True)
 
-    all_users = sj_users.objects.values('byear','gender','startnum')
-    for i in range(run_max_1 + 1, num_runs + run_max_1 + 1):
-        for j in range(1, event_info['lines'] + 1):
-            start_index = randint(0, len(all_users)-1)
+    for run_nr in range(current_max_run + 1, total_runs_to_add + 1):
+        for line_nr in range(1, lines_per_run + 1):
+            user_data = all_users[randint(0, len(all_users) - 1)]
 
-            # Kategorie erstellen
-            # Uebergabe: Geschlecht, Geburtsjahr, Anlass-Jahr
-            result_category = calc_cat(all_users[start_index]['gender'], int(all_users[start_index]['byear']), int(event_info['date'].strftime("%Y")))
+            category = calc_cat(
+                u_gender=user_data['gender'],
+                u_byear=int(user_data['byear']),
+                event_year=event_year
+            )
 
-            # Lauf mit Läufern in sj_results eintragen
-            if (i + 2) < (num_runs + run_max_1 + 1):
-                result_add_run = sj_results(run_nr = i,
-                                            line_nr = j,
-                                            state = 'RQR', # Set Result for qualification run
-                                            result_category = result_category,
-                                            fk_sj_users = sj_users.objects.get(startnum = all_users[start_index]['startnum']),
-                                            fk_sj_events = sj_events.objects.get(event_active = True),
-                                            result = round(random.uniform(9,12), 2),
-                                            )
-            else:
-                result_add_run = sj_results(run_nr = i,
-                                            line_nr = j,
-                                            state = 'SQR', # Set for qualification run
-                                            result_category = result_category,
-                                            fk_sj_users = sj_users.objects.get(startnum = all_users[start_index]['startnum']),
-                                            fk_sj_events = sj_events.objects.get(event_active = True),
-                                            result = -1,
-                                            )
+            result_value = round(uniform(9, 12), 2) if (run_nr + 2) < (total_runs_to_add + 1) else -1
+            result_state = 'RQR' if result_value != -1 else 'SQR'
 
-            result_add_run.save()
+            sj_results.objects.create(
+                run_nr=run_nr,
+                line_nr=line_nr,
+                state=result_state,
+                result_category=category,
+                fk_sj_users=sj_users.objects.get(startnum=user_data['startnum']),
+                fk_sj_events=active_event,
+                result=result_value,
+            )
 
-    return HttpResponseRedirect(reverse('run'))
+    return redirect('run')
