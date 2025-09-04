@@ -31,6 +31,12 @@ Volume erstellen
 ```bash
 sudo docker volume create static_sj_prd
 ```
+Das Volume wird hier erstellt
+```bash
+/var/snap/docker/common/var-lib-docker/volumes/static_sj_prd
+```
+
+
 Nginx Proxy Manager installieren
 https://nginxproxymanager.com/setup/
 

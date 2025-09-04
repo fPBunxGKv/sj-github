@@ -46,18 +46,22 @@ logger = logging.getLogger('sj.logger')
 # ---------- Pages ----------
 def index(request):
     event_info = get_event_info()
+    reg_status, reg_message = event_info["reg_open"]
 
     template = loader.get_template('index.html')
     context = {
         'event_info': event_info,
-        'pagetitle' : 'SJ - Home'
+        'pagetitle' : 'SJ - Home',
+        'reg_status': reg_status,
+        'reg_message': reg_message
     }
     return HttpResponse(template.render(context, request))
 
 def register_new(request, id=''):
     event_info = get_event_info()
+    reg_status, reg_message = event_info["reg_open"]
 
-    if not event_info["reg_open"]:
+    if not reg_status:
         logger.info("Register NEW - Registration is closed")
         return HttpResponseRedirect(reverse('index'))
 

@@ -10,13 +10,13 @@
             <h1 class="display-4">🏃‍♀️‍➡️ {{ event_info.name }} 🏃‍♂️</h1>
             <h5 class="text-muted mb-4">{{ event_info.date | date:"d. F Y" }}</h5>
 
-            {% if event_info.reg_open %}
+            {% if reg_status %}
                 <a href="/anmeldung/" class="btn btn-success btn-lg mb-3" role="button">
                     ✍️ Zur Anmeldung
                 </a>
             {% else %}
-                <p class="font-weight-bold text-danger mb-3">
-                    ⏳ Voranmeldungen nehmen wir ab Anfang August entgegen.
+                <p class="font-weight-bold mb-3">
+                    {{ reg_message }}
                 </p>
             {% endif %}
 

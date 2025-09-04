@@ -215,10 +215,13 @@ def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_
 def get_event_info():
     active_event = sj_events.objects.filter(event_active=True).values('id','event_name','event_date','event_reg_start','event_reg_end','event_reg_open','event_num_lines').first()
 
-    if active_event['event_reg_start'].date() <= datetime.now().date() <= active_event['event_reg_end'].date():
-        reg_open = True
+    if datetime.now().date() <= active_event['event_reg_start'].date():
+        reg_open = (False, "⏳ Voranmeldungen nehmen wir ab Anfang August entgegen.")
+
+    elif active_event['event_reg_start'].date() <= datetime.now().date() <= active_event['event_reg_end'].date():
+        reg_open = (True, "")
     else:
-        reg_open = False
+        reg_open = (False, "⏱️ Die online Registration ist zur Zeit geschlossen. Du kannst dich immer noch am Anlass vor Ort anmelden.")
 
     return {
             "id": active_event['id'],
