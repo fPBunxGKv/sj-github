@@ -159,6 +159,7 @@ def addrun(request):
 def editrun(request, id):
     event_info = get_event_info()
     num_lines = event_info['lines']
+    event_id = event_info['id']
 
     debug_level = 3
 
@@ -170,7 +171,7 @@ def editrun(request, id):
     if num_results_in_run > 0:
         return HttpResponseRedirect(reverse('run'))
     else:
-        run_x_data = sj_results.objects.select_related().filter(run_nr=id)
+        run_x_data = sj_results.objects.select_related().filter(fk_sj_events=event_id).filter(run_nr=id)
 
         line_infos = {
             n: { } for n in range(1, int(num_lines) + 1)
