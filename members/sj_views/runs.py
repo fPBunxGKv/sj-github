@@ -9,6 +9,7 @@ from django.forms import Form, IntegerField
 from django.db.models import Max, Min
 from django.db.models import F, Window
 from django.db.models.functions import Rank
+from django.db.models import Q
 
 from ..models import sj_users
 from ..models import sj_events
@@ -165,6 +166,13 @@ def editrun(request, id):
 
     # nur zum editieren anzeigen falls noch keine Resulate vorhanden sind, sonst zurück auf Übersicht Zeiterfassung
     num_results_in_run = sj_results.objects.filter(run_nr=id, state='RQR', fk_sj_events_id=event_info['id']).count()
+
+    num_results_in_run = sj_results.objects.filter(
+        run_nr=id,
+        fk_sj_events_id=event_info['id']
+    ).filter(
+        Q(state='RQR') | Q(state='RFR')
+    ).count()
 
     if (debug_level>=2): print(f'{num_results_in_run} Resultate in Lauf Nummer {id} - Event > {event_info["name"]}')
 
