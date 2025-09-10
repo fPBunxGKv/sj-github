@@ -16,6 +16,8 @@ urlpatterns = [
 
             path('users/', views.users, name='users'),
 
+            path('ranking_export/', views.ranking_export, name='ranking_export'),
+
             #path('delete/<uuid:id>', views.delete, name='delete'),
 
             path('run/', views.run, name='run'),

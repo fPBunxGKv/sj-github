@@ -588,3 +588,36 @@ def ranking(request):
 
     template = loader.get_template('rank_show.html')
     return HttpResponse(template.render(context, request))
+
+@login_required
+def ranking_export(request, format='csv'):
+    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
+    event_info = get_event_info()
+    event_id = event_info['id']
+
+    # Query Resultate der Finalläufe
+    fin_dist_cat, fin_results_per_cat = getFinalResultsPerCategory(event_id)
+
+    # ➤ Filter only first place per category
+    first_place_results = []
+    for result in fin_results_per_cat:
+        if result['rank'] == 1:
+            first_place_results.append(result)
+
+    context = {
+        'pagetitle': 'SJ - Rangliste',
+        'event_info': event_info,
+        'fin_results_per_cat': first_place_results,  # Use filtered results
+        'fin_categories': fin_dist_cat,
+    }
+
+    if format == 'csv':
+        template = loader.get_template('exports/rank_export_csv.txt')
+        response = HttpResponse('\ufeff' + template.render(context, request), content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="ranking_{event_info["date"].strftime("%Y%m%d")}.csv"'
+    else:
+        template = loader.get_template('rank_export_txt.txt')
+        response = HttpResponse(template.render(context, request), content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename="ranking_{event_info["date"].strftime("%Y%m%d")}.txt"'
+
+    return response

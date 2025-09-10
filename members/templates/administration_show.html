@@ -1,95 +1,62 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+
 {% block content %}
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <table class="table table-fixed table-striped ">
-                    <thead>
-                        <tr>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
+<div class="container py-4">
+    <h1 class="mb-4">Administration</h1>
 
-                        <tr>
-                            <td>
-                            <a class="btn btn-primary" href="/admin" role="button">DB Admin</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <!-- Testdaten hinzufügen -->
-                            <form class="form-inline" action="/addtestdata/" method="post">
-                                {% csrf_token %}
-                                <td>
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="number"
-                                                   class="form-control"
-                                                   placeholder="Anzahl Läufe"
-                                                   name="add_count_runs"
-                                                   value="">
-                                        </div>
-                                        <div class="col">
-                                            <input class="btn btn-primary"
-                                                   type="submit"
-                                                   value="Test-Vorläufe erstellen" />
-                                        </div>
-                                    </div>
-                                </td>
-                            </form>
-                        </tr>
-                        <tr>
-                            <!-- Generate final runs -->
-                            <form action="/setfinal/" method="post">
-                                <td>
-                                    {% csrf_token %}
-                                    <button formnovalidate class="btn btn-success" name="generate-final">Finalläufe erstellen</button>
-
-                                    <button formnovalidate
-                                            class="btn btn-danger"
-                                            name="delete-final"
-                                            onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
-                                        </form>
-                                        <a class="btn btn-primary" href="/printfinal" role="button">Druck Finalläufe</a>
-                                </td>
-                        </tr>
-                        <tr>
-                            <td colspan="3"></td>
-                        </tr>
-                        <tr>
-                            <!-- Send Emails -->
-                            <form method="post" action="{% url 'administration' %}">
-                                <td>
-                                    {% csrf_token %}
-                                    <button formnovalidate class="btn btn-danger" name="reset_admin_state">1. User admin Status zurücksetzen</button>
-                                    <button formnovalidate class="btn btn-success" name="send_invitation_email">2. Email Einladungen senden</button>
-                                </td>
-                            </form>
-                        </tr>
-                        <tr>
-                            <td colspan="3"></td>
-                        </tr>
-                        <tr>
-                            <!-- Print registered users -->
-                            <form method="post" action="{% url 'administration' %}">
-                                <td>
-                                    {% csrf_token %}
-                                    <button formnovalidate class="btn btn-info" name="print_registered_users">1. Registrierte Benutzer drucken</button>
-                                </td>
-                            </form>
-                        </tr>
-                        <tr>
-                            <td colspan="3"></td>
-                        </tr>
-                        <tr>
-                            <td colspan="3">
-                                <a class="btn btn-primary" href="/ranking_export" role="button">Export Finalrangliste als csv</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <!-- DB Admin Access -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">🗃️ Datenbank</h5>
+            <a class="btn btn-primary" href="/admin" role="button">DB Admin</a>
         </div>
     </div>
+    
+    <!-- Final Runs -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">🏁 Finalläufe verwalten</h5>
+            <form action="/setfinal/" method="post">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <button class="btn btn-success me-2" name="generate-final">Finalläufe erstellen</button>
+                    <button class="btn btn-danger me-2" name="delete-final" onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
+                </div>
+            </form>
+            <a class="btn btn-primary me-2" href="/printfinal" role="button">Finalläufe drucken</a>
+            <a class="btn btn-primary me-2" href="/ranking_export" role="button">Finalrangliste als CSV exportieren</a>
+        </div>
+    </div>
+
+    <!-- Emails -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">📧 Benutzerkommunikation / Startzettel</h5>
+            <form method="post" action="{% url 'administration' %}">
+                {% csrf_token %}
+                <button class="btn btn-warning me-2" name="reset_admin_state">1. Admin-Status zurücksetzen</button>
+                <button class="btn btn-success me-2" name="send_invitation_email">2. Einladungsemails senden</button>
+                <button class="btn btn-info me-2" name="print_registered_users">3. Startzettel registrierter Benutzer drucken</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Test Data -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">🧪 Testdaten erstellen</h5>
+            <form class="row g-2" action="/addtestdata/" method="post">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    <input type="number" class="form-control" placeholder="Anzahl Läufe" name="add_count_runs" required>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Test-Vorläufe erstellen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
 {% endblock %}

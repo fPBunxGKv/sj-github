@@ -43,7 +43,7 @@
                             {% endif %}
                             <a href="{% url 'ranking' %}" class="nav-item nav-link">Ranglisten</a>
                             {% if request.user|is_in_group:"grp-admin" %}
-                                <a href="{% url 'administration' %}" class="nav-item nav-link">APP-Admin</a>
+                                <a href="{% url 'administration' %}" class="nav-item nav-link">Administration</a>
                             {% endif %}
                         </div>
                         <div class="navbar-nav ms-auto">

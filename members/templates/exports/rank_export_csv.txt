@@ -1,0 +1,12 @@
+{% comment %}
+Template: rank_export_csv.txt
+Context:
+- result_best_all: list of dictionaries with keys:
+    fk_sj_users, fk_sj_users__firstname, fk_sj_users__lastname, result_category, fast_run, rank
+- fin_results_per_cat: detailed results per category
+- fin_categories: list of categories
+{% endcomment %}
+"Rank","Category","First Name","Last Name","Best Result"
+{% if fin_categories|length > 0 %}{% for c in fin_categories %}{% for r in fin_results_per_cat %}{% if r.result_category == c.result_category %}
+"{{ r.rank }}","{{ r.result_category }}","{{ r.fk_sj_users__firstname }}","{{ r.fk_sj_users__lastname }}","{{ r.fast_run }}"
+{% endif %}{% endfor %}{% endfor %}{% endif %}
