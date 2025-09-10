@@ -75,9 +75,17 @@
                             <form method="post" action="{% url 'administration' %}">
                                 <td>
                                     {% csrf_token %}
-                                    <button formnovalidate class="btn btn-danger" name="print_registered_users">1. Registrierte Benutzer drucken</button>
+                                    <button formnovalidate class="btn btn-info" name="print_registered_users">1. Registrierte Benutzer drucken</button>
                                 </td>
                             </form>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <a class="btn btn-primary" href="/ranking_export" role="button">Export Finalrangliste als csv</a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
