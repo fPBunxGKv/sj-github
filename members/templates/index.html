@@ -9,6 +9,14 @@
 
             <h1 class="display-4">🏃‍♀️‍➡️ {{ event_info.name }} 🏃‍♂️</h1>
             <h5 class="text-muted mb-4">{{ event_info.date | date:"d. F Y" }}</h5>
+            <p class="fw-bold mb-2 fs-4">
+                Programm
+            </p>
+            <p class="fw-semibold mb-4">
+                Vorläufe von 13.30h bis 15.30h<br>
+                Finalläufe ab 16.00h<br>
+                Siegerehrungen ab 17.00h
+            </p>
 
             {% if reg_status %}
                 <a href="/anmeldung/" class="btn btn-success btn-lg mb-3" role="button">
