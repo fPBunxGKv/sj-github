@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Fotos und Ranglisten {{ event_info.name | default:"Event" }}</title>
+    <style>
+        /* Grundlegendes Layout */
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Container für das E-Mail-Design */
+        .email-container {
+            background-color: #ffffff;
+            padding: 30px;
+            max-width: 600px;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Kopfzeile */
+        h1 {
+            color: #0066cc;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Links */
+        a.link {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: #0066cc;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        a.link:hover {
+            background-color: #005bb5;
+        }
+
+        /* Textabsätze */
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+        }
+
+        /* Responsivität */
+        @media (max-width: 600px) {
+            .email-container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            a.link {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <p><strong>Liebe Kinder, liebe Eltern,</strong></p>
+
+        <p>Auch in diesem Jahr konnten wir den <strong>Schnällscht Jegenstorfer</strong> bei optimalem Wetter durchführen und viele strahlende Kinderaugen erleben – ein unvergesslicher Tag für alle!</p>
+
+        <p>Das OK bedankt sich herzlich bei den Sponsoren, den freiwilligen Helferinnen und Helfern sowie allen Teilnehmenden für ihre Unterstützung und Begeisterung.</p>
+
+        <p>Unter folgendem Link <a href="https://nc.squareline.ch/index.php/s/yobe4bnDq8S4sxM" class="link">Fotos</a> findet ihr die Fotos des diesjährigen Anlasses – diese dürfen gerne für private Zwecke verwendet werden.</p>
+
+        <p>Die Ranglisten sind unter diesem Link <a href="https://sj.tvjegenstorf.ch/ranking/" class="link">Ranglisten</a> einsehbar.</p>
+
+        <p>Sportliche Grüsse,<br>
+        Jael Müller, Sven Rufer, Daniel Delfosse und Matthias Lanz</p>
+
+    </div>
+</body>
+</html>

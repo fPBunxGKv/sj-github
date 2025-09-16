@@ -70,6 +70,35 @@ def send_invitation_email_task(email, event_info):
 
 
 @shared_task
+def send_closing_email_task(email, subject="Fotos und Ranglisten", body_html="", body_plain="", from_email=""):
+    if not body_html or not body_plain:
+        logger.error("Email body content is missing.")
+        return
+    # Then, create a multipart email instance.
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=body_plain,
+        from_email=from_email or settings.DEFAULT_FROM_EMAIL,
+        to=[email],
+        bcc=[settings.EMAIL_BCC],  # Bcc list
+    )
+
+    # Lastly, attach the HTML content to the email instance and send.
+    msg.attach_alternative(body_html, "text/html")
+
+    # If you want to log the email content for debugging, you can do so here
+    logger.debug(f"Sending closing email to {email} with subject: {subject}")
+
+    try:
+        result = msg.send()
+        if result:
+            logger.info(f"Closing email sent to {email}")
+        else:
+            logger.warning(f"Closing email not sent to {email}")
+    except Exception as e:
+        logger.exception(f"Error sending closing email to {email}: {e}")
+
+@shared_task
 def print_registered_users_task(event_info):
     """
     Task to print registered users.

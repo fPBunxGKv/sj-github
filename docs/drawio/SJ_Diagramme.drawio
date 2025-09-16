@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="7">
     <diagram id="dK9gnTSy742ra8u7WNvU" name="Event">
-        <mxGraphModel dx="1067" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1067" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -65,7 +65,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="Anmeldung" id="ihwTbflT-66I42rcei1r">
-        <mxGraphModel dx="2213" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1894" dy="790" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -74,8 +74,8 @@
                         <mxPoint x="-158" y="543" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="b3si3N_WaHnK_0e9vWpu-8" value="&lt;b&gt;Daten editierbar anzeigen&lt;br&gt;&lt;/b&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Name, Vorname&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Ort &lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Email&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Tel. Nummer&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Optionen&lt;/b&gt;&lt;br&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Bin am … Dabei&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;kann dieses Jahr leider nicht&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Bitte aus der Datenbank löschen&lt;/li&gt;&lt;/ul&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="-288" y="118.5" width="260" height="201" as="geometry"/>
+                <mxCell id="b3si3N_WaHnK_0e9vWpu-8" value="&lt;b&gt;Daten editierbar anzeigen&lt;br&gt;&lt;/b&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Name, Vorname&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Ort &lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Email&lt;/li&gt;&lt;/ul&gt;&lt;b&gt;Optionen&lt;/b&gt;&lt;br&gt;&lt;ul&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Bin am … Dabei&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;kann dieses Jahr leider nicht&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;Bitte aus der Datenbank löschen&lt;/li&gt;&lt;li style=&quot;text-align: left;&quot;&gt;keine weiteren Emails mehr&lt;/li&gt;&lt;/ul&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="-288" y="98.25" width="260" height="241.5" as="geometry"/>
                 </mxCell>
                 <mxCell id="uyP3Fxlprpef3gYkwW7l-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="b3si3N_WaHnK_0e9vWpu-10" target="uyP3Fxlprpef3gYkwW7l-6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -196,7 +196,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="EM2OaOvcgWPxeU1Ci7dY" name="Mailversand">
-        <mxGraphModel dx="1386" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1067" dy="790" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -256,7 +256,7 @@
                 <mxCell id="Fm33BcIfOIOtbqfF3ofW-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="Fm33BcIfOIOtbqfF3ofW-1" target="2xcgrxVKwkUX2uGy_xRP-6" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="Fm33BcIfOIOtbqfF3ofW-1" value="&lt;b&gt;Mailvorlage&lt;/b&gt;&lt;br&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Aus DB&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Aus TXT in /var/xxx&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Jinja Template&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="Fm33BcIfOIOtbqfF3ofW-1" value="&lt;b&gt;Mailvorlage&lt;/b&gt;&lt;br&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Aus DB&lt;/span&gt;&lt;/li&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial; color: rgb(63, 63, 63);&quot;&gt;Jinja Template&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="339" y="425" width="150" height="100" as="geometry"/>
                 </mxCell>
             </root>
