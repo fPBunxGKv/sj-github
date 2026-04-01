@@ -86,7 +86,7 @@ def administration(request):
                 jitter = random.randint(2, 7)
                 total_delay = i + jitter
                 # Queue the email task with a delay
-                logger.info(f'Scheduling email to {email} with delay {total_delay} seconds.')
+                logger.debug(f'Scheduling email to {email} with delay {total_delay} seconds.')
 
                 send_closing_email_task.apply_async(args=[email, subject, html_message, plain_message, from_email], countdown=total_delay)
                 logger.info(f'Sent closing email to {email}.')
