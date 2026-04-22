@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from members.models import sj_users
+from members.models import sj_users, sj_results
 from members.sj_utils import calc_cat
 
 from fpdf import FlexTemplate, FPDF
@@ -74,6 +74,12 @@ def send_closing_email_task(email, subject="Fotos und Ranglisten", body_html="",
     if not body_html or not body_plain:
         logger.error("Email body content is missing.")
         return
+    
+    # Fetch user records to update admin_state if email is sent
+    result_records = (sj_results.objects
+        .filter(fk_sj_users__email=email)
+        .exclude(fk_sj_users__state__in=['DEL', 'NOMAIL'])
+    )
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
         subject=subject,
@@ -92,8 +98,10 @@ def send_closing_email_task(email, subject="Fotos und Ranglisten", body_html="",
     try:
         result = msg.send()
         if result:
+            result_records.update(fk_sj_users__admin_state='CLOSE_EMAIL_SENT')
             logger.info(f"Closing email sent to {email}")
         else:
+            result_records.update(fk_sj_users__admin_state='CLOSE_EMAIL_FAILED')
             logger.warning(f"Closing email not sent to {email}")
     except Exception as e:
         logger.exception(f"Error sending closing email to {email}: {e}")
