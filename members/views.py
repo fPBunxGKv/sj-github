@@ -80,10 +80,26 @@ def register_new(request, id=''):
 
     # if this is a POST request we need to process the form data
     if request.method == "POST":
-        # create a form instance and populate it with data from the request:
-        form = RegisterUserForm(request.POST or None)
-        # check whether it's valid:
+        member = None
+        form = RegisterUserForm(request.POST)
+
+        if isUUID:
+            member = get_object_or_404(sj_users, uuid=id)
+            form = RegisterUserForm(request.POST, instance=member)
+        else:
+            duplicate_member = sj_users.objects.filter(
+                firstname=request.POST.get("firstname", ""),
+                lastname=request.POST.get("lastname", ""),
+                byear=request.POST.get("byear", ""),
+                gender=request.POST.get("gender", ""),
+            ).first()
+            if duplicate_member:
+                member = duplicate_member
+                form = RegisterUserForm(request.POST, instance=member)
+
         if form.is_valid():
+            member = form.save(commit=False)
+
             # If we have a valid UUID with data -> update this record
             if isUUID:
                 logger.info(f"Register NEW - Update record for UUID {id}")
@@ -107,19 +123,13 @@ def register_new(request, id=''):
                     form = RegisterUserForm(request.POST, instance=member)
                     form.save()
                 else:
-                    # add new user
-                    # generate a unic startnumber
-                    seed()
-                    i = 1
-                    while i < 10:
-                        startngen = randint(100000, 999999)
-                        user_tst_startnr = sj_users.objects.filter(startnum=startngen)
-                        if len(user_tst_startnr) < 1:
-                            obj = form.save(commit=False)
-                            obj.startnum = startngen
-                            obj.save()
-                            break
-                        i += 1
+                    member = form.save(commit=False)
+                    try:
+                        member.startnum = generate_startnumber()
+                    except RuntimeError as exc:
+                        form.add_error(None, str(exc))
+                        return render(request, "register_new.html", context)
+                    member.save()
 
             ctx_body = {
                 'state' : form.cleaned_data["state"],
@@ -141,10 +151,12 @@ def register_new(request, id=''):
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
                 messages.success(request, 'Wir haben deine Daten gelöscht. Du kannst dich jederzeit wieder anmelden.')
-                delete_user(member.id)
+                if member is not None:
+                    delete_user(member.id)
 
             elif form.cleaned_data["state"] == 'NOMAIL':
-                delete_user(member.id, state='NOMAIL')
+                if member is not None:
+                    delete_user(member.id, state='NOMAIL')
                 messages.success(request, 'Wir haben deine Email Adresse gelöscht. Du wirst in Zukunft keine E-Mails mehr erhalten.')
 
             if subject:
