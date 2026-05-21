@@ -216,6 +216,18 @@ def register_string(request, id):
     return HttpResponseRedirect(reverse('register_new'))
 
 
+def thankyou(request, state=''):
+    logger.debug(f"IN view THANKYOU - {state}")
+    event_info = get_event_info()
+
+    template = loader.get_template('thankyou.html')
+    context = {
+        'event_info': event_info,
+        'pagetitle': 'SJ - Danke'
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @login_required
 def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
