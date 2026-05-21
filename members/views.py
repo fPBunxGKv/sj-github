@@ -74,14 +74,14 @@ def register_new(request, id=''):
         then redirect to django url with UUID
         else to an empty form.
         '''
-        if sj_users.objects.filter(uuid=id).count() < 1:
+        if not sj_users.objects.filter(uuid=id).exists():
             logger.info(f"Register NEW - Redirect to empty form, no user with UUID {id} found")
-            return HttpResponseRedirect('/register/')
+            return HttpResponseRedirect(reverse('register_new'))
 
     # if this is a POST request we need to process the form data
     if request.method == "POST":
         member = None
-        form = RegisterUserForm(request.POST)
+        duplicate_member = None
 
         if isUUID:
             member = get_object_or_404(sj_users, uuid=id)
@@ -92,44 +92,27 @@ def register_new(request, id=''):
                 lastname=request.POST.get("lastname", ""),
                 byear=request.POST.get("byear", ""),
                 gender=request.POST.get("gender", ""),
-            ).first()
+            ).exclude(state='DEL').first()
             if duplicate_member:
                 member = duplicate_member
                 form = RegisterUserForm(request.POST, instance=member)
+            else:
+                form = RegisterUserForm(request.POST)
 
         if form.is_valid():
             member = form.save(commit=False)
-
-            # If we have a valid UUID with data -> update this record
-            if isUUID:
-                logger.info(f"Register NEW - Update record for UUID {id}")
-                member = sj_users.objects.get(uuid=id)
-                form = RegisterUserForm(request.POST, instance=member)
-                form.save()
-                # send status email to the user
-                #sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
-
-            else:
-                # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
-
-                user_exists = sj_users.objects.filter(
-                    firstname = form.cleaned_data["firstname"],
-                    lastname = form.cleaned_data["lastname"],
-                    byear = form.cleaned_data["byear"],
-                    gender = form.cleaned_data["gender"],
-                    )
-                if (user_exists.count()) >= 1:
-                    member = sj_users.objects.get(uuid=user_exists[0].uuid)
-                    form = RegisterUserForm(request.POST, instance=member)
-                    form.save()
-                else:
-                    member = form.save(commit=False)
-                    try:
-                        member.startnum = generate_startnumber()
-                    except RuntimeError as exc:
-                        form.add_error(None, str(exc))
-                        return render(request, "register_new.html", context)
-                    member.save()
+            if member.pk is None:
+                try:
+                    member.startnum = generate_startnumber()
+                except RuntimeError as exc:
+                    form.add_error(None, str(exc))
+                    context = {
+                        'pagetitle': 'SJ - Anmeldung',
+                        'event_info': event_info,
+                        'form': form,
+                    }
+                    return render(request, "register_new.html", context)
+            member.save()
 
             ctx_body = {
                 'state' : form.cleaned_data["state"],
@@ -201,11 +184,11 @@ def register_new(request, id=''):
                 elif member.state != 'DEL':
                     logger.info(f"Register NEW - Loading form for user {member.firstname} {member.lastname}, State: {member.state}")
                     form = RegisterUserForm(instance=member, initial={'state': ''})
+                else:
+                    return HttpResponseRedirect(reverse('register_new'))
             else:
-                form = RegisterUserForm()
                 form = RegisterUserForm(initial={'state': 'YES'})
         else:
-            form = RegisterUserForm()
             form = RegisterUserForm(initial={'state': 'YES'})
 
     context = {
@@ -225,23 +208,12 @@ def register_string(request, id):
         then redirect to django registers url with UUID
         else to an empty form.
         '''
-        if sj_users.objects.filter(uuid=id).count() > 0:
+        if sj_users.objects.filter(uuid=id).exists():
             member = sj_users.objects.get(uuid=id)
             if member.state != 'DEL':
-                return HttpResponseRedirect('/register/'+ str(id))
+                return HttpResponseRedirect(reverse('register_new', args=[id]))
 
-    return HttpResponseRedirect('/register/')
-
-def thankyou(request, state=''):
-    logger.debug(f"IN view THANKYOU - {state}")
-    event_info = get_event_info()
-
-    template = loader.get_template('thankyou.html')
-    context = {
-        'event_info': event_info,
-        'pagetitle' : 'SJ - Danke'
-    }
-    return HttpResponse(template.render(context, request))
+    return HttpResponseRedirect(reverse('register_new'))
 
 
 @login_required

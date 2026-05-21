@@ -262,10 +262,11 @@ def delete_user(id, state='DEL'):
 
 def generate_startnumber():
     seed()
-    i = 1
-    while i < 10:
+    attempts = 10
+    while attempts > 0:
         startngen = randint(100000, 999999)
         user_tst_startnr = sj_users.objects.filter(startnum=startngen)
-        if len(user_tst_startnr) < 1:
+        if not user_tst_startnr.exists():
             return startngen
-        i += 1
+        attempts -= 1
+    raise RuntimeError("Unable to generate a unique start number after 10 attempts")
