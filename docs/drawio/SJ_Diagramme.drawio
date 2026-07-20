@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="7">
     <diagram id="dK9gnTSy742ra8u7WNvU" name="Event">
-        <mxGraphModel dx="1067" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -65,7 +65,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="Anmeldung" id="ihwTbflT-66I42rcei1r">
-        <mxGraphModel dx="1894" dy="790" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1971" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -196,7 +196,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="EM2OaOvcgWPxeU1Ci7dY" name="Mailversand">
-        <mxGraphModel dx="1067" dy="790" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -263,7 +263,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="x6O83jmwIgygGKyE2qzv" name="Laufzettel drucken">
-        <mxGraphModel dx="2213" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1971" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -328,7 +328,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="Netzwerk-OfflineServer" id="JAXtR--Trft5fQNto8VI">
-        <mxGraphModel dx="1067" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="cveTpfCOcsH0RJCDuLTn-0"/>
                 <mxCell id="cveTpfCOcsH0RJCDuLTn-1" parent="cveTpfCOcsH0RJCDuLTn-0"/>
@@ -421,7 +421,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="Netzwerk-OnlineServer" id="cjyEXx04qpRmelDxpFP0">
-        <mxGraphModel dx="1386" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="PBUlfDyBkOcBYVJKKN0a-0"/>
                 <mxCell id="PBUlfDyBkOcBYVJKKN0a-1" parent="PBUlfDyBkOcBYVJKKN0a-0"/>
@@ -564,7 +564,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="kKGeapixljw4KGF0TbNE" name="Netzwerk">
-        <mxGraphModel dx="1386" dy="808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -779,6 +779,62 @@
                 </mxCell>
                 <mxCell id="IjMhNP4k-2TbE1x6ixLK-7" value="Lan1" style="text;whiteSpace=wrap;fontStyle=1;fontSize=14;" parent="1" vertex="1">
                     <mxGeometry x="120" y="298" width="30" height="26" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="MfIcuBlm3tXPqA7K9d_j" name="Docker">
+        <mxGraphModel dx="1271" dy="536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="CybstquZCNp85HvERF0m-1" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Docker.svg;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="40" width="50" height="41" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-7" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.021;entryY=0.598;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="CybstquZCNp85HvERF0m-4" target="CybstquZCNp85HvERF0m-6">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="90" y="360"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-9" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.064;entryY=0.991;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="CybstquZCNp85HvERF0m-6" target="CybstquZCNp85HvERF0m-3">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="90" y="350"/>
+                            <mxPoint x="90" y="238"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-6" value="static files" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/StorSimple_Data_Managers.svg;" vertex="1" parent="1">
+                    <mxGeometry x="121.5" y="330" width="37" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-10" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="40" y="500" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-4" value="DEV" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="CybstquZCNp85HvERF0m-10">
+                    <mxGeometry width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-5" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CustomDomain.svg;" vertex="1" parent="CybstquZCNp85HvERF0m-10">
+                    <mxGeometry x="20" y="9" width="50" height="42" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-11" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="40" y="179" width="770" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-3" value="reverse proxy (nginx proxy manager - docker-container)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="CybstquZCNp85HvERF0m-11">
+                    <mxGeometry width="770" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-2" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Application_Gateway.svg;" vertex="1" parent="CybstquZCNp85HvERF0m-11">
+                    <mxGeometry x="20" y="5" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-12" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="280" y="500" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-13" value="PRD" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="CybstquZCNp85HvERF0m-12">
+                    <mxGeometry width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="CybstquZCNp85HvERF0m-14" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CustomDomain.svg;" vertex="1" parent="CybstquZCNp85HvERF0m-12">
+                    <mxGeometry x="20" y="9" width="50" height="42" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
