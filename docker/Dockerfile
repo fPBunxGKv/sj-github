@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
     curl \
+    su-exec \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip
