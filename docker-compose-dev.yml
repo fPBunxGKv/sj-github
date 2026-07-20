@@ -6,7 +6,7 @@ services:
       dockerfile: ./docker/Dockerfile
     entrypoint: /app/docker/server-entrypoint.sh
     container_name: sj-dev
-    ports:
+    expose:
       - "8000"
     env_file:
       - ./.env
