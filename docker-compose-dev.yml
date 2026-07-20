@@ -41,7 +41,7 @@ services:
 
   sj-dev-redis:
     restart: unless-stopped
-    image: redis:8.0.3-alpine
+    image: redis:8-alpine
     container_name: sj-dev-redis
     expose:
         - 6379
