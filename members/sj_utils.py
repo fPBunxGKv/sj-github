@@ -213,7 +213,16 @@ def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_
         return send_success
 
 def get_event_info():
-    active_event = sj_events.objects.filter(event_active=True).values('id','event_name','event_date','event_reg_start','event_reg_end','event_reg_open','event_num_lines').first()
+    active_event = sj_events.objects.filter(event_active=True).values(
+        'id',
+        'event_name',
+        'event_date',
+        'event_program',
+        'event_reg_start',
+        'event_reg_end',
+        'event_reg_open',
+        'event_num_lines'
+    ).first()
 
     if datetime.now().date() <= active_event['event_reg_start'].date():
         reg_open = (False, "⏳ Voranmeldungen nehmen wir ab Anfang August entgegen.")
@@ -227,6 +236,7 @@ def get_event_info():
             "id": active_event['id'],
             "name": active_event['event_name'],
             "date": active_event['event_date'],
+            "event_program": active_event.get('event_program', ''),
             "reg_open": reg_open,
             "lines": active_event['event_num_lines']
             }

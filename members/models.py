@@ -44,6 +44,7 @@ class sj_events(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     event_name = models.CharField(verbose_name="Anlass", max_length=50, null=False, default='')
     event_date = models.DateField(verbose_name="Datum")
+    event_program = models.TextField(verbose_name="Event Programm", blank=True, default='')
     event_active = models.BooleanField(verbose_name="Event aktiv", default=False)
     #
     event_reg_open = models.BooleanField(verbose_name="Registration aktiv", default=False)

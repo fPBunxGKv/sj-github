@@ -35,9 +35,7 @@
                 Programm
             </p>
             <p class="fw-semibold mb-4">
-                Vorläufe von 13.30h bis 15.30h<br>
-                Finalläufe ab 16.00h<br>
-                Siegerehrungen ab 17.00h
+                {{ event_info.event_program | linebreaksbr }}
             </p>
 
             {% if reg_status %}

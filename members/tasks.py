@@ -19,6 +19,9 @@ logger = logging.getLogger('sj.logger')
 
 @shared_task
 def send_invitation_email_task(email, event_info):
+    if not event_info:
+        logger.error("send_invitation_email_task: Event information is missing.")
+        return
 
     user_records = (sj_users.objects
         .filter(email=email)
@@ -74,7 +77,7 @@ def send_closing_email_task(email, subject="Fotos und Ranglisten", body_html="",
     if not body_html or not body_plain:
         logger.error("Email body content is missing.")
         return
-    
+
     # Fetch user records to update admin_state if email is sent
     result_records = (sj_results.objects
         .filter(fk_sj_users__email=email)
@@ -131,7 +134,7 @@ def print_registered_users_task(event_info):
     if not users:
         logger.info("Nothing to print")
         return
-    
+
     users_printed = []
     users_to_update = []
 
@@ -168,9 +171,9 @@ def print_registered_users_task(event_info):
 
         # Save the PDF to a file
         pdf.output(f"data/{timestamp}_registered_users_a5.pdf")
-    
+
         logger.info("Finished printing registered users.")
-    
+
     except Exception as e:
         logger.error(f"Error while printing registered users: {e}")
         return

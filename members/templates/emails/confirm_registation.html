@@ -1,32 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bestätigung - {{ event_info.name | default:"Event" }}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f7fb;
+            line-height: 1.6;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            background-color: #f4f7fb;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #0066cc;
+            font-size: 24px;
+            margin: 0 0 20px;
+        }
+
+        p {
+            margin: 0 0 15px;
+        }
+
+        @media screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 10px 0;
+            }
+
+            .email-container {
+                padding: 20px;
+                border-radius: 0;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <div class="email-container">
-        {% if form_data.state == 'YES' %}
-        <p>Hallo {{ firstname }}</p>
+    <div class="email-wrapper">
+        <div class="email-container">
+            {% if form_data.state == 'YES' %}
+            <p>Hallo {{ firstname }}</p>
 
-        <p>Du bist für den <strong>{{ event_info.name }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> angemeldet.<br>
-        Wir freuen uns auf einen spannenden Wettkampf.</p>
+            <p>Du bist für den <strong>{{ event_info.name | default:"" }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> angemeldet.</p>
+            
 
-        <p>Sportliche Grüsse<br>
-        OK Schnällschte Jegenstorfer</p>
+            {% if event_info.event_program %}
+            <p><strong>Programm</strong><br>
+            {{ event_info.event_program | linebreaksbr }}</p>
+            {% endif %}
 
-        {% elif form_data.state == 'NO' %}
-        <p>Hallo {{ firstname }}</p>
+            <p>Wir freuen uns auf einen spannenden Wettkampf.</p>
+            
+            <p>Sportliche Grüsse<br>
+            OK Schnällschte Jegenstorfer</p>
 
-        <p>Schade kannst du diesmal nicht aktiv dabei sein.<br>
-        Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.</p>
+            {% elif form_data.state == 'NO' %}
+            <p>Hallo {{ firstname }}</p>
 
-        <p>Sportliche Grüsse<br>
-        OK Schnällschte Jegenstorfer</p>
+            <p>Schade kannst du diesmal nicht aktiv dabei sein.<br>
+            Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.</p>
 
-        {% elif state == 'DEL' %}
-        <p>Hallo {{ firstname }}</p>
+            <p>Sportliche Grüsse<br>
+            OK Schnällschte Jegenstorfer</p>
 
-        <p>Wir haben deine Daten gelöscht.</p>
+            {% elif state == 'DEL' %}
+            <p>Hallo {{ firstname }}</p>
 
-        <p>Sportliche Grüsse<br>
-        OK Schnällschte Jegenstorfer</p>
+            <p>Wir haben deine Daten gelöscht.</p>
 
-        {% endif %}
+            <p>Sportliche Grüsse<br>
+            OK Schnällschte Jegenstorfer</p>
+
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>

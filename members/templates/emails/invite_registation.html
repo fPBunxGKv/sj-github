@@ -2,79 +2,115 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Anmeldung – {{ event_info.name | default:"Event" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anmeldung - {{ event_info.name | default:"Event" }}</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
             color: #333;
-            background-color: #f8f8f8;
-            padding: 20px;
+            background-color: #f4f7fb;
             line-height: 1.6;
         }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            background-color: #f4f7fb;
+        }
+
         .email-container {
+            max-width: 600px;
+            margin: 0 auto;
             background-color: #ffffff;
             padding: 30px;
-            max-width: 600px;
-            margin: auto;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
         }
+
         h1 {
             color: #0066cc;
+            font-size: 24px;
+            margin: 0 0 20px;
         }
+
+        p {
+            margin: 0 0 15px;
+        }
+
         a.link {
-            display: inline-block;
-            margin-top: 10px;
-            background-color: #ffffff;
             color: #0066cc !important;
             text-decoration: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            font-weight: 700;
         }
+
         a.link:hover {
-            background-color: #9ac8f7;
+            text-decoration: underline;
         }
-        p {
-            margin-bottom: 15px;
-        }
-        .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
+
+        @media screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 10px 0;
+            }
+
+            .email-container {
+                padding: 20px;
+                border-radius: 0;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            a.link {
+                display: block;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        {% if num_runners < 2 %}
-            <h1>Hallo {{ user_datasets.0.firstname }},</h1>
+    <div class="email-wrapper">
+        <div class="email-container">
+            {% if num_runners < 2 %}
+                <h1>Hallo {{ user_datasets.0.firstname }}</h1>
 
-            <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
+                <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
 
-            <p>Du kannst dich bereits jetzt mittels diesem Link anmelden:<br>
-            <p><strong>{{ user_datasets.0.firstname|default:"->" }}, </strong>
-            <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}" class="link">
-                dein persönlicher Link.
-            </a></p>
-            <p>Oder kopiere diesen Link in deinen Browser:<br>
-            <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}">{{ main_url }}/register/{{ user_datasets.0.uuid }}</a></p>
-
-        {% else %}
-            <h1>Hallo zusammen,</h1>
-            <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
-
-            <p>Ihr könnt euch bereits jetzt mittels den untenstehenden Links anmelden:</p>
-            {% for user in user_datasets %}
-                <p><strong>{{ user.firstname }}, </strong>
-                <a href="{{ main_url }}/register/{{ user.uuid }}" class="link">
-                    dein persönlicher Link.
-                </a></p>
+                <p>Du kannst dich jetzt bereits über den untenstehenden Link anmelden.</p>
+                <p>
+                    <strong>{{ user_datasets.0.firstname|default:"->" }}, </strong>
+                    <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}" class="link">
+                        dein persönlicher Link.
+                    </a>
+                </p>
                 <p>Oder kopiere diesen Link in deinen Browser:<br>
-                <a href="{{ main_url }}/register/{{ user.uuid }}">{{ main_url }}/register/{{ user.uuid }}</a></p>
-            {% endfor %}
-        {% endif %}
+                <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}">{{ main_url }}/register/{{ user_datasets.0.uuid }}</a></p>
 
-        <div class="footer">
+            {% else %}
+                <h1>Hallo zusammen</h1>
+                <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
+
+                <p>Ihr könnt euch jetzt bereits über die untenstehenden Links anmelden.</p>
+                {% for user in user_datasets %}
+                    <p>
+                        <strong>{{ user.firstname }}, </strong>
+                        <a href="{{ main_url }}/register/{{ user.uuid }}" class="link">
+                            dein persönlicher Link.
+                        </a>
+                    </p>
+                    <p>Oder kopiere diesen Link in deinen Browser:<br>
+                    <a href="{{ main_url }}/register/{{ user.uuid }}">{{ main_url }}/register/{{ user.uuid }}</a></p>
+                    <br> 
+                {% endfor %}
+            {% endif %}
+
+            <br>    
             <p>Sportliche Grüsse<br>
             OK Schnällschte Jegenstorfer</p>
         </div>
