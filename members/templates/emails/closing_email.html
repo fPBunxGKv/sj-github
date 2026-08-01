@@ -2,97 +2,86 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Fotos und Ranglisten {{ event_info.name | default:"Event" }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fotos und Ranglisten {{ event_info.name | default:"" }}</title>
     <style>
-        /* Grundlegendes Layout */
         body {
-            font-family: Arial, sans-serif;
-            color: #333;
-            background-color: #f8f8f8;
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f7fb;
             line-height: 1.6;
         }
 
-        /* Container für das E-Mail-Design */
-        .email-container {
-            background-color: #ffffff;
-            padding: 30px;
-            max-width: 600px;
-            margin: 20px auto;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        .email-wrapper {
+            width: 100%;
+            padding: 20px 10px;
+            box-sizing: border-box;
+            background-color: #f4f7fb;
         }
 
-        /* Kopfzeile */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+        }
+
         h1 {
             color: #0066cc;
             font-size: 24px;
-            margin-bottom: 20px;
+            margin: 0 0 20px;
         }
 
-        /* Links */
+        p {
+            margin: 0 0 15px;
+        }
+
         a.link {
-            display: inline-block;
-            margin-top: 10px;
-            background-color: #0066cc;
-            color: #fff;
+            color: #0066cc !important;
             text-decoration: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         a.link:hover {
-            background-color: #005bb5;
+            text-decoration: underline;
         }
 
-        /* Textabsätze */
-        p {
-            margin-bottom: 15px;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: #777;
-            text-align: center;
-        }
-
-        /* Responsivität */
-        @media (max-width: 600px) {
-            .email-container {
-                padding: 15px;
-                margin: 10px;
+        @media screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 10px 0;
             }
 
+            .email-container {
+                padding: 20px;
+                border-radius: 0;
+            }
             h1 {
                 font-size: 20px;
-            }
-
-            a.link {
-                width: 100%;
-                text-align: center;
             }
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <p><strong>Liebe Kinder, liebe Eltern,</strong></p>
+    <div class="email-wrapper">
+        <div class="email-container">
+            <p><strong>Liebe Kinder, liebe Eltern,</strong></p>
 
-        <p>Auch in diesem Jahr konnten wir den <strong>Schnällscht Jegenstorfer</strong> bei optimalem Wetter durchführen und viele strahlende Kinderaugen erleben – ein unvergesslicher Tag für alle!</p>
+            <p>Auch in diesem Jahr konnten wir den <strong>Schnällscht Jegenstorfer</strong> bei optimalem Wetter durchführen und viele strahlende Kinderaugen erleben – ein unvergesslicher Tag für alle!</p>
 
-        <p>Das OK bedankt sich herzlich bei den Sponsoren, den freiwilligen Helferinnen und Helfern sowie allen Teilnehmenden für ihre Unterstützung und Begeisterung.</p>
+            <p>Das OK bedankt sich herzlich bei den Sponsoren, den freiwilligen Helferinnen und Helfern sowie allen Teilnehmenden für ihre Unterstützung und Begeisterung.</p>
 
-        <p>Unter folgendem Link <a href="https://nc.squareline.ch/index.php/s/yobe4bnDq8S4sxM" class="link">Fotos</a> findet ihr die Fotos des diesjährigen Anlasses – diese dürfen gerne für private Zwecke verwendet werden.</p>
+            <p>Unter folgendem Link <a href="https://nc.squareline.ch/index.php/s/yobe4bnDq8S4sxM" class="link">Fotos</a> findet ihr die Fotos des diesjährigen Anlasses – diese dürfen gerne für private Zwecke verwendet werden.</p>
 
-        <p>Die Ranglisten sind unter diesem Link <a href="https://sj.tvjegenstorf.ch/ranking/" class="link">Ranglisten</a> einsehbar.</p>
+            <p>Die Ranglisten sind unter diesem Link <a href="https://sj.tvjegenstorf.ch/ranking/" class="link">Ranglisten</a> einsehbar.</p>
 
-        <p>Sportliche Grüsse,<br>
-        Jael Müller, Sven Rufer, Daniel Delfosse und Matthias Lanz</p>
-
+            <p>Sportliche Grüsse,<br>
+            Jael Müller, Sven Rufer, Daniel Delfosse und Matthias Lanz</p>
+        </div>
     </div>
 </body>
 </html>

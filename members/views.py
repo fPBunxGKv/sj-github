@@ -129,10 +129,12 @@ def register_new(request, id=''):
 
             elif form.cleaned_data["state"] == 'NO':
                 subject = f'{event_info["name"]}'
-                messages.success(request, 'Wir haben deine Daten gespeichert. Wir hoffen dich nächstes Mal wieder zu sehen.')
+                messages.success(request, 'Wir haben deine Daten gespeichert. Wir freuen uns, dich nächstes Mal wieder dabei zu haben.')
 
             elif form.cleaned_data["state"] == 'DEL':
                 subject = f'Konto gelöscht'
+                messages.success(request, 'Wir haben deine Daten gelöscht. Du kannst dich jederzeit wieder neu anmelden.')
+                delete_user(member.id)
                 messages.success(request, 'Wir haben deine Daten gelöscht. Du kannst dich jederzeit wieder anmelden.')
                 if member is not None:
                     delete_user(member.id)

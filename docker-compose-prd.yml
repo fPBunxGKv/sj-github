@@ -6,7 +6,7 @@ services:
       dockerfile: ./docker/Dockerfile
     entrypoint: /app/docker/server-entrypoint.sh
     container_name: sj-prd
-    ports:
+    expose:
       - "8000"
     env_file:
       - ./.env
@@ -40,7 +40,7 @@ services:
 
   sj-prd-redis:
     restart: unless-stopped
-    image: redis:8.0.3-alpine
+    image: redis:8-alpine
     container_name: sj-prd-redis
     expose:
         - 6379

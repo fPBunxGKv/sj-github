@@ -1,21 +1,21 @@
 ### pip install --upgrade pip
 ### pip install -r requirements.txt
 appdirs==1.4.4
-argcomplete==3.6.2
-asgiref==3.9.1
-Django==5.2.4
+argcomplete==3.7.0
+asgiref==3.12.1
+Django==5.2.16
 django-bootstrap-static==5.3.3
-importlib_resources==6.5.2
-numpy==2.3.2
-pillow==11.3.0
-python-barcode==0.15.1
+importlib_resources==7.1.0
+numpy==2.5.1
+pillow==12.3.0
+python-barcode==0.16.1
 python-escpos==3.1
-PyYAML==6.0.2
+PyYAML==6.0.3
 qrcode==8.2
-scipy==1.16.0
-setuptools==80.9.0
+scipy==1.18.0
+setuptools==83.0.0
 six==1.17.0
-sqlparse==0.5.3
+sqlparse==0.5.5
 
 celery[redis]
 
