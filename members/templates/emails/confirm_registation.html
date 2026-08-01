@@ -10,24 +10,21 @@
             padding: 0;
             font-family: Arial, sans-serif;
             color: #333;
-            background-color: #f4f7fb;
             line-height: 1.6;
         }
 
         .email-wrapper {
             width: 100%;
-            padding: 20px 10px;
+            padding: 0;
             box-sizing: border-box;
-            background-color: #f4f7fb;
         }
 
         .email-container {
             max-width: 600px;
             margin: 0 auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+            padding: 0;
+            border-radius: 0;
+            box-shadow: none;
             box-sizing: border-box;
         }
 
@@ -61,23 +58,36 @@
     <div class="email-wrapper">
         <div class="email-container">
             {% if form_data.state == 'YES' %}
-            <p>Hallo {{ firstname }}</p>
+            <h1>Hallo {{ firstname }}</h1>
 
-            <p>Du bist für den <strong>{{ event_info.name | default:"" }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> angemeldet.</p>
-            
+            <p>Du bist für den <strong>{{ event_info.name | default:"" }}</strong> angemeldet.</p>
 
-            {% if event_info.event_program %}
-            <p><strong>Programm</strong><br>
-            {{ event_info.event_program | linebreaksbr }}</p>
-            {% endif %}
+            <table cellpadding="4" cellspacing="0" border="0" style="border-collapse: separate;">
+                <tr>
+            <td style="padding: 4px 8px;"><strong>Datum:</strong></td>
+            <td style="padding: 4px 8px;">{{ event_info.date | date:"l, d. F Y" | default:"" }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 4px 8px;"><strong>Ort:</strong></td>
+                    <td style="padding: 4px 8px;">{{ event_info.location | default:"" }}</td>
+                </tr>
 
-            <p>Wir freuen uns auf einen spannenden Wettkampf.</p>
-            
+                {% if event_info.event_program %}
+                <tr>
+                    <td style="padding: 4px 8px;"><strong>Programm</strong></td>
+                    <td style="padding: 4px 8px;">{{ event_info.event_program | linebreaksbr }}</td>
+                </tr>
+                {% endif %}
+            </table>
+
+            <p style="margin-top: 24px;">Wir freuen uns auf einen spannenden Wettkampf und wünschen dir viel Erfolg!</p>
+
             <p>Sportliche Grüsse<br>
-            OK Schnällschte Jegenstorfer</p>
+            <strong>OK Schnällschte Jegenstorfer</strong>
+            </p>
 
             {% elif form_data.state == 'NO' %}
-            <p>Hallo {{ firstname }}</p>
+            <h1>Hallo {{ firstname }}</h1>
 
             <p>Schade kannst du diesmal nicht aktiv dabei sein.<br>
             Wir würden uns freuen, wenn du nächstes Jahr wieder am Start bist.</p>
@@ -86,12 +96,13 @@
             OK Schnällschte Jegenstorfer</p>
 
             {% elif state == 'DEL' %}
-            <p>Hallo {{ firstname }}</p>
+            <h1>Hallo {{ firstname }}</h1>
 
             <p>Wir haben deine Daten gelöscht.</p>
 
             <p>Sportliche Grüsse<br>
-            OK Schnällschte Jegenstorfer</p>
+            <strong>OK Schnällschte Jegenstorfer</strong>
+            </p>
 
             {% endif %}
         </div>

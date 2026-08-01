@@ -10,25 +10,25 @@
             padding: 0;
             font-family: Arial, sans-serif;
             color: #333;
-            background-color: #f4f7fb;
             line-height: 1.6;
+            background-color: transparent;
         }
 
         .email-wrapper {
             width: 100%;
-            padding: 20px 10px;
+            padding: 0;
             box-sizing: border-box;
-            background-color: #f4f7fb;
+            background-color: transparent;
         }
 
         .email-container {
             max-width: 600px;
             margin: 0 auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+            padding: 0;
             box-sizing: border-box;
+            background-color: transparent;
+            border-radius: 0;
+            box-shadow: none;
         }
 
         h1 {
@@ -53,11 +53,11 @@
 
         @media screen and (max-width: 600px) {
             .email-wrapper {
-                padding: 10px 0;
+                padding: 0;
             }
 
             .email-container {
-                padding: 20px;
+                padding: 0;
                 border-radius: 0;
             }
 
@@ -80,7 +80,7 @@
             {% if num_runners < 2 %}
                 <h1>Hallo {{ user_datasets.0.firstname }}</h1>
 
-                <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
+                <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> beim <strong>{{ event_info.location | default:"" }}</strong> statt.</p>
 
                 <p>Du kannst dich jetzt bereits über den untenstehenden Link anmelden.</p>
                 <p>
@@ -94,7 +94,7 @@
 
             {% else %}
                 <h1>Hallo zusammen</h1>
-                <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> statt.</p>
+                <p>Schon bald ist es wieder soweit, der <strong>{{ event_info.name | default:"" }}</strong> findet am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> beim <strong>{{ event_info.location | default:"" }}</strong> statt.</p>
 
                 <p>Ihr könnt euch jetzt bereits über die untenstehenden Links anmelden.</p>
                 {% for user in user_datasets %}

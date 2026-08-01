@@ -7,6 +7,7 @@ class sj_eventsAdmin(admin.ModelAdmin):
 
     list_display = ('event_name',
                     'event_date',
+                    'event_location',
                     'event_active',
                     'event_reg_open',
                     'event_reg_start',
@@ -15,7 +16,7 @@ class sj_eventsAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('event_name', 'event_date', 'event_program', 'event_active', 'event_num_lines')
+            'fields': ('event_name', 'event_date', 'event_location', 'event_program', 'event_active', 'event_num_lines')
         }),
         ('Registration', {
             'fields': ('event_reg_open', ('event_reg_start', 'event_reg_end'))

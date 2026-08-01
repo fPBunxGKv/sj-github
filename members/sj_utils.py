@@ -217,6 +217,7 @@ def get_event_info():
         'id',
         'event_name',
         'event_date',
+        'event_location',
         'event_program',
         'event_reg_start',
         'event_reg_end',
@@ -236,6 +237,7 @@ def get_event_info():
             "id": active_event['id'],
             "name": active_event['event_name'],
             "date": active_event['event_date'],
+            "location": active_event.get('event_location', ''),
             "event_program": active_event.get('event_program', ''),
             "reg_open": reg_open,
             "lines": active_event['event_num_lines']
