@@ -13,6 +13,7 @@ urlpatterns = [
             path('anmeldung/<uuid:id>/', views.register_new, name='register_new'),
             path('anmeldung/<str:id>/', views.register_string, name='register_string'),
             path('thankyou/', views.thankyou, name='thankyou'),
+            path('download-calendar/', views.download_calendar, name='download_calendar'),
 
             path('users/', views.users, name='users'),
 

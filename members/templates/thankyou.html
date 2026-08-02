@@ -48,9 +48,13 @@
                     {{ event_info.event_program | linebreaksbr }}
                 </p>
 
-                <a href="{% static 'calendar/sj2026.ics' %}" target="_blank" class="btn btn-outline-success btn-sm mb-4" role="button">
-                    🗓️ Im Kalender eintragen
-                </a>
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="{% url 'download_calendar' %}?title={{ event_info.name|default:'SJ'|urlencode }}&date={{ event_info.date|date:'Y-m-d' }}&location={{ event_info.location|default:''|urlencode }}&details={{ event_info.event_program|default:''|striptags|urlencode }}"
+                    class="btn btn-outline-primary btn-sm"
+                    role="button">
+                        🗓️ Im Kalender eintragen
+                    </a>
+                </div>
             </div>
         </div>
     </div>

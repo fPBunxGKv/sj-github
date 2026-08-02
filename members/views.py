@@ -232,6 +232,56 @@ def thankyou(request, state=''):
     return HttpResponse(template.render(context, request))
 
 
+def download_calendar(request):
+    title = request.GET.get('title', 'SJ Event')
+    event_date = request.GET.get('date', '')
+    location = request.GET.get('location', '')
+    details = request.GET.get('details', '')
+
+    if event_date:
+        start_date = datetime.strptime(event_date, '%Y-%m-%d').date()
+        end_date = start_date + timedelta(days=1)
+        start_dt = f"{start_date.strftime('%Y%m%d')}"
+        end_dt = f"{end_date.strftime('%Y%m%d')}"
+    else:
+        start_dt = end_dt = ''
+
+    def escape_ical_text(value):
+        text = str(value).replace('\r\n', '\n').replace('\r', '\n')
+        return (text
+                .replace('\\', '\\\\')
+                .replace(';', '\\;')
+                .replace(',', '\\,')
+                .replace('\n', '\\n'))
+
+    lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//SJ//Calendar//EN',
+        'BEGIN:VEVENT',
+        f'SUMMARY:{escape_ical_text(title)}',
+    ]
+
+    if start_dt and end_dt:
+        lines.append(f'DTSTART;VALUE=DATE:{start_dt}')
+        lines.append(f'DTEND;VALUE=DATE:{end_dt}')
+
+    if location:
+        lines.append(f'LOCATION:{escape_ical_text(location)}')
+
+    if details:
+        lines.append(f'DESCRIPTION:{escape_ical_text(details)}')
+
+    lines.extend([
+        'END:VEVENT',
+        'END:VCALENDAR',
+    ])
+
+    response = HttpResponse('\n'.join(lines), content_type='text/calendar')
+    response['Content-Disposition'] = f'attachment; filename="{title}.ics"'
+    return response
+
+
 @login_required
 def users(request):
     # Fetch users with state != 'DEL' and order by firstname and lastname
