@@ -25,11 +25,26 @@ def is_admin(user):
 @login_required
 @user_passes_test(is_admin)
 def administration(request):
+    invitation_recipients = []
+
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
             logger.info('Resetting admin_state ...')
             sj_users.objects.update(admin_state='')
             sj_users.objects.exclude(state__in=['DEL', 'NOMAIL']).update(state='')
+
+        if 'show_invitation_recipients' in request.POST:
+            logger.info('Preparing invitation email recipient preview ...')
+            invitation_recipients = list(
+                sj_users.objects
+                .filter(
+                    Q(admin_state='') | Q(admin_state__isnull=True),
+                    email__isnull=False,
+                    email__gt='',
+                )
+                .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
+                .order_by('lastname', 'firstname')
+            )
 
         if 'send_invitation_email' in request.POST:
             logger.info('Load event info ...')
@@ -97,5 +112,8 @@ def administration(request):
             event_info = get_event_info()
             print_registered_users_task.delay(event_info)
 
-    context = {'pagetitle': 'SJ - Administration'}
+    context = {
+        'pagetitle': 'SJ - Administration',
+        'invitation_recipients': invitation_recipients,
+    }
     return render(request, 'administration_show.html', context)

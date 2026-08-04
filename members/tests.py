@@ -1,11 +1,78 @@
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import sj_events
+from .models import sj_events, sj_users
 from .sj_utils import get_event_info
+
+
+class AdministrationViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='admin', password='secret')
+        self.group = Group.objects.create(name='grp-admin')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        sj_users.objects.create(
+            firstname='Alice',
+            lastname='Example',
+            email='alice@example.com',
+            gender='W',
+            byear=1990,
+            state='NO',
+            admin_state='',
+        )
+        sj_users.objects.create(
+            firstname='Knall-Frosch',
+            lastname='Example',
+            email='knallfrosch@example.com',
+            gender='W',
+            byear=1990,
+            state='NO',
+            admin_state='EMAIL_SENT',
+        )
+        sj_users.objects.create(
+            firstname='Bob',
+            lastname='Example',
+            email='bob@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            admin_state='',
+        )
+        sj_users.objects.create(
+            firstname='Carol',
+            lastname='Example',
+            email='',
+            gender='W',
+            byear=1990,
+            state='NO',
+            admin_state='',
+        )
+        sj_users.objects.create(
+            firstname='Dave',
+            lastname='Example',
+            email='dave@example.com',
+            gender='M',
+            byear=1990,
+            state='DEL',
+            admin_state='',
+        )
+
+    def test_show_invitation_recipients_lists_filtered_users(self):
+        response = self.client.post(reverse('administration'), {'show_invitation_recipients': '1'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('invitation_recipients', response.context)
+        self.assertEqual(len(response.context['invitation_recipients']), 1)
+        self.assertContains(response, 'alice@example.com')
+        self.assertNotContains(response, 'knallfrosch@example.com')
+        self.assertNotContains(response, 'bob@example.com')
+        self.assertNotContains(response, 'dave@example.com')
 
 
 class EventInfoTests(TestCase):
