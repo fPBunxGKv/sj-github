@@ -26,6 +26,7 @@ def is_admin(user):
 @user_passes_test(is_admin)
 def administration(request):
     invitation_recipients = []
+    closing_recipients = []
 
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
@@ -74,6 +75,21 @@ def administration(request):
                 logger.info(f'Scheduling email to {email} with delay {total_delay} seconds.')
                 send_invitation_email_task.apply_async(args=[email, event_info], countdown=total_delay)
 
+        if 'show_closing_recipients' in request.POST:
+            logger.info('Preparing closing email recipient preview ...')
+            closing_recipients = list(
+                sj_results.objects
+                .filter(
+                    fk_sj_events__event_active=True,
+                    fk_sj_users__email__isnull=False,
+                    fk_sj_users__email__gt='',
+                )
+                .select_related('fk_sj_users')
+                .values_list('fk_sj_users__firstname', 'fk_sj_users__lastname', 'fk_sj_users__email')
+                .distinct()
+                .order_by('fk_sj_users__lastname', 'fk_sj_users__firstname')
+            )
+
         if 'send_closing_email' in request.POST:
             logger.info('Sending closing emails ...')
             event_info = get_event_info()
@@ -88,13 +104,13 @@ def administration(request):
 
             user_emails = (
                 sj_results.objects
-                .filter(fk_sj_events__event_active=True, 
-                        fk_sj_users__email__isnull=False, 
+                .filter(fk_sj_events__event_active=True,
+                        fk_sj_users__email__isnull=False,
                         fk_sj_users__email__gt='')  # Ensure email is not empty
                 .values_list('fk_sj_users__email', flat=True)
                 .distinct()
                 )
-            
+
             logger.info(f'Found {user_emails.count()} unique email addresses to send closing emails to.')
 
             for i, email in enumerate(user_emails):
@@ -115,5 +131,6 @@ def administration(request):
     context = {
         'pagetitle': 'SJ - Administration',
         'invitation_recipients': invitation_recipients,
+        'closing_recipients': closing_recipients,
     }
     return render(request, 'administration_show.html', context)

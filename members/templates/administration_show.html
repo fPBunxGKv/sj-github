@@ -35,24 +35,58 @@
             <h5 class="card-title">📧 Benutzerkommunikation / Startzettel</h5>
             <form method="post" action="{% url 'administration' %}">
                 {% csrf_token %}
-                <button class="btn btn-warning me-2" name="reset_admin_state">1. Admin-Status zurücksetzen</button>
-                <button class="btn btn-outline-secondary me-2" name="show_invitation_recipients" type="submit">2. Empfänger ansehen</button>
-                <button class="btn btn-success me-2" name="send_invitation_email">3. Einladungsemails senden</button>
-                <button class="btn btn-info me-2" name="print_registered_users">4. Startzettel registrierter Benutzer drucken</button>
-                <button class="btn btn-success me-2" name="send_closing_email">5. Abschlussemails senden</button>
+                <div class="mb-3">
+                    <button class="btn btn-warning me-2" name="reset_admin_state">
+                        1. Admin-Status zurücksetzen
+                    </button>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-outline-secondary me-2" name="show_invitation_recipients" type="submit">
+                        2. Einladungs-Empfänger ansehen
+                    </button>
+                    <button class="btn btn-success me-2" name="send_invitation_email">
+                        3. Einladungsemails senden
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-info me-2" name="print_registered_users">
+                        4. Startzettel registrierter Benutzer drucken
+                    </button>
+                </div>
+
+                <div>
+                    <button class="btn btn-outline-secondary me-2" name="show_closing_recipients" type="submit">
+                        5. Abschluss-Empfänger ansehen
+                    </button>
+                    <button class="btn btn-success me-2" name="send_closing_email">
+                        6. Abschlussemails senden
+                    </button>
+                </div>
             </form>
 
             {% if invitation_recipients %}
             <div class="mt-3">
-                <h6>Empfänger für Einladungsemails</h6>
+                <h6><strong>Empfänger für Einladungsemails: {{ invitation_recipients | length }}</strong></h6>
                 <ul class="mb-0">
                     {% for recipient in invitation_recipients %}
                     <li>{{ recipient.firstname }} {{ recipient.lastname }} — {{ recipient.email }}</li>
                     {% endfor %}
                 </ul>
             </div>
-            {% else %}
+            {% elif not closing_recipients %}
             <p class="text-muted mt-3 mb-0">Keine Empfänger gefunden.</p>
+            {% endif %}
+
+            {% if closing_recipients %}
+            <div class="mt-3">
+                <h6><strong>Empfänger für Abschlussemails: {{ closing_recipients | length }}</strong></h6>
+                <ul class="mb-0">
+                    {% for recipient in closing_recipients %}
+                    <li>{{ recipient.0 }} {{ recipient.1 }} — {{ recipient.2 }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
         </div>
     </div>
