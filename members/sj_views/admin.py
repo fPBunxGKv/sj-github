@@ -1,5 +1,6 @@
 import logging
 import random
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -7,8 +8,10 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.html import strip_tags
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
 
 from members.models import sj_users, sj_results
 from members.sj_utils import get_event_info, sendmail
@@ -128,9 +131,45 @@ def administration(request):
             event_info = get_event_info()
             print_registered_users_task.delay(event_info)
 
+    total_users_with_email = sj_users.objects.filter(email__isnull=False, email__gt='').count()
+    total_users_state_yes = sj_users.objects.filter(state='YES').count()
+    total_users_state_no = sj_users.objects.filter(state='NO').count()
+    total_users_registered = sj_users.objects.exclude(state__in=['DEL', 'NOMAIL']).count()
+
+    recent_since = timezone.now() - timedelta(days=7)
+    recent_activity_qs = (
+        sj_users.objects
+        .filter(updated_at__gte=recent_since, state__in=['YES', 'NO'])
+        .annotate(day=TruncDate('updated_at'))
+        .values('day', 'state')
+        .annotate(count=Count('id'))
+        .order_by('day', 'state')
+    )
+
+    recent_activity = {}
+    for days_ago in range(6, -1, -1):
+        day = (timezone.localtime() - timedelta(days=days_ago)).date()
+        recent_activity[day] = {'YES': 0, 'NO': 0}
+
+    for row in recent_activity_qs:
+        day = row['day']
+        if day in recent_activity:
+            recent_activity[day][row['state']] = row['count']
+
+    recent_activity = [
+        {'day': day, 'yes': counts['YES'], 'no': counts['NO']}
+        for day, counts in recent_activity.items()
+    ]
+    recent_activity.reverse()
+
     context = {
         'pagetitle': 'SJ - Administration',
         'invitation_recipients': invitation_recipients,
         'closing_recipients': closing_recipients,
+        'total_users_with_email': total_users_with_email,
+        'total_users_state_yes': total_users_state_yes,
+        'total_users_state_no': total_users_state_no,
+        'total_users_registered': total_users_registered,
+        'recent_activity': recent_activity,
     }
     return render(request, 'administration_show.html', context)
