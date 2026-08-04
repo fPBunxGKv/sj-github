@@ -66,6 +66,19 @@ class EventInfoTests(TestCase):
         self.assertIn('LOCATION:Zurich', content)
         self.assertIn('DESCRIPTION:Program line 1', content)
 
+    def test_download_calendar_encodes_umlauts_in_filename(self):
+        response = self.client.get(
+            reverse('download_calendar'),
+            {
+                'title': 'Münchenä Event',
+                'date': '2026-08-02',
+                'location': 'Bern',
+                'details': 'A test event',
+            },
+        )
+
+        self.assertIn("filename*=UTF-8''M%C3%BCnchen%C3%A4%20Event.ics", response['Content-Disposition'])
+
     def test_download_calendar_preserves_multiline_details(self):
         response = self.client.get(
             reverse('download_calendar'),

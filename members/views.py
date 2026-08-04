@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from urllib.parse import quote
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.urls import reverse
@@ -294,7 +295,12 @@ def download_calendar(request):
     ])
 
     response = HttpResponse('\n'.join(lines), content_type='text/calendar')
-    response['Content-Disposition'] = f'attachment; filename="{title}.ics"'
+    filename = f"{title}.ics"
+    safe_filename = ''.join(char if char.isascii() else '_' for char in title)
+    encoded_filename = quote(filename, safe='')
+    response['Content-Disposition'] = (
+        f'attachment; filename="{safe_filename}.ics"; filename*=UTF-8\'\'{encoded_filename}'
+    )
     return response
 
 
