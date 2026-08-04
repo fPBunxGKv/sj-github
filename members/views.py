@@ -233,16 +233,32 @@ def thankyou(request, state=''):
 
 
 def download_calendar(request):
-    title = request.GET.get('title', 'SJ Event')
-    event_date = request.GET.get('date', '')
-    location = request.GET.get('location', '')
-    details = request.GET.get('details', '')
+    event_uuid = request.GET.get('event_uuid', '')
+
+    event = None
+    if event_uuid:
+        is_uuid, parsed_uuid = is_valid_uuid(event_uuid)
+        if is_uuid:
+            event = sj_events.objects.filter(uuid=parsed_uuid).first()
+
+    if event:
+        title = event.event_name or 'SJ Event'
+        event_date = event.event_date
+        location = event.event_location or ''
+        details = event.event_program or ''
+    else:
+        title = request.GET.get('title', 'SJ Event')
+        event_date = request.GET.get('date', '')
+        location = request.GET.get('location', '')
+        details = request.GET.get('details', '')
 
     if event_date:
-        start_date = datetime.strptime(event_date, '%Y-%m-%d').date()
-        end_date = start_date + timedelta(days=1)
-        start_dt = f"{start_date.strftime('%Y%m%d')}"
-        end_dt = f"{end_date.strftime('%Y%m%d')}"
+        if isinstance(event_date, date):
+            start_date = event_date
+        else:
+            start_date = datetime.strptime(event_date, '%Y-%m-%d').date()
+        start_dt = f"{start_date.strftime('%Y%m%d')}T133000"
+        end_dt = f"{start_date.strftime('%Y%m%d')}T180000"
     else:
         start_dt = end_dt = ''
 
@@ -263,8 +279,8 @@ def download_calendar(request):
     ]
 
     if start_dt and end_dt:
-        lines.append(f'DTSTART;VALUE=DATE:{start_dt}')
-        lines.append(f'DTEND;VALUE=DATE:{end_dt}')
+        lines.append(f'DTSTART:{start_dt}')
+        lines.append(f'DTEND:{end_dt}')
 
     if location:
         lines.append(f'LOCATION:{escape_ical_text(location)}')

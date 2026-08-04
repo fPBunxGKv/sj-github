@@ -50,7 +50,7 @@
             {% endif %}
 
             <div class="d-flex justify-content-center mb-4">
-                <a href="{% url 'download_calendar' %}?title={{ event_info.name|default:'SJ'|urlencode }}&date={{ event_info.date|date:'Y-m-d' }}&location={{ event_info.location|default:''|urlencode }}&details={{ event_info.event_program|default:''|striptags|urlencode }}"
+                <a href="{% url 'download_calendar' %}?event_uuid={{ event_info.uuid|default:''|urlencode }}"
                    class="btn btn-outline-primary btn-sm"
                    role="button">
                     🗓️ Im Kalender eintragen

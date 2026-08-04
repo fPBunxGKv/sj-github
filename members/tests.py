@@ -34,10 +34,37 @@ class EventInfoTests(TestCase):
             },
         )
 
+        content = response.content.decode('utf-8')
+
         self.assertEqual(response.status_code, 200)
         self.assertIn('text/calendar', response['Content-Type'])
-        self.assertIn('BEGIN:VCALENDAR', response.content.decode('utf-8'))
-        self.assertIn('SUMMARY:Test Event', response.content.decode('utf-8'))
+        self.assertIn('BEGIN:VCALENDAR', content)
+        self.assertIn('SUMMARY:Test Event', content)
+        self.assertIn('DTSTART:20260802T133000', content)
+        self.assertIn('DTEND:20260802T180000', content)
+
+    def test_download_calendar_uses_event_uuid_to_fetch_event_details(self):
+        event = sj_events.objects.create(
+            event_name='UUID Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_location='Zurich',
+            event_program='Program line 1',
+        )
+
+        response = self.client.get(
+            reverse('download_calendar'),
+            {'event_uuid': str(event.uuid)},
+        )
+
+        content = response.content.decode('utf-8')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('SUMMARY:UUID Event', content)
+        self.assertIn('LOCATION:Zurich', content)
+        self.assertIn('DESCRIPTION:Program line 1', content)
 
     def test_download_calendar_preserves_multiline_details(self):
         response = self.client.get(

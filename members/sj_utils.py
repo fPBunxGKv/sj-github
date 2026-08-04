@@ -215,6 +215,7 @@ def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_
 def get_event_info():
     active_event = sj_events.objects.filter(event_active=True).values(
         'id',
+        'uuid',
         'event_name',
         'event_date',
         'event_location',
@@ -235,6 +236,7 @@ def get_event_info():
 
     return {
             "id": active_event['id'],
+            "uuid": active_event.get('uuid'),
             "name": active_event['event_name'],
             "date": active_event['event_date'],
             "location": active_event.get('event_location', ''),
