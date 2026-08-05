@@ -17,6 +17,7 @@ from ..models import sj_results
 
 from random import seed
 from random import randint
+from random import uniform
 from array import array
 
 # Python imports
@@ -394,13 +395,19 @@ def print_final_runs(request):
 
 ### add testdata
 # ToDo: Nur möglich falls beim aktuellen Event noch keine Laufeinteilung / Resultate vorhanden sind.
+class AddTestDataForm(Form):
+    add_count_runs = IntegerField(required=False, min_value=1)
+
+
 @login_required
 def addrun_testdata(request, add_lines=1):
-    form = UpdateRunForm(request.POST or None)
-    
+    form = AddTestDataForm(request.POST or None)
+
     if form.is_valid():
-        add_lines = form.cleaned_data.get('add_count_runs', add_lines)
+        add_lines = form.cleaned_data.get('add_count_runs') or add_lines
         logger.info(f'Add result numbers: {add_lines}')
+
+    add_lines = max(int(add_lines), 1)
 
     # Get event and current max run number
     event_info = get_event_info()
@@ -412,18 +419,41 @@ def addrun_testdata(request, add_lines=1):
         sj_results.objects
         .filter(fk_sj_events=event_id)
         .aggregate(Max('run_nr'))
-        .get('run_nr__max') or 1
+        .get('run_nr__max') or 0
     )
 
-    all_users = list(sj_users.objects.values('byear', 'gender', 'startnum'))
-    total_runs_to_add = current_max_run + add_lines
+    start_run_nr = current_max_run + 1
+    total_runs_to_add = start_run_nr + add_lines - 1
+
+    all_users = list(
+        sj_users.objects.exclude(state='DEL').filter(state='YES').values('byear', 'gender', 'startnum')
+    )
+    if not all_users:
+        logger.warning('No eligible users available for test data generation')
+        return redirect('run')
+
     seed()
+    active_event = sj_events.objects.get(pk=event_id)
 
-    active_event = sj_events.objects.get(event_active=True)
+    run_assignments = {}
 
-    for run_nr in range(current_max_run + 1, total_runs_to_add + 1):
+    for run_nr in range(start_run_nr, total_runs_to_add + 1):
+        run_users = list(all_users)
+        seed()
+
         for line_nr in range(1, lines_per_run + 1):
-            user_data = all_users[randint(0, len(all_users) - 1)]
+            if not run_users:
+                break
+
+            user_index = randint(0, len(run_users) - 1)
+            user_data = run_users.pop(user_index)
+
+            startnum = user_data['startnum']
+            assignment_count = run_assignments.get(startnum, 0)
+            if assignment_count >= 3:
+                continue
+
+            run_assignments[startnum] = assignment_count + 1
 
             category = calc_cat(
                 u_gender=user_data['gender'],
@@ -431,7 +461,7 @@ def addrun_testdata(request, add_lines=1):
                 event_year=event_year
             )
 
-            result_value = round(uniform(9, 12), 2) if (run_nr + 2) < (total_runs_to_add + 1) else -1
+            result_value = round(uniform(9, 12), 2) if run_nr < total_runs_to_add else -1
             result_state = 'RQR' if result_value != -1 else 'SQR'
 
             sj_results.objects.create(

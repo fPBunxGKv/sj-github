@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import sj_events, sj_users
+from .models import sj_events, sj_results, sj_users
 from .sj_utils import get_event_info
 
 
@@ -76,6 +76,168 @@ class AdministrationViewTests(TestCase):
 
 
 class EventInfoTests(TestCase):
+    def test_addrun_testdata_respects_requested_run_count_and_excludes_del_users(self):
+        self.user = get_user_model().objects.create_user(username='admin2', password='secret')
+        self.group = Group.objects.create(name='grp-admin-2')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Test Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=2,
+        )
+
+        active_user = sj_users.objects.create(
+            firstname='Active',
+            lastname='User',
+            email='active@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=100001,
+        )
+        deleted_user = sj_users.objects.create(
+            firstname='Deleted',
+            lastname='User',
+            email='deleted@example.com',
+            gender='W',
+            byear=1992,
+            state='DEL',
+            startnum=100002,
+        )
+
+        response = self.client.post(reverse('addtestdata'), {'add_count_runs': 3})
+
+        self.assertEqual(response.status_code, 302)
+        created_results = sj_results.objects.filter(fk_sj_events=event)
+        self.assertEqual(created_results.count(), 6)
+        self.assertTrue(created_results.filter(fk_sj_users=active_user).exists())
+        self.assertFalse(created_results.filter(fk_sj_users=deleted_user).exists())
+
+    def test_addrun_testdata_does_not_repeat_a_user_within_one_run(self):
+        self.user = get_user_model().objects.create_user(username='admin3', password='secret')
+        self.group = Group.objects.create(name='grp-admin-3')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Repeat Test Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=2,
+        )
+
+        participant = sj_users.objects.create(
+            firstname='Solo',
+            lastname='Runner',
+            email='solo@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=200001,
+        )
+
+        response = self.client.post(reverse('addtestdata'), {'add_count_runs': 1})
+
+        self.assertEqual(response.status_code, 302)
+        created_results = sj_results.objects.filter(fk_sj_events=event)
+        self.assertEqual(created_results.count(), 1)
+        self.assertEqual(created_results.first().fk_sj_users, participant)
+
+    def test_addrun_testdata_limits_each_user_to_three_runs_per_event(self):
+        self.user = get_user_model().objects.create_user(username='admin4', password='secret')
+        self.group = Group.objects.create(name='grp-admin-4')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Cap Test Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=2,
+        )
+
+        participant = sj_users.objects.create(
+            firstname='Cap',
+            lastname='Runner',
+            email='cap@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=300001,
+        )
+
+        other_participant = sj_users.objects.create(
+            firstname='Second',
+            lastname='Runner',
+            email='second@example.com',
+            gender='W',
+            byear=1992,
+            state='YES',
+            startnum=300002,
+        )
+
+        response = self.client.post(reverse('addtestdata'), {'add_count_runs': 4})
+
+        self.assertEqual(response.status_code, 302)
+        created_results = sj_results.objects.filter(fk_sj_events=event)
+        participant_runs = created_results.filter(fk_sj_users=participant).count()
+        other_runs = created_results.filter(fk_sj_users=other_participant).count()
+        self.assertLessEqual(participant_runs, 3)
+        self.assertLessEqual(other_runs, 3)
+
+    def test_saveresults_redirects_back_with_sfr_filter(self):
+        self.user = get_user_model().objects.create_user(username='admin5', password='secret')
+        self.group = Group.objects.create(name='grp-admin-5')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Save Filter Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=1,
+        )
+
+        result = sj_results.objects.create(
+            fk_sj_users=sj_users.objects.create(
+                firstname='Filter',
+                lastname='User',
+                email='filter@example.com',
+                gender='M',
+                byear=1990,
+                state='YES',
+                startnum=400001,
+            ),
+            fk_sj_events=event,
+            run_nr=7,
+            line_nr=1,
+            state='SFR',
+            result_category='M05',
+            result=-1,
+        )
+
+        response = self.client.post(
+            reverse('saveresults'),
+            {'run_num': 7, 'add_res1': '10.5', 'state': 'SFR'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/results/?state=SFR')
+        result.refresh_from_db()
+        self.assertEqual(result.state, 'RFR')
+        self.assertEqual(result.result, 10.5)
+
     def test_get_event_info_includes_location(self):
         sj_events.objects.create(
             event_name='Test Event',

@@ -424,8 +424,14 @@ def results(request):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    # Bereits erfasste Läufe abfragen, letzter gespeicherter Lauf ermitteln
-    runs_all_data = sj_results.objects.select_related().filter(fk_sj_events=event_id).order_by('-run_nr','line_nr')
+    show_sfr_only = request.GET.get('state') == 'SFR'
+    queryset = sj_results.objects.select_related().filter(fk_sj_events=event_id)
+
+    if show_sfr_only:
+        queryset = queryset.filter(state='SFR')
+
+    order = 'run_nr' if show_sfr_only else '-run_nr'
+    runs_all_data = queryset.order_by(order, 'line_nr')
 
     # DEBUG
     logger.debug(f"EVENT-ID: {event_id}, NUMBER-LINES: {num_lines}")
@@ -435,6 +441,7 @@ def results(request):
         'runs' : runs_all_data,
         'num_lines' : range(num_lines),
         'pagetitle' : 'SJ - Resultate',
+        'show_sfr_only': show_sfr_only,
     }
     return HttpResponse(template.render(context, request))
 
@@ -456,6 +463,7 @@ def addresults(request, id):
         'runs' : runs_all_data,
         'num_lines' : range(num_lines),
         'pagetitle' : 'SJ - Resultate',
+        'show_sfr_only': request.GET.get('state') == 'SFR',
     }
     return HttpResponse(template.render(context, request))
 
@@ -516,7 +524,12 @@ def saveresults(request):
             result_add_res.result = lines[i]
             result_add_res.save()
 
-    return HttpResponseRedirect(reverse('results'))
+    filter_state = request.POST.get('state', '')
+    redirect_url = reverse('results')
+    if filter_state == 'SFR':
+        redirect_url = f"{redirect_url}?state=SFR"
+
+    return HttpResponseRedirect(redirect_url)
 
 
 

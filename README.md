@@ -87,8 +87,9 @@ sudo docker compose -f docker-compose-prd.yml up --build --force-recreate
 ```
 
 
-## Installation
-- Getestet mit Python 3.10.6
+## Installation  !!! überarbeiten !!!
+## UV als python / venv manager !!!
+- Getestet mit Python 3.13.5
 
 Python virtual enviroment erstellen
 ```bash
@@ -99,16 +100,6 @@ python3 -m venv env
 Python virtual enviroment aktivieren
 ```bash
 source env/bin/activate
-```
-
-Django installieren [Offizielle Webseite] (https://docs.djangoproject.com/en/4.2/topics/install/#installing-official-release)
-```bash
-pip install --upgrade pip
-python -m pip install Django==4.2
-
--- ODER --
-
-python -m pip install Django
 ```
 
 Git clonen
