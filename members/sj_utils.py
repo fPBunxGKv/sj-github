@@ -213,7 +213,11 @@ def sendmail(email='na', msg_subj='Subject', msg_body='Message Body Text', mail_
         return send_success
 
 def get_event_info():
-    active_event = sj_events.objects.filter(event_active=True).values(
+    active_event = sj_events.objects.filter(event_active=True).order_by(
+        '-updated_at',
+        '-created_at',
+        '-id',
+    ).values(
         'id',
         'uuid',
         'event_name',

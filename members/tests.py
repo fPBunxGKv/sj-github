@@ -76,6 +76,40 @@ class AdministrationViewTests(TestCase):
 
 
 class EventInfoTests(TestCase):
+    def test_addrun_accepts_more_than_eight_lines(self):
+        self.user = get_user_model().objects.create_user(username='lane-admin', password='secret')
+        self.group = Group.objects.create(name='grp-lane-admin')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Many Lanes Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=10,
+        )
+
+        for index in range(1, 11):
+            sj_users.objects.create(
+                firstname=f'Lane{index}',
+                lastname='User',
+                email=f'lane{index}@example.com',
+                gender='M' if index % 2 else 'W',
+                byear=1990,
+                state='YES',
+                startnum=600000 + index,
+            )
+
+        payload = {'run_nr': 1}
+        payload.update({f'addline{index}': 600000 + index for index in range(1, 11)})
+
+        response = self.client.post(reverse('addrun'), payload)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(sj_results.objects.filter(fk_sj_events=event).count(), 10)
+
     def test_addrun_testdata_respects_requested_run_count_and_excludes_del_users(self):
         self.user = get_user_model().objects.create_user(username='admin2', password='secret')
         self.group = Group.objects.create(name='grp-admin-2')
@@ -109,6 +143,24 @@ class EventInfoTests(TestCase):
             state='DEL',
             startnum=100002,
         )
+        nomail_user = sj_users.objects.create(
+            firstname='NoMail',
+            lastname='User',
+            email='',
+            gender='M',
+            byear=1994,
+            state='YES',
+            startnum=100003,
+        )
+        nostate_user = sj_users.objects.create(
+            firstname='NoState',
+            lastname='User',
+            email='nostate@example.com',
+            gender='W',
+            byear=1996,
+            state='NO',
+            startnum=100004,
+        )
 
         response = self.client.post(reverse('addtestdata'), {'add_count_runs': 3})
 
@@ -117,6 +169,8 @@ class EventInfoTests(TestCase):
         self.assertEqual(created_results.count(), 6)
         self.assertTrue(created_results.filter(fk_sj_users=active_user).exists())
         self.assertFalse(created_results.filter(fk_sj_users=deleted_user).exists())
+        self.assertTrue(created_results.filter(fk_sj_users=nomail_user).exists())
+        self.assertFalse(created_results.filter(fk_sj_users=nostate_user).exists())
 
     def test_addrun_testdata_does_not_repeat_a_user_within_one_run(self):
         self.user = get_user_model().objects.create_user(username='admin3', password='secret')

@@ -30,7 +30,6 @@ from ..sj_utils import get_event_info
 
 
 logger = logging.getLogger(__name__)
-debug_level = 1
 
 def calc_cat(u_gender, u_byear, event_year):
     """ Berechnet die Kategorie
@@ -45,7 +44,8 @@ def calc_cat(u_gender, u_byear, event_year):
             -
     """
     u_age = event_year - u_byear
-    # print('Kategorie berechnen, Gender:', u_gender, 'u_byear:', u_byear, 'u_age:', u_age, 'event_year:', event_year)
+    logger.debug(f'Kategorie berechnen, Gender: {u_gender}, u_byear: {u_byear}, u_age: {u_age}, event_year: {event_year}')
+
     mstring = str(u_age)
     match mstring:
         case '0' | '1' | '2' | '3' | '4' | '5':
@@ -97,7 +97,11 @@ def run(request):
     # Bereits erfasste Läufe abfragen, letzter gespeicherter Lauf ermitteln
     run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
 
-    runs_all_data = sj_results.objects.prefetch_related('fk_sj_events').filter(fk_sj_events=event_id).order_by('-run_nr','line_nr')
+    runs_all_data = (
+        sj_results.objects.select_related('fk_sj_users')
+        .filter(fk_sj_events=event_id)
+        .order_by('-run_nr', 'line_nr')
+    )
 
     template = loader.get_template('run.html')
     context = {
@@ -110,40 +114,37 @@ def run(request):
 
 
 # --- ChatGPT ---
-# ToDo: dynamisch auf Anzahl Bahnen (num_lines)
+# ToDo:
 # Eine class für AddRunForm / EditRunForm (template muss auch angepasst werden)
 
 class AddRunForm(Form):
     run_nr = IntegerField()
-    addline1 = IntegerField(required=False)
-    addline2 = IntegerField(required=False)
-    addline3 = IntegerField(required=False)
-    addline4 = IntegerField(required=False)
-    addline5 = IntegerField(required=False)
-    addline6 = IntegerField(required=False)
-    addline7 = IntegerField(required=False)
-    addline8 = IntegerField(required=False)
+
+    def __init__(self, *args, line_count=8, **kwargs):
+        super().__init__(*args, **kwargs)
+        for index in range(1, line_count + 1):
+            self.fields[f'addline{index}'] = IntegerField(required=False)
 
 @login_required
 def addrun(request):
     event_info = get_event_info()
     num_lines = event_info['lines']
 
-    form = AddRunForm(request.POST or None)
+    form = AddRunForm(request.POST or None, line_count=num_lines)
 
     if form.is_valid():
         run_num = form.cleaned_data['run_nr']
-        lines = [form.cleaned_data[f'addline{i+1}'] or 0 for i in range(num_lines)]
-        print("Lines:",lines)
+        lines = [form.cleaned_data.get(f'addline{i+1}', 0) or 0 for i in range(num_lines)]
+        logger.debug(f'Lines: {lines}')
 
         # Prüfen auf doppelte Startnummer in einem Lauf
         if test_dup_user(lines):
-            print('Doppelte Einträge in Laufeinteilung - Lauf wird nicht erfasst:', lines)
+            logger.warning(f'Doppelte Einträge in Laufeinteilung - Lauf wird nicht erfasst: {lines}')
 
         else:
             users = sj_users.objects.filter(startnum__in=lines, state='YES')
             user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
-            print(user_data)
+            logger.debug(f'User Data: {user_data}')
 
             results = []
             for i, startnum in enumerate(lines):
@@ -163,8 +164,6 @@ def editrun(request, id):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    debug_level = 3
-
     # nur zum editieren anzeigen falls noch keine Resulate vorhanden sind, sonst zurück auf Übersicht Zeiterfassung
     num_results_in_run = sj_results.objects.filter(run_nr=id, state='RQR', fk_sj_events_id=event_info['id']).count()
 
@@ -175,21 +174,31 @@ def editrun(request, id):
         Q(state='RQR') | Q(state='RFR')
     ).count()
 
-    if (debug_level>=2): print(f'{num_results_in_run} Resultate in Lauf Nummer {id} - Event > {event_info["name"]}')
+    logger.debug(f'{num_results_in_run} Resultate in Lauf Nummer {id} - Event > {event_info["name"]}')
 
     if num_results_in_run > 0:
         return HttpResponseRedirect(reverse('run'))
     else:
-        run_x_data = sj_results.objects.select_related().filter(fk_sj_events=event_id).filter(run_nr=id)
+        run_x_data = (
+            sj_results.objects.select_related('fk_sj_users')
+            .filter(fk_sj_events=event_id, run_nr=id)
+        )
 
-        line_infos = {
-            n: { } for n in range(1, int(num_lines) + 1)
-        }
+        line_infos = {n: {} for n in range(1, int(num_lines) + 1)}
 
         for result in run_x_data:
             line_infos[result.line_nr] = {
-                **result.__dict__,
-                **result.fk_sj_users.__dict__
+                'id': result.id,
+                'run_nr': result.run_nr,
+                'line_nr': result.line_nr,
+                'result': result.result,
+                'result_category': result.result_category,
+                'state': result.state,
+                'startnum': result.fk_sj_users.startnum,
+                'firstname': result.fk_sj_users.firstname,
+                'lastname': result.fk_sj_users.lastname,
+                'byear': result.fk_sj_users.byear,
+                'gender': result.fk_sj_users.gender,
             }
             run_num = result.run_nr
 
@@ -206,39 +215,34 @@ def editrun(request, id):
 # ToDo: dynamisch auf Anzahl Bahnen (num_lines)
 class UpdateRunForm(Form):
     run_num = IntegerField()
-    edit_run1 = IntegerField(required=False)
-    edit_run2 = IntegerField(required=False)
-    edit_run3 = IntegerField(required=False)
-    edit_run4 = IntegerField(required=False)
-    edit_run5 = IntegerField(required=False)
-    edit_run6 = IntegerField(required=False)
-    edit_run7 = IntegerField(required=False)
-    edit_run8 = IntegerField(required=False)
 
-# --- ChatGPT optimiert updaterun---
+    def __init__(self, *args, line_count=8, **kwargs):
+        super().__init__(*args, **kwargs)
+        for index in range(1, line_count + 1):
+            self.fields[f'edit_run{index}'] = IntegerField(required=False)
+
 @login_required
 def updaterun(request):
     event_info = get_event_info()
     num_lines = event_info['lines']
 
-    form = UpdateRunForm(request.POST or None)
+    form = UpdateRunForm(request.POST or None, line_count=num_lines)
 
     if form.is_valid():
         run_num = form.cleaned_data['run_num']
-        lines = [form.cleaned_data[f'edit_run{i+1}'] or 0 for i in range(num_lines)]
+        lines = [form.cleaned_data.get(f'edit_run{i+1}', 0) or 0 for i in range(num_lines)]
 
         users = sj_users.objects.filter(startnum__in=lines, state='YES')
         user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
 
         results = []
 
-        # ToDo: Fehlermeldung zurückgeben
         if test_dup_user(lines):
-            print('Doppelte Einträge in Laufeinteilung - Lauf wird nicht updated:', lines)
+            logger.warning(f'Doppelte Einträge in Laufeinteilung - Lauf wird nicht updated: {lines}')
 
         else:
             # aktueller lauf löschen
-            sj_results.objects.filter(run_nr=run_num).delete()
+            sj_results.objects.filter(run_nr=run_num, fk_sj_events=event_info['id']).delete()
 
             for i, startnum in enumerate(lines):
                 if startnum != 0:
@@ -269,7 +273,6 @@ def set_final_runs(request):
             sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
         elif 'generate-final' in request.POST:
             logger.info('Generate final runs')
-
 
             # delete qualification runs without results of the actual event
             sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
@@ -346,24 +349,23 @@ def set_final_runs(request):
                 top_n_results_per_cat.extend(list(result_best_cat.filter(rank__lte = 4)))
 
                 final_runs = []
-                print(f'\n{5*"-"} < {num_finalists} > in cat {result_best_cat[0]["result_category"]} {5*"-"}')
+                logger.info(f'\n{5*"-"} < {num_finalists} > in cat {result_best_cat[0]["result_category"]} {5*"-"}')
 
                 for index, item in enumerate(list(result_best_cat.filter(rank__lte = 4))):
-                    print(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
-                    # print(f"Vor if - Index: {index}, RunNext: {run_next}")
+                    logger.info(f"{item['rank']:>3}  {item['fk_sj_users__firstname']:<10} {item['fk_sj_users__lastname']:<10} {item['fast_run']:>5}")
                     if (index > 0) and (index % num_lines == 0):
                         run_next += 1
                         line_nr = 1
-                        # print(f"IN if - Index: {index}, RunNext: {run_next}")
+                        logger.debug(f"IN if - Index: {index}, RunNext: {run_next}")
                     else:
                         line_nr = (index % num_lines) + 1
-                        # print(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
+                        logger.debug(f"IN else - Index: {index}, RunNext: {run_next}, LineNr: {line_nr}")
                     final_runs.append(sj_results(run_nr=run_next, line_nr=line_nr, state='SFR', result_category=item['result_category'], fk_sj_users_id=item['fk_sj_users'], fk_sj_events_id=event_info['id']))
 
                 sj_results.objects.bulk_create(final_runs)
                 run_next += 1
 
-    return HttpResponseRedirect(reverse('results'))
+    return HttpResponseRedirect(reverse('administration'))
 
 @login_required
 def print_final_runs(request):
@@ -378,7 +380,11 @@ def print_final_runs(request):
         'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12/13', 'M14/15', 'M16/Open', # Men
     ]
 
-    final_runs_all_data = sj_results.objects.prefetch_related('fk_sj_events').filter(fk_sj_events=event_id, state='SFR').order_by('run_nr','line_nr')
+    final_runs_all_data = (
+        sj_results.objects.select_related('fk_sj_users')
+        .filter(fk_sj_events=event_id, state='SFR')
+        .order_by('run_nr', 'line_nr')
+    )
 
     # Sort the list using the 'desired_order' list based on the 'result_category'
     final_runs_all_data_sorted = sorted(final_runs_all_data, key=lambda run: desired_order.index(run.result_category))
