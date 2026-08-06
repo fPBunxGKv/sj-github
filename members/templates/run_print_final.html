@@ -102,6 +102,8 @@
 
             hr.my-1 {
                 border: 1px solid #000000;
+                fill: #000000;
+                height: 1px;
                 margin: 0;
                 position: absolute;
                 left: 0.2rem;
@@ -148,7 +150,7 @@
                 {% for x in new_runs %}
                     {% if x.list.0.result_category|slice:":1" == "W" %}
                     <tr>
-                        <td class="align-middle">
+                        <td class="align-top">
                             <b class="print-category">{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
                         </td>
                         {% for line in num_lines %}
@@ -189,7 +191,7 @@
                 {% for x in new_runs %}
                     {% if x.list.0.result_category|slice:":1" == "M" %}
                     <tr>
-                        <td class="align-middle">
+                        <td class="align-top">
                             <b class="print-category">{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
                         </td>
                         {% for line in num_lines %}
