@@ -38,7 +38,7 @@
 
         .print-toolbar {
             display: flex;
-            justify-content: flex-end;
+            justify-content: flex-start;
             gap: 0.75rem;
             margin-bottom: 1rem;
             padding: 0.75rem 1rem;
@@ -53,12 +53,48 @@
 
         /* Print-specific styles */
         @media print {
+            @page {
+                margin: 0;
+            }
+
+            html,
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 12px;
+            }
+            th {
+                font-size: 16px;
+                padding: 0.2rem;
+                line-height: 1.2;
+            }
+            td {
+                font-size: 14px;
+                padding: 0.2rem;
+                line-height: 1.2;
+            }
+
+            .print-meta-small {
+                font-size: 9px;
+                line-height: 1.1;
+            }
+
+            .print-category {
+                font-size: 11px;
+            }
+
+            .print-page-container {
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
             .navbar {
                 display: none !important;
             }
 
             caption {
-                font-size: 16px;
+                font-size: 18px;
                 text-align: center;
             }
 
@@ -80,15 +116,18 @@
     </style>
 
     <section>
-        {% regroup runs by run_nr as new_runs %}
+        <div class="container print-page-container">
+            <div class="row">
+                <div class="col">
+                    {% regroup runs by run_nr as new_runs %}
 
-        <div class="print-toolbar no-print">
-            <button class="btn btn-primary" onclick="window.print()">Print</button>
-        </div>
+                    <div class="print-toolbar no-print">
+                        <button class="btn btn-primary" onclick="window.print()">Print</button>
+                    </div>
         
-        <table class="table table-sm table-striped caption-top">
+                    <table class="table table-sm table-striped caption-top">
             <caption><b>Finalläufe</b><br>
-            {{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</caption>
+            <span class="print-meta-small">{{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
             
             <thead>
                 <tr>
@@ -104,14 +143,14 @@
                     {% if x.list.0.result_category|slice:":1" == "W" %}
                     <tr>
                         <td class="align-middle">
-                            <b>{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
+                            <b class="print-category">{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
                         </td>
                         {% for line in num_lines %}
                             <td>
                                 {% for y in x.list %}
                                     {% if line|add:"1" == y.line_nr %}
                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
-                                        {{ y.fk_sj_users.byear }} | {{ y.result_category }} ({{ y.fk_sj_users.startnum }})<br>
+                                        <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                         <br>
                                         <hr class="my-1">
                                     {% endif %}
@@ -122,14 +161,14 @@
                 {% endif %}
             {% endfor %}
             </tbody>
-        </table>
+                    </table>
 
         <!-- Page break -->
-        <div class="page-break"></div>
+                    <div class="page-break"></div>
 
-        <table class="table table-sm table-striped caption-top">
+                    <table class="table table-sm table-striped caption-top">
             <caption><b>Finalläufe</b><br>
-            {{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</caption>
+            <span class="print-meta-small">{{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
             
             <thead>
                 <tr>
@@ -145,14 +184,14 @@
                     {% if x.list.0.result_category|slice:":1" == "M" %}
                     <tr>
                         <td class="align-middle">
-                            <b>{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
+                            <b class="print-category">{{ x.list.0.result_category }}</b> <br> ({{ x.grouper }})
                         </td>
                         {% for line in num_lines %}
                             <td>
                                 {% for y in x.list %}
                                     {% if line|add:"1" == y.line_nr %}
                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
-                                        {{ y.fk_sj_users.byear }} | {{ y.result_category }} ({{ y.fk_sj_users.startnum }})<br>
+                                        <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                         <br>
                                         <hr class="my-1">
                                     {% endif %}
@@ -163,6 +202,9 @@
                 {% endif %}
             {% endfor %}
             </tbody>
-        </table>
+                    </table>
+                </div>
+            </div>
+        </div>
     </section>
 {% endblock %}
