@@ -386,14 +386,20 @@ def print_final_runs(request):
         .order_by('run_nr', 'line_nr')
     )
 
+    category_order = {category: index for index, category in enumerate(desired_order)}
+
     # Sort the list using the 'desired_order' list based on the 'result_category'
-    final_runs_all_data_sorted = sorted(final_runs_all_data, key=lambda run: desired_order.index(run.result_category))
+    final_runs_all_data_sorted = sorted(
+        final_runs_all_data,
+        key=lambda run: category_order.get(run.result_category, len(category_order))
+    )
 
     template = loader.get_template('run_print_final.html')
     context = {
         'event_info' : event_info,
         'runs' : final_runs_all_data_sorted,
         'num_lines' : range(num_lines),
+        'lane_count': num_lines,
         'pagetitle' : 'SJ - Final-Laufeinteilung',
     }
     return HttpResponse(template.render(context, request))

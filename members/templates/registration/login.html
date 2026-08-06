@@ -5,20 +5,26 @@
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                    <div class="card shadow-sm" style="border-radius: 1rem;">
                         <div class="card-body p-5 text-center">
-                            <h3 class="mb-5">Anmelden</h3>
-                            {% if form.errors %}<p style="color:red">Benutzername oder Passwort stimmen nicht</p>{% endif %}
+                            <h3 class="mb-4">Anmelden</h3>
+
+                            {% if form.errors %}
+                                <div class="alert alert-danger py-2" role="alert">
+                                    Benutzername oder Passwort stimmen nicht.
+                                </div>
+                            {% endif %}
+
                             {% if next %}
                                 {% if user.is_authenticated %}
-                                    <p>
-                                        Your account doesn't have access to this page. To proceed,
-                                        please login with an account that has access.
+                                    <p class="text-muted">
+                                        Ihr Konto hat keinen Zugriff auf diese Seite. Bitte melden Sie sich mit einem berechtigten Konto an.
                                     </p>
                                 {% else %}
-                                    <p>Bitte einloggen</p>
+                                    <p class="text-muted">Bitte einloggen</p>
                                 {% endif %}
                             {% endif %}
+
                             <form method="post" action="{% url 'login' %}">
                                 {% csrf_token %}
                                 <div class="form-floating mb-4">
@@ -27,22 +33,27 @@
                                            id="username"
                                            placeholder="Benutzername"
                                            name="username"
-                                           class="form-control form-control-md" />
-                                    <label class="form-label" for="username">Benutzername</label>
+                                           class="form-control form-control-md"
+                                           required
+                                           autocomplete="username" />
+                                    <label for="username">Benutzername</label>
                                 </div>
                                 <div class="form-floating mb-4">
                                     <input type="password"
-                                           id="passowrd"
+                                           id="password"
                                            placeholder="Passwort"
                                            name="password"
-                                           class="form-control form-control-md" />
-                                    <label class="form-label" for="passowrd">Passwort</label>
+                                           class="form-control form-control-md"
+                                           required
+                                           autocomplete="current-password" />
+                                    <label for="password">Passwort</label>
                                 </div>
                                 <button class="btn btn-primary btn-md btn-block" type="submit">Login</button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    {% endblock %}
+        </div>
+    </section>
+{% endblock %}

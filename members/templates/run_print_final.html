@@ -1,4 +1,4 @@
-{% extends "base2.html" %}
+{% extends "base.html" %}
 
 {% block title %}
     <title>{{ pagetitle | default:"SJ" }}</title>
@@ -6,15 +6,55 @@
 
 {% block content %}
     <style>
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.35rem;
+            font-size: 14px;
+            vertical-align: top;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        th:first-child,
+        td:first-child {
+            width: 5rem;
+            white-space: nowrap;
+        }
+
+        th:not(:first-child),
+        td:not(:first-child) {
+            width: calc((100% - 5rem) / {{ lane_count }});
+            min-width: 5rem;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        .print-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+        }
+
+        .print-toolbar .btn {
+            min-width: 8rem;
+        }
+
         /* Print-specific styles */
         @media print {
-            table {
-                width: 100%;
-            }
-
-            th, td {
-                padding: 0.5rem;
-                font-size: 14px;
+            .navbar {
+                display: none !important;
             }
 
             caption {
@@ -42,8 +82,9 @@
     <section>
         {% regroup runs by run_nr as new_runs %}
 
-        <!-- Print Button -->
-        <button class="btn btn-primary no-print" onclick="window.print()">Print</button>
+        <div class="print-toolbar no-print">
+            <button class="btn btn-primary" onclick="window.print()">Print</button>
+        </div>
         
         <table class="table table-sm table-striped caption-top">
             <caption><b>Finalläufe</b><br>
