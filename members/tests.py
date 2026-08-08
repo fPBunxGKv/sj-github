@@ -461,3 +461,84 @@ class EventInfoTests(TestCase):
 
         self.assertIn('DESCRIPTION:First line\\nSecond line\\nThird line', content)
         self.assertNotIn('DESCRIPTION:First line\r', content)
+
+    def test_ranking_export_csv_has_no_blank_lines_between_rows(self):
+        self.user = get_user_model().objects.create_user(username='exporter', password='secret')
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Ranking Export Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=4,
+        )
+
+        user_w = sj_users.objects.create(
+            firstname='Wanda',
+            lastname='Winner',
+            email='wanda@example.com',
+            gender='W',
+            byear=2021,
+            state='YES',
+            startnum=800001,
+        )
+        user_w2 = sj_users.objects.create(
+            firstname='Wanda',
+            lastname='second first place',
+            email='wanda2@example.com',
+            gender='W',
+            byear=2021,
+            state='YES',
+            startnum=800002,
+        )
+        user_m = sj_users.objects.create(
+            firstname='Mark',
+            lastname='Runner',
+            email='mark@example.com',
+            gender='M',
+            byear=2021,
+            state='YES',
+            startnum=800003,
+        )
+
+        sj_results.objects.create(
+            fk_sj_users=user_w,
+            fk_sj_events=event,
+            run_nr=1,
+            line_nr=1,
+            state='RFR',
+            result_category='W05',
+            result=10.11,
+        )
+        sj_results.objects.create(
+            fk_sj_users=user_w2,
+            fk_sj_events=event,
+            run_nr=1,
+            line_nr=2,
+            state='RFR',
+            result_category='W05',
+            result=10.11,
+        )
+        sj_results.objects.create(
+            fk_sj_users=user_m,
+            fk_sj_events=event,
+            run_nr=2,
+            line_nr=1,
+            state='RFR',
+            result_category='M05',
+            result=10.22,
+        )
+
+        response = self.client.get(reverse('ranking_export'))
+        content = response.content.decode('utf-8-sig')
+        lines = content.splitlines()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('text/csv', response['Content-Type'])
+        self.assertEqual(lines[0], 'Rang,Kategorie,Vorname,Nachname,Bestzeit')
+        self.assertEqual(len(lines), 1 + 3)  # header + 3 results
+        self.assertNotIn('', lines)
+        categories = [row.split(',')[1] for row in lines[1:]]
+        self.assertCountEqual(categories, ['W05', 'W05', 'M05'])

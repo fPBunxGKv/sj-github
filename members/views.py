@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
@@ -688,7 +691,7 @@ def ranking(request):
 
 @login_required
 def ranking_export(request, format='csv'):
-    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
+    # Aktives event aus der DB, ID zurückgeben
     event_info = get_event_info()
     event_id = event_info['id']
 
@@ -701,20 +704,27 @@ def ranking_export(request, format='csv'):
         if result['rank'] == 1:
             first_place_results.append(result)
 
-    context = {
-        'pagetitle': 'SJ - Rangliste',
-        'event_info': event_info,
-        'fin_results_per_cat': first_place_results,  # Use filtered results
-        'fin_categories': fin_dist_cat,
-    }
+    output = StringIO()
+    writer = csv.writer(output, lineterminator='\n')
+    writer.writerow(['Rang', 'Kategorie', 'Vorname', 'Nachname', 'Bestzeit'])
 
+    for category in fin_dist_cat:
+        for result in first_place_results:
+            if result['result_category'] == category['result_category']:
+                writer.writerow([
+                    result['rank'],
+                    result['result_category'],
+                    result['fk_sj_users__firstname'],
+                    result['fk_sj_users__lastname'],
+                    result['fast_run'],
+                ])
+
+    export_content = output.getvalue()
     if format == 'csv':
-        template = loader.get_template('exports/rank_export_csv.txt')
-        response = HttpResponse('\ufeff' + template.render(context, request), content_type='text/csv; charset=utf-8')
-        response['Content-Disposition'] = f'attachment; filename="ranking_{event_info["date"].strftime("%Y%m%d")}.csv"'
+        response = HttpResponse('\ufeff' + export_content, content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="ranking_{event_info["name"]}_{event_info["date"].strftime("%Y-%m-%d")}.csv"'
     else:
-        template = loader.get_template('rank_export_txt.txt')
-        response = HttpResponse(template.render(context, request), content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename="ranking_{event_info["date"].strftime("%Y%m%d")}.txt"'
+        response = HttpResponse(export_content, content_type='text/plain; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="ranking_{event_info["name"]}_{event_info["date"].strftime("%Y-%m-%d")}.txt"'
 
     return response
