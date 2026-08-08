@@ -76,6 +76,75 @@ class AdministrationViewTests(TestCase):
 
 
 class EventInfoTests(TestCase):
+    def test_editrun_handles_empty_run_without_crashing(self):
+        self.user = get_user_model().objects.create_user(username='lane-editor', password='secret')
+        self.client.force_login(self.user)
+
+        sj_events.objects.create(
+            event_name='Edit Empty Run Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=4,
+        )
+
+        response = self.client.get(reverse('editrun', args=[42]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['run_num'], 42)
+        self.assertEqual(len(response.context['line_infos']), 4)
+
+    def test_editrun_redirects_when_run_has_rqr_or_rfr_results(self):
+        self.user = get_user_model().objects.create_user(username='lane-editor-2', password='secret')
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Edit Redirect Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=4,
+        )
+
+        participant = sj_users.objects.create(
+            firstname='Redirect',
+            lastname='Runner',
+            email='redirect@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=700001,
+        )
+
+        sj_results.objects.create(
+            fk_sj_users=participant,
+            fk_sj_events=event,
+            run_nr=81,
+            line_nr=1,
+            state='RQR',
+            result_category='M05',
+            result=10.2,
+        )
+        sj_results.objects.create(
+            fk_sj_users=participant,
+            fk_sj_events=event,
+            run_nr=82,
+            line_nr=1,
+            state='RFR',
+            result_category='M05',
+            result=9.9,
+        )
+
+        response_rqr = self.client.get(reverse('editrun', args=[81]))
+        response_rfr = self.client.get(reverse('editrun', args=[82]))
+
+        self.assertEqual(response_rqr.status_code, 302)
+        self.assertEqual(response_rqr.url, reverse('run'))
+        self.assertEqual(response_rfr.status_code, 302)
+        self.assertEqual(response_rfr.url, reverse('run'))
+
     def test_addrun_accepts_more_than_eight_lines(self):
         self.user = get_user_model().objects.create_user(username='lane-admin', password='secret')
         self.group = Group.objects.create(name='grp-lane-admin')

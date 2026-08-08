@@ -164,9 +164,8 @@ def editrun(request, id):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    # nur zum editieren anzeigen falls noch keine Resulate vorhanden sind, sonst zurück auf Übersicht Zeiterfassung
-    num_results_in_run = sj_results.objects.filter(run_nr=id, state='RQR', fk_sj_events_id=event_info['id']).count()
-
+    # nur zum editieren anzeigen falls noch keine Resultate vorhanden sind,
+    # sonst zurück auf Übersicht Zeiterfassung
     num_results_in_run = sj_results.objects.filter(
         run_nr=id,
         fk_sj_events_id=event_info['id']
@@ -185,6 +184,7 @@ def editrun(request, id):
         )
 
         line_infos = {n: {} for n in range(1, int(num_lines) + 1)}
+        run_num = id
 
         for result in run_x_data:
             line_infos[result.line_nr] = {
