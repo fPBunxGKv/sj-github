@@ -36,18 +36,19 @@
             page-break-inside: avoid;
         }
 
-        .print-toolbar {
+        .toolbar {
             display: flex;
             justify-content: flex-start;
             gap: 0.75rem;
             margin-bottom: 1rem;
+            margin-top: 1rem;
             padding: 0.75rem 1rem;
             background: #f8f9fa;
             border: 1px solid #dee2e6;
             border-radius: 0.5rem;
         }
 
-        .print-toolbar .btn {
+        .toolbar .btn {
             min-width: 8rem;
         }
 
@@ -101,10 +102,11 @@
             }
 
             hr.my-1 {
-                border: 1px solid #000000;
-                fill: #000000;
-                height: 1px;
-                margin: 0;
+                border: 1px solid #000 !important;
+                opacity: 1 !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
                 position: absolute;
                 left: 0.2rem;
                 right: 0.2rem;
@@ -129,13 +131,13 @@
                 <div class="col">
                     {% regroup runs by run_nr as new_runs %}
 
-                    <div class="print-toolbar no-print">
+                    <div class="toolbar no-print">
                         <button class="btn btn-primary" onclick="window.print()">Print</button>
                     </div>
         
                     <table class="table table-sm table-striped caption-top">
-            <caption><b>Finalläufe</b><br>
-            <span class="print-meta-small">{{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
+            <caption><b>Finalläufe {{ event_info.name }}</b><br>
+            <span class="print-meta-small">{{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
             
             <thead>
                 <tr>
@@ -160,6 +162,7 @@
                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
                                         <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                         <br>
+                                        <span style="display:block; height:12px;"></span>
                                         <hr class="my-1">
                                     {% endif %}
                                 {% endfor %}
@@ -201,6 +204,7 @@
                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
                                         <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                         <br>
+                                        <span style="display:block; height:12px;"></span>
                                         <hr class="my-1">
                                     {% endif %}
                                 {% endfor %}

@@ -132,6 +132,10 @@ python manage.py loaddata sj_events.json
 Dummy Teilnehmer in die DB laden
 ```bash
 python manage.py loaddata sj_users_demo.json 
+
+# Import note for sj_users_test_w05_w16_m05_m16.json
+python manage.py loaddata sj_users_test_w05_w16_m05_m16.json
+
 ```
 
 Django test Server starten

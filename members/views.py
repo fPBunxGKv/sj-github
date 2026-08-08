@@ -13,7 +13,7 @@ from django.utils.html import strip_tags
 
 from django.conf import settings
 
-from django.db.models import Min, Q
+from django.db.models import Min, Q, Case, When, IntegerField
 from django.db.models import Count
 
 from django.db.models import F, Window
@@ -428,10 +428,22 @@ def results(request):
     queryset = sj_results.objects.select_related().filter(fk_sj_events=event_id)
 
     if show_sfr_only:
-        queryset = queryset.filter(state='SFR')
-
-    order = 'run_nr' if show_sfr_only else '-run_nr'
-    runs_all_data = queryset.order_by(order, 'line_nr')
+        # Keep open final runs (SFR) first and append completed final runs (RFR) last.
+        runs_all_data = (
+            queryset
+            .filter(state__in=['SFR', 'RFR'])
+            .annotate(
+                state_order=Case(
+                    When(state='SFR', then=0),
+                    When(state='RFR', then=1),
+                    default=2,
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by('state_order', 'run_nr', 'line_nr')
+        )
+    else:
+        runs_all_data = queryset.order_by('-run_nr', 'line_nr')
 
     # DEBUG
     logger.debug(f"EVENT-ID: {event_id}, NUMBER-LINES: {num_lines}")

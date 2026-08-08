@@ -1,10 +1,131 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
+    <style>
+        table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.35rem;
+            font-size: 14px;
+            vertical-align: top;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        th:first-child,
+        td:first-child {
+            width: 5rem;
+            white-space: nowrap;
+        }
+
+        th:not(:first-child),
+        td:not(:first-child) {
+            width: calc((100% - 5rem) / {{ lane_count }});
+            min-width: 5rem;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+        }
+
+        .toolbar .btn {
+            min-width: 8rem;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            @page {
+                margin: 0;
+            }
+
+            html,
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                font-size: 12px;
+            }
+            th {
+                font-size: 16px;
+                padding: 0.2rem;
+                line-height: 1.2;
+            }
+            td {
+                font-size: 14px;
+                padding: 0.2rem;
+                padding-bottom: 0.8rem;
+                line-height: 1.2;
+                position: relative;
+            }
+
+            .print-meta-small {
+                font-size: 9px;
+                line-height: 1.1;
+            }
+
+            .print-category {
+                font-size: 11px;
+            }
+
+            .print-page-container {
+                max-width: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .navbar {
+                display: none !important;
+            }
+
+            caption {
+                font-size: 18px;
+                text-align: center;
+            }
+
+            hr.my-1 {
+                border: 1px solid #000 !important;
+                opacity: 1 !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                position: absolute;
+                left: 0.2rem;
+                right: 0.2rem;
+                bottom: 0;
+            }
+
+            /* Hide unwanted elements on print */
+            .no-print {
+                display: none;
+            }
+
+            /* Page break */
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+
     <!-- Tabelle mit eingeteilten Läufen -->
     <div class="container">
         <div class="row mb-3">
             <div class="col">
+                <div class="toolbar no-print">
                 <form method="get" class="d-flex align-items-center gap-2">
                     <label class="form-label mb-0" for="state-filter">Filter:</label>
                     <select class="form-select form-select-sm" id="state-filter" name="state" onchange="this.form.submit()">
@@ -12,6 +133,7 @@
                         <option value="SFR" {% if show_sfr_only %}selected{% endif %}>Nur Finalläufe</option>
                     </select>
                 </form>
+            </div>
             </div>
         </div>
         <div class="row">
@@ -28,7 +150,6 @@
                         {% for x in new_runs %}
                             <tr>
                                 <td class="align-middle">
-                                    <!-- <b><a href="addresults/{{ x.grouper }}">{{ x.grouper }}</a></b> -->
                                     <a class="btn btn-primary btn-sm"
                                        href="addresults/{{ x.grouper }}{% if show_sfr_only %}?state=SFR{% endif %}"
                                        role="button"><b>{{ x.grouper }}</b></a>
@@ -41,26 +162,20 @@
                                                     {% if y.result <= 0 %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
-                                                        ({{ y.fk_sj_users.startnum }})
-                                                        <br>
-                                                        {{ y.result_category }} ({{ y.fk_sj_users.byear }})
-                                                        <br>
+                                                        <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                                         Status: {{ y.state }}
                                                         <br>
-                                                        <p style="color:red">
+                                                        <p{% if y.result < 0 %} style="color:red"{% endif %}>
                                                             <b>Zeit: ---</b>
                                                         </p>
                                                     {% endif %}
                                                     {% if y.result > 0 %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
-                                                        ({{ y.fk_sj_users.startnum }})
-                                                        <br>
-                                                        {{ y.result_category }} ({{ y.fk_sj_users.byear }})
-                                                        <br>
+                                                        <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                                         Status: {{ y.state }}
                                                         <br>
-                                                        <p style="color:blue">
+                                                        <p{% if y.state == 'RQR' %} style="color:blue"{% elif y.state == 'RFR' %} style="color:darkgreen"{% endif %}>
                                                             <b>Zeit: {{ y.result | stringformat:'0.2f' }}</b>
                                                         </p>
                                                     {% endif %}
@@ -76,5 +191,4 @@
             </div>
         </div>
     </div>
-</section>
 {% endblock %}
