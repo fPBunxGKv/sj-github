@@ -1,5 +1,8 @@
 from .models import sj_events, sj_users, sj_results
+from django.db import transaction
+from django.utils import timezone as django_timezone
 
+import random
 from random import seed
 from random import randint
 
@@ -8,6 +11,7 @@ from escpos.printer import Network, Dummy
 
 import uuid
 import time
+from collections import defaultdict
 
 # Import smtplib for sending email function
 import smtplib, ssl
@@ -248,6 +252,159 @@ def get_event_info():
             "reg_open": reg_open,
             "lines": active_event['event_num_lines']
             }
+
+
+def reset_competition_data_with_three_events(event_num_lines=4):
+    """
+    Delete all results, users and events and create three events:
+    - current year (active)
+    - previous year (inactive)
+    - two years ago (inactive)
+    """
+    current_year = django_timezone.now().year
+    target_years = [current_year, current_year - 1, current_year - 2]
+
+    with transaction.atomic():
+        deleted_results, _ = sj_results.objects.all().delete()
+        deleted_users, _ = sj_users.objects.all().delete()
+        deleted_events, _ = sj_events.objects.all().delete()
+
+        created_events = []
+        for idx, year in enumerate(target_years):
+            reg_start = django_timezone.make_aware(datetime(year, 1, 1, 0, 0, 0))
+            reg_end = django_timezone.make_aware(datetime(year, 12, 31, 23, 59, 59))
+
+            created_events.append(
+                sj_events(
+                    event_name=f"SJ Event {year}",
+                    event_date=date(year, 8, 31),
+                    event_location="Jegenstorf",
+                    event_program="Sprint, Spiel, Jubel!",
+                    event_active=(idx == 0),
+                    event_reg_open=(idx == 0),
+                    event_reg_start=reg_start,
+                    event_reg_end=reg_end,
+                    event_num_lines=event_num_lines,
+                )
+            )
+
+        created_events = sj_events.objects.bulk_create(created_events)
+
+    return {
+        "deleted_results": deleted_results,
+        "deleted_users": deleted_users,
+        "deleted_events": deleted_events,
+        "created_events": [
+            {
+                "id": event.id,
+                "name": event.event_name,
+                "year": event.event_date.year,
+                "active": event.event_active,
+            }
+            for event in created_events
+        ],
+    }
+
+
+def create_past_event_demo_results(event, max_users_per_category=8, finalists_per_category=4):
+    """
+    Create qualification and final results for one past event.
+    Results are generated deterministically from event year/id.
+    """
+    users = list(
+        sj_users.objects.filter(state='YES')
+        .exclude(admin_state='deleted')
+        .values('id', 'byear', 'gender')
+    )
+
+    if not users:
+        return {
+            'event_id': event.id,
+            'event_name': event.event_name,
+            'qualy_results_created': 0,
+            'final_results_created': 0,
+        }
+
+    event_year = event.event_date.year
+    lane_count = max(int(event.event_num_lines), 1)
+    rng = random.Random(event_year * 1000 + event.id)
+
+    users_per_category = defaultdict(list)
+    for user in users:
+        category = calc_cat(user['gender'], int(user['byear']), event_year)
+        users_per_category[category].append(user)
+
+    qualy_rows = []
+    run_nr = 1
+
+    for category in sorted(users_per_category.keys()):
+        category_users = list(users_per_category[category])
+        rng.shuffle(category_users)
+        selected_users = category_users[:max_users_per_category]
+
+        for idx, user in enumerate(selected_users):
+            if idx > 0 and idx % lane_count == 0:
+                run_nr += 1
+
+            line_nr = (idx % lane_count) + 1
+            qualy_time = round(9.2 + (idx % lane_count) * 0.25 + rng.uniform(0.0, 2.5), 2)
+
+            qualy_rows.append(
+                sj_results(
+                    run_nr=run_nr,
+                    line_nr=line_nr,
+                    state='RQR',
+                    result=qualy_time,
+                    result_category=category,
+                    fk_sj_users_id=user['id'],
+                    fk_sj_events_id=event.id,
+                )
+            )
+
+        run_nr += 1
+
+    sj_results.objects.bulk_create(qualy_rows)
+
+    best_per_category = defaultdict(list)
+    for result in qualy_rows:
+        best_per_category[result.result_category].append((result.fk_sj_users_id, result.result))
+
+    final_rows = []
+    final_run_nr = run_nr
+
+    for category in sorted(best_per_category.keys()):
+        ranked = sorted(best_per_category[category], key=lambda item: item[1])
+        finalists = ranked[:finalists_per_category]
+
+        for idx, (user_id, best_time) in enumerate(finalists):
+            if idx > 0 and idx % lane_count == 0:
+                final_run_nr += 1
+
+            line_nr = (idx % lane_count) + 1
+            final_time = round(max(0.01, best_time - rng.uniform(0.05, 0.30)), 2)
+
+            final_rows.append(
+                sj_results(
+                    run_nr=final_run_nr,
+                    line_nr=line_nr,
+                    state='RFR',
+                    result=final_time,
+                    result_category=category,
+                    fk_sj_users_id=user_id,
+                    fk_sj_events_id=event.id,
+                )
+            )
+
+        final_run_nr += 1
+
+    sj_results.objects.bulk_create(final_rows)
+
+    return {
+        'event_id': event.id,
+        'event_name': event.event_name,
+        'qualy_results_created': len(qualy_rows),
+        'final_results_created': len(final_rows),
+    }
 
 def delete_user(id, state='DEL'):
     '''
