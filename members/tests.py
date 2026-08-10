@@ -542,3 +542,38 @@ class EventInfoTests(TestCase):
         self.assertNotIn('', lines)
         categories = [row.split(',')[1] for row in lines[1:]]
         self.assertCountEqual(categories, ['W05', 'W05', 'M05'])
+
+    def test_ranking_works_without_active_event_if_historical_event_has_results(self):
+        event = sj_events.objects.create(
+            event_name='Historical Results Event',
+            event_date=timezone.now().date() - timedelta(days=30),
+            event_reg_start=timezone.now() - timedelta(days=60),
+            event_reg_end=timezone.now() - timedelta(days=31),
+            event_active=False,
+            event_num_lines=4,
+        )
+
+        participant = sj_users.objects.create(
+            firstname='Hanna',
+            lastname='History',
+            email='hanna@example.com',
+            gender='W',
+            byear=2020,
+            state='YES',
+            startnum=810001,
+        )
+
+        sj_results.objects.create(
+            fk_sj_users=participant,
+            fk_sj_events=event,
+            run_nr=1,
+            line_nr=1,
+            state='RFR',
+            result_category='W05',
+            result=9.87,
+        )
+
+        response = self.client.get(reverse('ranking'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Historical Results Event')

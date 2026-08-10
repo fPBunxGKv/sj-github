@@ -646,35 +646,132 @@ def getFinalResultsPerCategory(event_id):
 # Rangliste
 def ranking(request):
 
-    # Aktives event aus der DB lesen und anz. Bahnen / ID zurückgeben
-    event_info = get_event_info()
-    event_id = event_info['id']
+    # Aktives Event optional laden: ranking must also work without active event.
+    active_event = sj_events.objects.filter(event_active=True).order_by(
+        '-updated_at',
+        '-created_at',
+        '-id',
+    ).values(
+        'id',
+        'uuid',
+        'event_name',
+        'event_date',
+        'event_location',
+        'event_program',
+        'event_reg_start',
+        'event_reg_end',
+        'event_num_lines',
+    ).first()
 
-    # Query Resultate der Finalläufe
-    fin_dist_cat, fin_results_per_cat = getFinalResultsPerCategory(event_id)
+    active_event_info = None
+    if active_event:
+        if datetime.now().date() <= active_event['event_reg_start'].date():
+            reg_open = (False, "\u23f3 Voranmeldungen nehmen wir ab Anfang August entgegen.")
+        elif active_event['event_reg_start'].date() <= datetime.now().date() <= active_event['event_reg_end'].date():
+            reg_open = (True, "")
+        else:
+            reg_open = (False, "\u23f1\ufe0f Die online Registration ist zur Zeit geschlossen. Du kannst dich immer noch am Anlass vor Ort anmelden.")
 
-    # Query Resultate der Vorläufe
-    dist_cat, results_per_cat = getFirstRunningResultsPerCategory(event_id)
+        active_event_info = {
+            'id': active_event['id'],
+            'uuid': active_event.get('uuid'),
+            'name': active_event['event_name'],
+            'date': active_event['event_date'],
+            'location': active_event.get('event_location', ''),
+            'event_program': active_event.get('event_program', ''),
+            'reg_open': reg_open,
+            'lines': active_event['event_num_lines'],
+        }
 
-    # Query Resultate über alle Kategorien
-    result_best_all=list(sj_results.objects.filter(
-            Q(state='RQR') | Q(state='RFR')
-        ).filter(
-            fk_sj_events=event_id
-        ).values(
-            'fk_sj_users',
-            'fk_sj_users__firstname',
-            'fk_sj_users__lastname',
-            'result_category',
-        ).annotate(
-            fast_run=Min('result'),
-            rank=Window(
-                expression=Rank(),
-                order_by=F('fast_run').asc()),
-        ).order_by(
-            'fast_run',
-        )
+    # Filter: latest 5 events that contain at least one result
+    ranking_events = list(
+        sj_events.objects.filter(sj_results__isnull=False)
+        .distinct()
+        .order_by('-event_date', '-id')
+        .values('id', 'event_name', 'event_date')[:5]
     )
+
+    selected_event_id = request.GET.get('event_id')
+    ranking_event_ids = [str(event['id']) for event in ranking_events]
+
+    # Default to active event if it has results and is in the latest-5 list,
+    # otherwise fall back to the first listed event with results.
+    if selected_event_id in ranking_event_ids:
+        event_id = int(selected_event_id)
+    elif active_event_info and str(active_event_info['id']) in ranking_event_ids:
+        event_id = active_event_info['id']
+    elif ranking_events:
+        event_id = ranking_events[0]['id']
+    elif active_event_info:
+        event_id = active_event_info['id']
+    else:
+        event_id = None
+
+    selected_event = None
+    if event_id is not None:
+        selected_event = sj_events.objects.filter(id=event_id).values(
+            'id',
+            'event_name',
+            'event_date',
+            'event_location',
+            'event_program',
+            'event_num_lines',
+        ).first()
+
+    if selected_event:
+        event_info = {
+            'id': selected_event['id'],
+            'name': selected_event['event_name'],
+            'date': selected_event['event_date'],
+            'location': selected_event.get('event_location', ''),
+            'event_program': selected_event.get('event_program', ''),
+            'lines': selected_event['event_num_lines'],
+            'reg_open': active_event_info['reg_open'] if active_event_info else (False, ''),
+        }
+    elif active_event_info:
+        event_info = active_event_info
+    else:
+        event_info = {
+            'id': None,
+            'uuid': None,
+            'name': '',
+            'date': None,
+            'location': '',
+            'event_program': '',
+            'reg_open': (False, ''),
+            'lines': 0,
+        }
+
+    if event_id is not None:
+        # Query Resultate der Finalläufe
+        fin_dist_cat, fin_results_per_cat = getFinalResultsPerCategory(event_id)
+
+        # Query Resultate der Vorläufe
+        dist_cat, results_per_cat = getFirstRunningResultsPerCategory(event_id)
+
+        # Query Resultate über alle Kategorien
+        result_best_all=list(sj_results.objects.filter(
+                Q(state='RQR') | Q(state='RFR')
+            ).filter(
+                fk_sj_events=event_id
+            ).values(
+                'fk_sj_users',
+                'fk_sj_users__firstname',
+                'fk_sj_users__lastname',
+                'result_category',
+            ).annotate(
+                fast_run=Min('result'),
+                rank=Window(
+                    expression=Rank(),
+                    order_by=F('fast_run').asc()),
+            ).order_by(
+                'fast_run',
+            )
+        )
+    else:
+        fin_dist_cat, fin_results_per_cat = [], []
+        dist_cat, results_per_cat = [], []
+        result_best_all = []
 
     context = {
         'pagetitle' : 'SJ - Rangliste',
@@ -684,6 +781,8 @@ def ranking(request):
         'result_best_all' : result_best_all,
         'categories' : dist_cat,
         'fin_categories' : fin_dist_cat,
+        'ranking_events': ranking_events,
+        'selected_event_id': str(event_id) if event_id is not None else '',
     }
 
     template = loader.get_template('rank_show.html')
