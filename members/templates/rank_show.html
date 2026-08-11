@@ -1,6 +1,43 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block navbar_actions %}
+    <div class="navbar-page-actions no-print">
+        <div class="ranking-nav-panel">
+            <form method="get" class="ranking-nav-form">
+                <label class="ranking-nav-label" for="event-filter">Anlass</label>
+                <select class="form-select form-select-sm" id="event-filter" name="event_id" onchange="this.form.submit()" {% if ranking_events|length == 0 %}disabled{% endif %}>
+                    {% if ranking_events|length > 0 %}
+                        {% for event in ranking_events %}
+                            <option value="{{ event.id }}" {% if event.id|stringformat:'s' == selected_event_id %}selected{% endif %}>
+                                {{ event.event_name }} ({{ event.event_date|date:'d.m.Y' }})
+                            </option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="" selected>Keine Events mit Resultaten</option>
+                    {% endif %}
+                </select>
+            </form>
+            <div class="ranking-nav-links" aria-label="Abschnittsnavigation">
+                {% if fin_categories|length > 0 %}
+                    <a class="btn btn-primary btn-sm ranking-nav-link" href="#section-final">Finalläufe</a>
+                {% else %}
+                    <span class="btn btn-secondary btn-sm ranking-nav-link disabled" aria-disabled="true">Finalläufe</span>
+                {% endif %}
+                {% if categories|length > 0 %}
+                    <a class="btn btn-primary btn-sm ranking-nav-link" href="#section-prelim">Vorläufe</a>
+                {% else %}
+                    <span class="btn btn-secondary btn-sm ranking-nav-link disabled" aria-disabled="true">Vorläufe</span>
+                {% endif %}
+                {% if result_best_all|length > 0 %}
+                    <a class="btn btn-primary btn-sm ranking-nav-link" href="#section-all">Alle Kategorien</a>
+                {% else %}
+                    <span class="btn btn-secondary btn-sm ranking-nav-link disabled" aria-disabled="true">Alle Kategorien</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
 {% block content %}
     <style>
         table {
@@ -9,89 +46,99 @@
             border-collapse: collapse;
         }
 
-        .toolbar {
+        .ranking-nav-panel {
             display: flex;
-            justify-content: flex-start;
+            align-items: center;
+            justify-content: space-between;
             gap: 0.75rem;
-            margin-bottom: 1rem;
-            margin-top: 0;
-            padding: 0.75rem 1rem;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            position: fixed;
-            top: 4.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            width: min(1140px, calc(100% - 2rem));
-            z-index: 1030;
+            flex-wrap: wrap;
         }
 
-        .toolbar .btn {
-            min-width: 8rem;
+        .ranking-nav-form {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1 1 26rem;
+            margin: 0;
+        }
+
+        .ranking-nav-label {
+            margin: 0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6c757d;
+            white-space: nowrap;
+        }
+
+        #event-filter {
+            min-height: calc(1.5em + 1rem + 2px);
+            box-shadow: none;
+        }
+
+        .ranking-nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            flex: 1 1 24rem;
+            flex-wrap: wrap;
+        }
+
+        .ranking-nav-link {
+            min-width: 10rem;
+        }
+
+        .ranking-nav-link.disabled {
+            pointer-events: none;
+            opacity: 0.65;
         }
 
         .ranking-content {
-            margin-top: 10rem;
+            margin-top: 1.5rem;
         }
 
         #section-final,
         #section-prelim,
         #section-all {
-            scroll-margin-top: 10.5rem;
+            scroll-margin-top: 9.5rem;
         }
 
         @media (max-width: 991.98px) {
-            .toolbar {
-                position: fixed;
-                top: 5.25rem;
-                left: 50%;
-                transform: translateX(-50%);
-                width: calc(100% - 1rem);
-                z-index: 1030;
-                margin-top: 0;
-                padding: 0.5rem 0.75rem;
+            .ranking-nav-panel {
                 gap: 0.5rem;
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            .toolbar form {
+            .ranking-nav-form {
+                flex: 0 0 auto;
                 width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.35rem;
             }
 
             #event-filter {
                 width: 100%;
-                min-height: 2.25rem;
             }
 
-            .toolbar .d-flex {
-                margin-left: 0 !important;
+            .ranking-nav-links {
+                flex: 0 0 auto;
                 width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 0.5rem;
             }
 
-            .toolbar .btn {
+            .ranking-nav-link {
                 min-width: 0;
+                width: 100%;
             }
 
             .ranking-content {
-                margin-top: 12rem;
-            }
-
-            #section-final,
-            #section-prelim,
-            #section-all {
-                scroll-margin-top: 12.5rem;
-            }
-        }
-
-        @media (max-width: 430px) {
-            .toolbar .btn,
-            .toolbar .d-flex .btn,
-            .toolbar .d-flex span.btn {
-                flex: 1 1 calc(50% - 0.5rem);
-                text-align: center;
+                margin-top: 1.25rem;
             }
 
             #section-final,
@@ -101,12 +148,19 @@
             }
         }
 
-        .print-header {
-            display: none;
+        @media (max-width: 430px) {
+            .ranking-nav-link {
+                width: 100%;
+                text-align: center;
+            }
+
+            .ranking-nav-links {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .print-page-break {
-            page-break-before: auto;
+        .print-header {
+            display: none;
         }
 
         @media print {
@@ -119,7 +173,6 @@
 
             .noprint,
             .no-print,
-            .toolbar,
             .navbar {
                 display: none !important;
             }
@@ -230,44 +283,6 @@
                 <div class="print-header-title-sub">Sprint Jegenstorf</div>
             </div>
             <img class="print-header-logo-right" src="{% static 'logo_211x211.png' %}" alt="Turnverein Logo">
-        </div>
-
-        <div class="row mb-3">
-            <div class="col">
-                <div class="toolbar no-print">
-                    <form method="get" class="d-flex align-items-center gap-2">
-
-                        <select class="form-select form-select-sm" id="event-filter" name="event_id" onchange="this.form.submit()" {% if ranking_events|length == 0 %}disabled{% endif %}>
-                            {% if ranking_events|length > 0 %}
-                                {% for event in ranking_events %}
-                                    <option value="{{ event.id }}" {% if event.id|stringformat:'s' == selected_event_id %}selected{% endif %}>
-                                        {{ event.event_name }} ({{ event.event_date|date:'d.m.Y' }})
-                                    </option>
-                                {% endfor %}
-                            {% else %}
-                                <option value="" selected>Keine Events mit Resultaten</option>
-                            {% endif %}
-                        </select>
-                    </form>
-                    <div class="d-flex align-items-center gap-2 ms-2 flex-wrap">
-                        {% if fin_categories|length > 0 %}
-                            <a class="btn btn-outline-secondary btn-sm" href="#section-final">Finalläufe</a>
-                        {% else %}
-                            <span class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Finalläufe</span>
-                        {% endif %}
-                        {% if categories|length > 0 %}
-                            <a class="btn btn-outline-secondary btn-sm" href="#section-prelim">Vorläufe</a>
-                        {% else %}
-                            <span class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Vorläufe</span>
-                        {% endif %}
-                        {% if result_best_all|length > 0 %}
-                            <a class="btn btn-outline-secondary btn-sm" href="#section-all">Alle Kategorien</a>
-                        {% else %}
-                            <span class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Alle Kategorien</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="ranking-content">
         <div class="row" id="section-final">
