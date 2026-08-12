@@ -427,7 +427,8 @@ def results(request):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    show_sfr_only = request.GET.get('state') == 'SFR'
+    current_state = request.GET.get('state', '')
+    show_sfr_only = current_state == 'SFR'
     queryset = sj_results.objects.select_related().filter(fk_sj_events=event_id)
 
     if show_sfr_only:
@@ -457,6 +458,11 @@ def results(request):
         'num_lines' : range(num_lines),
         'pagetitle' : 'SJ - Resultate',
         'show_sfr_only': show_sfr_only,
+        'current_state': current_state,
+        'filter_buttons': [
+            {'label': 'Alle Resultate', 'state': '', 'color': 'primary'},
+            {'label': 'Finalläufe', 'state': 'SFR', 'color': 'success'},
+        ],
     }
     return HttpResponse(template.render(context, request))
 
@@ -478,7 +484,8 @@ def addresults(request, id):
         'runs' : runs_all_data,
         'num_lines' : range(num_lines),
         'pagetitle' : 'SJ - Resultate',
-        'show_sfr_only': request.GET.get('state') == 'SFR',
+        'show_sfr_only': request.GET.get('state', '') == 'SFR',
+        'current_state': request.GET.get('state', ''),
     }
     return HttpResponse(template.render(context, request))
 
@@ -541,8 +548,8 @@ def saveresults(request):
 
     filter_state = request.POST.get('state', '')
     redirect_url = reverse('results')
-    if filter_state == 'SFR':
-        redirect_url = f"{redirect_url}?state=SFR"
+    if filter_state:
+        redirect_url = f"{redirect_url}?state={filter_state}"
 
     return HttpResponseRedirect(redirect_url)
 

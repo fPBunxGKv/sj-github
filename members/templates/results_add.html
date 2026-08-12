@@ -16,7 +16,7 @@
                         {% regroup runs by run_nr as new_runs %}
                         <form action="{% url 'saveresults' %}" method="post">
                             {% csrf_token %}
-                            <input type="hidden" name="state" value="{% if show_sfr_only %}SFR{% endif %}">
+                            <input type="hidden" name="state" value="{{ current_state }}">
                             {% for x in new_runs %}
                                 <tr>
                                     <td class="align-middle">
