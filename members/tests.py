@@ -577,3 +577,43 @@ class EventInfoTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Historical Results Event')
+
+class AuthenticationTemplateTests(TestCase):
+    def setUp(self):
+        self.login_url = reverse('login')
+        self.logout_url = reverse('logout')
+
+        self.grp_admin = Group.objects.create(name='grp-admin')
+        self.grp_kasse = Group.objects.create(name='grp-kasse')
+        self.grp_lauf = Group.objects.create(name='grp-lauf')
+
+        self.admin_user = get_user_model().objects.create_user(
+            username='admin-user',
+            password='secret',
+            is_staff=True,
+            is_superuser=True,
+        )
+        self.admin_user.groups.add(self.grp_admin)
+
+        self.kasse_user = get_user_model().objects.create_user(
+            username='kasse-user',
+            password='secret',
+        )
+        self.kasse_user.groups.add(self.grp_kasse)
+
+        self.lauf_user = get_user_model().objects.create_user(
+            username='lauf-user',
+            password='secret',
+        )
+        self.lauf_user.groups.add(self.grp_lauf)
+
+    def test_login_form_shows_error_for_invalid_credentials(self):
+        response = self.client.post(
+            self.login_url,
+            {'username': self.kasse_user.username, 'password': 'wrong-password'},
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Benutzername oder Passwort stimmen nicht.')
+        self.assertNotIn('_auth_user_id', self.client.session)
