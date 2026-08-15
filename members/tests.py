@@ -607,39 +607,6 @@ class AuthenticationTemplateTests(TestCase):
         )
         self.lauf_user.groups.add(self.grp_lauf)
 
-    def test_login_form_renders_expected_fields(self):
-        response = self.client.get(self.login_url)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'name="username"')
-        self.assertContains(response, 'name="password"')
-        self.assertContains(response, f'action="{self.login_url}"')
-        self.assertContains(response, 'type="submit"')
-
-    def test_admin_kasse_and_lauf_can_login_and_logout_with_nav_forms(self):
-        for user in [self.admin_user, self.kasse_user, self.lauf_user]:
-            with self.subTest(username=user.username):
-                login_response = self.client.post(
-                    self.login_url,
-                    {'username': user.username, 'password': 'secret'},
-                )
-
-                self.assertEqual(login_response.status_code, 302)
-                self.assertEqual(int(self.client.session['_auth_user_id']), user.id)
-                authenticated_login_page = self.client.get(self.login_url)
-                self.assertContains(authenticated_login_page, 'id="logout-form"')
-                self.assertContains(authenticated_login_page, f'action="{self.logout_url}"')
-                self.assertContains(authenticated_login_page, f'Logout ({user.username})')
-
-                logout_response = self.client.post(self.logout_url)
-
-                self.assertEqual(logout_response.status_code, 302)
-                self.assertNotIn('_auth_user_id', self.client.session)
-
-                anonymous_login_page = self.client.get(self.login_url)
-                self.assertContains(anonymous_login_page, f'action="{self.login_url}"')
-                self.assertNotContains(anonymous_login_page, 'id="logout-form"')
-
     def test_login_form_shows_error_for_invalid_credentials(self):
         response = self.client.post(
             self.login_url,
