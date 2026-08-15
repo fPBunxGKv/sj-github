@@ -1,5 +1,19 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block navbar_actions %}
+    <div class="navbar-page-actions no-print">
+            <span class="navbar-page-label" id="results-filter-label">Filter</span>
+            <div class="btn-group" role="group" aria-labelledby="results-filter-label">
+                {% for button in filter_buttons %}
+                    <a class="btn {% if current_state == button.state %}btn-{{ button.color }}{% else %}btn-outline-{{ button.color }}{% endif %} btn-sm"
+                       href="{% url 'results' %}{% if button.state %}?state={{ button.state|urlencode }}{% endif %}"
+                       role="button">
+                        {{ button.label }}
+                    </a>
+                {% endfor %}
+            </div>
+    </div>
+{% endblock %}
 {% block content %}
     <style>
         table {
@@ -30,22 +44,6 @@
 
         tr {
             page-break-inside: avoid;
-        }
-
-        .toolbar {
-            display: flex;
-            justify-content: flex-start;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            margin-top: 1rem;
-            padding: 0.75rem 1rem;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-        }
-
-        .toolbar .btn {
-            min-width: 8rem;
         }
 
         /* Print-specific styles */
@@ -123,22 +121,6 @@
 
     <!-- Tabelle mit eingeteilten Läufen -->
     <div class="container">
-        <div class="row mb-3">
-            <div class="col">
-                <div class="toolbar no-print">
-                    <span class="form-label mb-0 align-self-center">Filter:</span>
-                    <div class="btn-group" role="group" aria-label="Resultate filtern">
-                        {% for button in filter_buttons %}
-                            <a class="btn {% if current_state == button.state %}btn-{{ button.color }}{% else %}btn-outline-{{ button.color }}{% endif %} btn-sm"
-                               href="{% url 'results' %}{% if button.state %}?state={{ button.state|urlencode }}{% endif %}"
-                               role="button">
-                                {{ button.label }}
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row">
             <div class="col">
                 <table class="table table-striped table-hover">
@@ -165,22 +147,21 @@
                                                     {% if y.result <= 0 %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
-                                                        <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
-                                                        Status: {{ y.state }}
-                                                        <br>
-                                                        <p{% if y.result < 0 %} style="color:red"{% endif %}>
-                                                            <b>Zeit: ---</b>
-                                                        </p>
-                                                    {% endif %}
-                                                    {% if y.result > 0 %}
+                                                        <p>
+                                                        <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                    </p>
+                                                    <b{% if y.result < 0 %} style="color:red"{% endif %}>
+                                                        Zeit: ---</b>
+                                                        {% endif %}
+                                                        {% if y.result > 0 %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
-                                                        <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
-                                                        Status: {{ y.state }}
-                                                        <br>
-                                                        <p{% if y.state == 'RQR' %} style="color:blue"{% elif y.state == 'RFR' %} style="color:darkgreen"{% endif %}>
-                                                            <b>Zeit: {{ y.result | stringformat:'0.2f' }}</b>
+                                                        <p>
+                                                        <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                         </p>
+                                                        <b{% if y.state == 'RQR' %} style="color:blue"{% elif y.state == 'RFR' %} style="color:darkgreen"{% endif %}>
+                                                            Zeit: {{ y.result | stringformat:'0.2f' }}</b>
+                                                        </b>
                                                     {% endif %}
                                                 {% endif %}
                                             {% endspaceless %}

@@ -25,6 +25,16 @@
                 border-top: 1px solid rgba(0, 0, 0, 0.08);
             }
 
+            .navbar-page-label {
+                margin: 0;
+                font-size: 0.75rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #6c757d;
+                white-space: nowrap;
+            }
+
             @media (max-width: 991.98px) {
                 .navbar-page-actions {
                     padding-top: 0.5rem;
@@ -53,7 +63,6 @@
                                 <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
                                 {% if request.user|is_in_group:"grp-kasse" %}
                                     <a href="{% url 'users' %}" class="nav-item nav-link">Teilnehmer</a>
-                                    {% comment %} <a href="{% url 'add' %}" class="nav-item nav-link">TeilnehmerIn erfassen</a> {% endcomment %}
                                 {% endif %}
                                 {% if request.user|is_in_group:"grp-lauf" %}
                                     <a href="{% url 'run' %}" class="nav-item nav-link">Laufeinteilung</a>
