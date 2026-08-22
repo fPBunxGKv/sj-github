@@ -67,6 +67,8 @@ def calc_cat(u_gender, u_byear, event_year):
 
 def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1, event_year=2020):
     logger.debug(f"Print-Templatename: { template }")
+    print_logo = "members/static/sj-logo-x211-y232.png"
+    logger.debug(f"Print-Logo: { print_logo }")
     # ToDo - test if logo file is present
     #        via dummy printer ?
     
@@ -88,7 +90,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             NetPrn.textln(f'-            -')
             # Logo
             NetPrn.set(align='center')
-            NetPrn.image("members/static/logo_211x211.png")
+            NetPrn.image(print_logo)
             NetPrn.ln(count=1)
             
             # Firstname
@@ -135,7 +137,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
                 # Logo
                 NetPrn.ln(count=6)
                 NetPrn.set(align='center')
-                NetPrn.image("members/static/logo_211x211.png")
+                NetPrn.image(print_logo)
                 NetPrn.ln(count=1)
                 
                 # Firstname
