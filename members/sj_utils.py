@@ -81,8 +81,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             """
             Printer Model: TM-T88VI
             """
-            # NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T88VI')
-            NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T20II')
+            NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T88VI')
             # Empty lines
             NetPrn.set(align='center', font='a', bold=False, custom_size=True, width=3, height=1, density=1)
             NetPrn.textln(f'---')
