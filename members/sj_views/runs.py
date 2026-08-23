@@ -270,13 +270,13 @@ def set_final_runs(request):
     if request.method == 'POST':
         if 'delete-final' in request.POST:
             logger.info('Delete final runs')
-            sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
+            sj_results.objects.filter(state='SFR', result__isnull=True, fk_sj_events=event_id).delete()
         elif 'generate-final' in request.POST:
             logger.info('Generate final runs')
 
             # delete qualification runs without results of the actual event
             sj_results.objects.filter(state='SQR', fk_sj_events=event_id).delete()
-            sj_results.objects.filter(state='SFR', result=-1.0, fk_sj_events=event_id).delete()
+            sj_results.objects.filter(state='SFR', result__isnull=True, fk_sj_events=event_id).delete()
 
             # get latest run number
             run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
@@ -473,8 +473,8 @@ def addrun_testdata(request, add_lines=1):
                 event_year=event_year
             )
 
-            result_value = round(uniform(9, 12), 2) if run_nr < total_runs_to_add else -1
-            result_state = 'RQR' if result_value != -1 else 'SQR'
+            result_value = round(uniform(9, 12), 2) if run_nr < total_runs_to_add else None
+            result_state = 'RQR' if result_value is not None else 'SQR'
 
             sj_results.objects.create(
                 run_nr=run_nr,

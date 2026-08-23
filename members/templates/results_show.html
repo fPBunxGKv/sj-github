@@ -144,16 +144,15 @@
                                         {% for y in x.list %}
                                             {% spaceless %}
                                                 {% if line|add:"1" == y.line_nr %}
-                                                    {% if y.result <= 0 %}
+                                                    {% if y.result is None %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
                                                         <p>
                                                         <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                     </p>
-                                                    <b{% if y.result < 0 %} style="color:red"{% endif %}>
+                                                    <b{% if y.result is None %} style="color:red"{% endif %}>
                                                         Zeit: ---</b>
-                                                        {% endif %}
-                                                        {% if y.result > 0 %}
+                                                    {% else %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
                                                         <p>

@@ -42,6 +42,9 @@ from datetime import *
 from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, delete_user, generate_startnumber
 
 import logging
+import math
+
+from django.db import transaction
 # Logging setup
 from django.conf import settings
 logger = logging.getLogger('sj.logger')
@@ -498,38 +501,57 @@ def saveresults(request):
     num_lines = event_info['lines']
     event_id = event_info['id']
 
-    lines=array('f', [])
-    lines = [0] * num_lines
+    filter_state = request.POST.get('state', '')
+    redirect_url = reverse('results')
+    if filter_state:
+        redirect_url = f"{redirect_url}?state={filter_state}"
 
-    num = int(request.POST['run_num'])
+    try:
+        num = int(request.POST['run_num'])
+    except (KeyError, TypeError, ValueError):
+        messages.error(request, 'Die Laufnummer ist ungültig.')
+        return HttpResponseRedirect(redirect_url)
+
+    lines = {}
 
     for i in range(num_lines):
         k = 'add_res' + str(i+1)
+        raw = request.POST.get(k)
+
+        if raw in (None, ''):
+            continue
 
         try:
-            raw = request.POST[k]
-            lines[i] = float(raw)
-        except:
-            lines[i] = -1
+            value = float(raw)
+        except (TypeError, ValueError):
+            messages.error(request, 'Alle Resultate müssen gültige Zahlen sein.')
+            return HttpResponseRedirect(redirect_url)
 
-        logger.debug(f'SAVE-RESULTS --> request, run-num = {num}, lines {i}: {lines[i]}')
+        if not math.isfinite(value) or value < 0:
+            messages.error(request, 'Negative oder ungültige Resultate sind nicht erlaubt.')
+            return HttpResponseRedirect(redirect_url)
 
-        if lines[i] != -1:
+        lines[i] = value
+
+        logger.debug(f'SAVE-RESULTS --> request, run-num = {num}, lines {i}: {value}')
+
+    with transaction.atomic():
+        for i, value in lines.items():
             result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
 
             logger.debug(f'  --> resulte state: {result_add_res.state}')
 
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
-                previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__gt=-1).aggregate(Min('result'))['result__min']
-                logger.debug(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {lines[i]}")
+                previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__isnull=False).aggregate(Min('result'))['result__min']
+                logger.debug(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {value}")
 
                 # Print or not (paper)
                 if (previous_min == None):
                     logger.debug(" - Zettel für Wäscheleine drucken (none)!")
-                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run',printer_ip=settings.PRINTER_RUN_IP)
-                elif (lines[i] < previous_min):
+                    print_paper(user_data=result_add_res,  run_time=value, template='run',printer_ip=settings.PRINTER_RUN_IP)
+                elif (value < previous_min):
                     logger.debug(" - Zettel für Wäscheleine drucken (besser)!")
-                    print_paper(user_data=result_add_res,  run_time=lines[i], template='run', printer_ip=settings.PRINTER_RUN_IP)
+                    print_paper(user_data=result_add_res,  run_time=value, template='run', printer_ip=settings.PRINTER_RUN_IP)
                 else:
                     logger.debug(" - Leider keine neue Bestzeit!")
 
@@ -543,13 +565,8 @@ def saveresults(request):
                 logger.warning("!!! Resultat: Kein gültiger Status !!!")
                 result_add_res.state = 'DNF'
 
-            result_add_res.result = lines[i]
+            result_add_res.result = value
             result_add_res.save()
-
-    filter_state = request.POST.get('state', '')
-    redirect_url = reverse('results')
-    if filter_state:
-        redirect_url = f"{redirect_url}?state={filter_state}"
 
     return HttpResponseRedirect(redirect_url)
 

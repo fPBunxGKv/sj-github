@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="7">
     <diagram id="dK9gnTSy742ra8u7WNvU" name="Event">
-        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="952" dy="882" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -65,7 +65,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="Anmeldung" id="ihwTbflT-66I42rcei1r">
-        <mxGraphModel dx="1971" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="2203" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -196,7 +196,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="EM2OaOvcgWPxeU1Ci7dY" name="Mailversand">
-        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1376" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -263,7 +263,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="x6O83jmwIgygGKyE2qzv" name="Laufzettel drucken">
-        <mxGraphModel dx="1971" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="2203" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -328,7 +328,7 @@
         </mxGraphModel>
     </diagram>
     <diagram name="Netzwerk-OfflineServer" id="JAXtR--Trft5fQNto8VI">
-        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1376" dy="882" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="cveTpfCOcsH0RJCDuLTn-0"/>
                 <mxCell id="cveTpfCOcsH0RJCDuLTn-1" parent="cveTpfCOcsH0RJCDuLTn-0"/>
@@ -417,11 +417,14 @@
                 <mxCell id="Au8iK73xN5RUZrp42HGQ-2" value="&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); font-family: Verdana; font-size: 11px; letter-spacing: 0px; text-wrap-mode: wrap; background-color: rgb(255, 255, 255); direction: ltr; line-height: 13.2px; opacity: 1; color: rgb(30, 74, 115);&quot;&gt;&lt;b style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;Router&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;/b&gt;&lt;/font&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); font-family: Verdana; font-size: 11px; letter-spacing: 0px; text-wrap-mode: wrap; background-color: rgb(255, 255, 255); direction: ltr; line-height: 13.2px; opacity: 1; color: rgb(30, 74, 115);&quot;&gt;DHCP/DNS Server&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;VLAN 175, 192.168.175.1/24&lt;/font&gt;" style="sketch=0;points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.8555,0],[0.145,0.855,0]];verticalLabelPosition=bottom;html=1;verticalAlign=top;aspect=fixed;align=center;pointerEvents=1;shape=mxgraph.cisco19.rect;prIcon=router;fillColor=#FAFAFA;strokeColor=#005073;" parent="cveTpfCOcsH0RJCDuLTn-1" vertex="1">
                     <mxGeometry x="230" y="391" width="69" height="69" as="geometry"/>
                 </mxCell>
+                <mxCell id="i130j8l7POEEy7LspeMJ-1" value="&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;sj@sj2025-prd:/etc/netplan$ sudo more 50-cloud-init.yaml&amp;nbsp;&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;network:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; version: 2&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; ethernets:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; ens33:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; addresses:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; - &quot;192.168.175.100/24&quot;&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; nameservers:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; addresses:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; - 192.168.175.1&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; search: []&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; routes:&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; - to: &quot;default&quot;&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; via: &quot;192.168.175.1&quot;&lt;/font&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontFamily=consolas;horizontal=1;" parent="cveTpfCOcsH0RJCDuLTn-1" vertex="1">
+                    <mxGeometry x="403.5" y="540" width="400" height="230" as="geometry"/>
+                </mxCell>
             </root>
         </mxGraphModel>
     </diagram>
     <diagram name="Netzwerk-OnlineServer" id="cjyEXx04qpRmelDxpFP0">
-        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1376" dy="882" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="PBUlfDyBkOcBYVJKKN0a-0"/>
                 <mxCell id="PBUlfDyBkOcBYVJKKN0a-1" parent="PBUlfDyBkOcBYVJKKN0a-0"/>
@@ -564,7 +567,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="kKGeapixljw4KGF0TbNE" name="Netzwerk">
-        <mxGraphModel dx="1144" dy="482" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1376" dy="882" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -784,21 +787,21 @@
         </mxGraphModel>
     </diagram>
     <diagram id="MfIcuBlm3tXPqA7K9d_j" name="Docker">
-        <mxGraphModel dx="1271" dy="536" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1376" dy="882" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="CybstquZCNp85HvERF0m-1" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Docker.svg;" vertex="1" parent="1">
+                <mxCell id="CybstquZCNp85HvERF0m-1" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Docker.svg;" parent="1" vertex="1">
                     <mxGeometry x="40" y="40" width="50" height="41" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-7" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.021;entryY=0.598;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="CybstquZCNp85HvERF0m-4" target="CybstquZCNp85HvERF0m-6">
+                <mxCell id="CybstquZCNp85HvERF0m-7" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.021;entryY=0.598;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="CybstquZCNp85HvERF0m-4" target="CybstquZCNp85HvERF0m-6" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="90" y="360"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-9" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.064;entryY=0.991;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="CybstquZCNp85HvERF0m-6" target="CybstquZCNp85HvERF0m-3">
+                <mxCell id="CybstquZCNp85HvERF0m-9" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.4;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.064;entryY=0.991;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="CybstquZCNp85HvERF0m-6" target="CybstquZCNp85HvERF0m-3" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="90" y="350"/>
@@ -806,34 +809,34 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-6" value="static files" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/StorSimple_Data_Managers.svg;" vertex="1" parent="1">
+                <mxCell id="CybstquZCNp85HvERF0m-6" value="static files" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/StorSimple_Data_Managers.svg;" parent="1" vertex="1">
                     <mxGeometry x="121.5" y="330" width="37" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-10" value="" style="group" vertex="1" connectable="0" parent="1">
+                <mxCell id="CybstquZCNp85HvERF0m-10" value="" style="group" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="40" y="500" width="200" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-4" value="DEV" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="CybstquZCNp85HvERF0m-10">
+                <mxCell id="CybstquZCNp85HvERF0m-4" value="DEV" style="rounded=1;whiteSpace=wrap;html=1;" parent="CybstquZCNp85HvERF0m-10" vertex="1">
                     <mxGeometry width="200" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-5" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CustomDomain.svg;" vertex="1" parent="CybstquZCNp85HvERF0m-10">
+                <mxCell id="CybstquZCNp85HvERF0m-5" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CustomDomain.svg;" parent="CybstquZCNp85HvERF0m-10" vertex="1">
                     <mxGeometry x="20" y="9" width="50" height="42" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-11" value="" style="group" vertex="1" connectable="0" parent="1">
+                <mxCell id="CybstquZCNp85HvERF0m-11" value="" style="group" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="40" y="179" width="770" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-3" value="reverse proxy (nginx proxy manager - docker-container)" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="CybstquZCNp85HvERF0m-11">
+                <mxCell id="CybstquZCNp85HvERF0m-3" value="reverse proxy (nginx proxy manager - docker-container)" style="rounded=1;whiteSpace=wrap;html=1;" parent="CybstquZCNp85HvERF0m-11" vertex="1">
                     <mxGeometry width="770" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-2" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Application_Gateway.svg;" vertex="1" parent="CybstquZCNp85HvERF0m-11">
+                <mxCell id="CybstquZCNp85HvERF0m-2" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Application_Gateway.svg;" parent="CybstquZCNp85HvERF0m-11" vertex="1">
                     <mxGeometry x="20" y="5" width="50" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-12" value="" style="group" vertex="1" connectable="0" parent="1">
+                <mxCell id="CybstquZCNp85HvERF0m-12" value="" style="group" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="280" y="500" width="200" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-13" value="PRD" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="CybstquZCNp85HvERF0m-12">
+                <mxCell id="CybstquZCNp85HvERF0m-13" value="PRD" style="rounded=1;whiteSpace=wrap;html=1;" parent="CybstquZCNp85HvERF0m-12" vertex="1">
                     <mxGeometry width="200" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="CybstquZCNp85HvERF0m-14" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CustomDomain.svg;" vertex="1" parent="CybstquZCNp85HvERF0m-12">
+                <mxCell id="CybstquZCNp85HvERF0m-14" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CustomDomain.svg;" parent="CybstquZCNp85HvERF0m-12" vertex="1">
                     <mxGeometry x="20" y="9" width="50" height="42" as="geometry"/>
                 </mxCell>
             </root>

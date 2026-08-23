@@ -67,7 +67,7 @@ def calc_cat(u_gender, u_byear, event_year):
 
 def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='default', num_copies=1, event_year=2020):
     logger.debug(f"Print-Templatename: { template }")
-    print_logo = "members/static/sj-logo-x211-y232.png"
+    print_logo = "members/static/sj-logo-sw-x232-y211.png"
     logger.debug(f"Print-Logo: { print_logo }")
     # ToDo - test if logo file is present
     #        via dummy printer ?

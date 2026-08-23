@@ -347,7 +347,7 @@ class EventInfoTests(TestCase):
             line_nr=1,
             state='SFR',
             result_category='M05',
-            result=-1,
+            result=None,
         )
 
         response = self.client.post(
@@ -360,6 +360,81 @@ class EventInfoTests(TestCase):
         result.refresh_from_db()
         self.assertEqual(result.state, 'RFR')
         self.assertEqual(result.result, 10.5)
+
+    def test_saveresults_rejects_negative_results_without_partial_updates(self):
+        event = sj_events.objects.create(
+            event_name='Reject Negative Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=2,
+        )
+        participant = sj_users.objects.create(
+            firstname='Negative',
+            lastname='Runner',
+            email='negative@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=400002,
+        )
+        result = sj_results.objects.create(
+            fk_sj_users=participant,
+            fk_sj_events=event,
+            run_nr=8,
+            line_nr=1,
+            state='SQR',
+            result_category='M05',
+            result=None,
+        )
+
+        response = self.client.post(
+            reverse('saveresults'),
+            {'run_num': 8, 'add_res1': '-0.01', 'add_res2': '10.5'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        result.refresh_from_db()
+        self.assertIsNone(result.result)
+        self.assertEqual(result.state, 'SQR')
+
+    def test_results_displays_null_result_entries(self):
+        user = get_user_model().objects.create_user(username='results-viewer', password='secret')
+        self.client.force_login(user)
+
+        event = sj_events.objects.create(
+            event_name='Null Result Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=1,
+        )
+        participant = sj_users.objects.create(
+            firstname='Null',
+            lastname='Runner',
+            email='null@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=400003,
+        )
+        sj_results.objects.create(
+            fk_sj_users=participant,
+            fk_sj_events=event,
+            run_nr=9,
+            line_nr=1,
+            state='SQR',
+            result_category='M05',
+            result=None,
+        )
+
+        response = self.client.get(reverse('results'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Null Runner')
+        self.assertContains(response, 'Zeit: ---')
 
     def test_get_event_info_includes_location(self):
         sj_events.objects.create(

@@ -44,6 +44,7 @@
                         </div>
                     </form>
                 </div>
+
                 <!-- Tabelle mit eingeteilten Läufen -->
                 <div class="container">
                     <div class="row">
@@ -78,11 +79,9 @@
                                                         {% if line|add:"1" == y.line_nr %}
                                                             <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                             <br>
-                                                            ({{ y.fk_sj_users.startnum }})
-                                                            <br>
-                                                            {{ y.fk_sj_users.byear }} / {{ y.result_category }}
-                                                            <br>
-                                                            Status: {{ y.state }}
+                                                            <p>
+                                                            <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                            </p>
                                                         {% endif %}
                                                     {% endfor %}
                                                 </td>

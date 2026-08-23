@@ -74,9 +74,17 @@ class sj_results(models.Model):
     fk_sj_events = models.ForeignKey(to="sj_events", on_delete=models.PROTECT,)
     run_nr = models.IntegerField(verbose_name="Lauf Nr.", null=False, default=0)
     line_nr = models.IntegerField(verbose_name="Bahn", null=False, default=0)
-    result = models.FloatField(verbose_name="Resultat", null=False, default=-1)
+    result = models.FloatField(verbose_name="Resultat", null=True, blank=True, default=None)
     result_category = models.CharField(verbose_name="Kategorie", null=False, default='', max_length=20)
     state = models.CharField(verbose_name="Status", max_length=3, null=False, choices=RESULT_STATE, default='DNF')
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(result__isnull=True) | models.Q(result__gte=0),
+                name='sj_results_result_non_negative',
+            ),
+        ]
 
 # Printer configuration
     # IP-Address, logo, paper (54mm, 80mm), what for (run, registration, ...)

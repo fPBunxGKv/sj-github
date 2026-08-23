@@ -30,28 +30,26 @@
                                         <td>
                                             {% for y in x.list %}
                                                 {% if line|add:"1" == y.line_nr %}
-                                                    {% if y.result <= 0 %}
+                                                    {% if not y.result or y.result <= 0 %}
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
-                                                        {{ y.fk_sj_users.byear }} / {{ y.result_category }}
-                                                        <br>
-                                                        Status: {{ y.state }}
-                                                        <br>
+                                                        <p>
+                                                        <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                        </p>
                                                         <input type="number"
-                                                               id="add_res"
-                                                               name="add_res{{ line | add:'1' }}"
-                                                               value=""
-                                                               step="0.01"
-                                                               class="form-control form-control-sm">
+                                                        id="add_res"
+                                                        name="add_res{{ line | add:'1' }}"
+                                                        value=""
+                                                        step="0.01"
+                                                        class="form-control form-control-sm">
                                                     </td>
-                                                {% endif %}
-                                                {% if y.result > 0 %}
+                                                    {% endif %}
+                                                    {% if y.result > 0 %}
                                                     <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                     <br>
-                                                    {{ y.fk_sj_users.byear }} / {{ y.result_category }}
-                                                    <br>
-                                                    Status: {{ y.state }}
-                                                    <br>
+                                                    <p>
+                                                    <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                    </p>
                                                     <input type="number"
                                                            id="add_res"
                                                            name="add_res{{ line | add:'1' }}"
