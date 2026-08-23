@@ -81,12 +81,12 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             """
             Printer Model: TM-T88VI
             """
-            NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T88VI')
+            NetPrn = Network(host=printer_ip, timeout=1, profile='TM-T88IV')
             # Empty lines
             NetPrn.set(align='center', font='a', bold=False, custom_size=True, width=3, height=1, density=1)
-            NetPrn.textln(f'---')
-            NetPrn.ln(count=5)
-            NetPrn.textln(f'-            -')
+            # NetPrn.textln(f'---')
+            NetPrn.ln(count=7)
+            # NetPrn.textln(f'-        -')
             # Logo
             NetPrn.set(align='center')
             NetPrn.image(print_logo)
@@ -173,7 +173,7 @@ def print_paper(user_data, run_time=0, printer_ip='172.20.30.170', template='def
             NetPrn.cut()
 
     except Exception as error:
-        logger.error("Printing error:", type(error).__name__, "-", error)
+        logger.error("Printing error: %s - %s", type(error).__name__, error)
         return False
     
 
