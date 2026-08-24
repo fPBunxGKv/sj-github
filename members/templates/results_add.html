@@ -25,6 +25,11 @@
                                             <br>
                                             <input type="hidden" name="run_num" value="{{ x.grouper }}">
                                             <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                                            <a href="{% url 'results' %}{% if current_state %}?state={{ current_state }}{% endif %}"
+                                               class="btn btn-outline-danger btn-sm"
+                                               title="Abbrechen">
+                                                <i class="fa-solid fa-xmark"></i> 
+                                            </a>
                                         </b>
                                     </td>
                                     {% for line in num_lines %}
