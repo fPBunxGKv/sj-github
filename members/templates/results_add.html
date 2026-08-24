@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load l10n %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
     <!-- Tabelle mit eingeteilten Läufen -->
@@ -53,7 +54,7 @@
                                                     <input type="number"
                                                            id="add_res"
                                                            name="add_res{{ line | add:'1' }}"
-                                                           value="{{ y.result }}"
+                                                           value="{{ y.result|unlocalize }}"
                                                            step="0.01"
                                                            class="form-control form-control-sm">
                                                 {% endif %}
