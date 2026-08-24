@@ -1,38 +1,126 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
-    <!-- Tabelle mit eingeteilten Läufen -->
-    <section class="vh-20 gradient-custom">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h1>Bearbeiten</h1>
+    <!-- Run Bearbeiten - Optimized for mobile (1280x720) and desktop -->
+    <section class="gradient-custom py-4 py-md-5">
+        <div class="container-fluid px-3 px-md-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="text-center text-md-start mb-3">Bearbeiten</h1>
                 </div>
             </div>
-        </div>
-        <div class="container">
-            <div class="row mb-3">
-                <form action="updaterun/" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="run_num" value="{{ run_num }}">
-                    {% for key, value in line_infos.items %}
-                        <div class="form-outline">
-                            <input {% if key == 1 %}autofocus="True"{% endif %}
-                                   type="number"
-                                   id="edit_run"
-                                   name="edit_run{{ key }}"
-                                   value="{{ value.startnum }}"
-                                   class="form-control form-control-sm">
-                            <label class="form-label" for="edit_run{{ key }}">Lauf {{ run_num }} / Bahn {{ key }}</label>
+
+            <div class="row">
+                <div class="col-12 col-lg-8 mx-auto">
+                    <form action="updaterun/" method="post" novalidate>
+                        {% csrf_token %}
+                        <input type="hidden" name="run_num" value="{{ run_num }}">
+
+                        <!-- Run entries -->
+                        <div class="row g-3 g-md-4">
+                            {% for key, value in line_infos.items %}
+                                <div class="col-12">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-body p-3 p-md-4">
+                                            <!-- Input field - responsive sizing -->
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted small text-md-body" for="edit_run{{ key }}">
+                                                    Lauf {{ run_num }} / Bahn {{ key }}
+                                                </label>
+                                                <input {% if key == 1 %}autofocus="autofocus"{% endif %}
+                                                       type="number"
+                                                       id="edit_run{{ key }}"
+                                                       name="edit_run{{ key }}"
+                                                       value="{{ value.startnum }}"
+                                                       class="form-control edit-run-input"
+                                                       inputmode="numeric"
+                                                       required>
+                                            </div>
+
+                                            <!-- Participant info -->
+                                            <div class="text-dark">
+                                                <strong class="fs-6 fs-md-5">
+                                                    {{ value.firstname | default:'' }} {{ value.lastname | default:'' }}
+                                                </strong>
+                                                {% if value.result_category %}
+                                                    <span class="badge bg-info ms-2">{{ value.result_category }}</span>
+                                                    <span class="text-muted small">({{ value.byear }})</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         </div>
-                        <b>{{ value.firstname | default:'' }} {{ value.lastname | default:'' }} </b> -
-                        {% if value.result_category %}{{ value.result_category }} ({{ value.byear }}){% endif %}
-                        <br>
-                        <br>
-                    {% endfor %}
-                    <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+
+                        <!-- Action buttons - responsive sizing -->
+                        <div class="row g-2 g-md-3 mt-4 mt-md-5">
+                            <div class="col-12 col-sm-6">
+                                <button type="submit" class="btn btn-primary action-btn w-100">
+                                    <i class="fa-solid fa-check"></i> Speichern
+                                </button>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <a href="{% url 'run' %}" class="btn btn-outline-danger action-btn w-100">
+                                    <i class="fa-solid fa-xmark"></i> Abbrechen
+                                </a>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </section>
+
+    <style>
+        /* Mobile-first: large inputs for touchscreen (1280x720 and similar) */
+        .edit-run-input {
+            font-size: 1.25rem;
+            padding: 0.75rem 1rem;
+            min-height: 3rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            min-height: 3rem;
+        }
+
+        /* Desktop: reduce to normal sizes */
+        @media (min-width: 992px) {
+            .edit-run-input {
+                font-size: 1rem;
+                padding: 0.375rem 0.75rem;
+                min-height: auto;
+            }
+
+            .action-btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 1rem;
+                font-weight: 400;
+                min-height: auto;
+            }
+
+            .card-body {
+                padding: 1rem !important;
+            }
+        }
+        
+        /* Tablet: medium sizing */
+        @media (min-width: 768px) and (max-width: 991px) {
+            .edit-run-input {
+                font-size: 1.1rem;
+                padding: 0.5rem 0.875rem;
+                min-height: 2.5rem;
+            }
+
+            .action-btn {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+                font-weight: 500;
+                min-height: 2.5rem;
+            }
+        }
+    </style>
 {% endblock %}
