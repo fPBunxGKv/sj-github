@@ -64,6 +64,13 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
+def screen_info(request):
+    template = loader.get_template('screen_info.html')
+    context = {
+        'pagetitle': 'SJ - Bildschirmgrösse',
+    }
+    return HttpResponse(template.render(context, request))
+
 def register_new(request, id=''):
     event_info = get_event_info()
     reg_status, reg_message = event_info["reg_open"]

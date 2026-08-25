@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
             path('', views.index, name='index'),
+            path('screen-info/', views.screen_info, name='screen_info'),
 
             path('register/', views.register_new, name='register_new'),
             path('register/<uuid:id>/', views.register_new, name='register_new'),

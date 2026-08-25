@@ -123,7 +123,7 @@
         window.navHideOnScroll = true;
         document.addEventListener('DOMContentLoaded', function () {
             var navbar = document.querySelector('nav.navbar');
-            if (navbar && window.innerWidth <= 1300 && window.innerHeight <= 800) {
+            if (navbar && (window.innerWidth <= 800 || window.innerHeight <= 1300)) {
                 navbar.classList.add('navbar-hidden');
             }
 

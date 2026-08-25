@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
+{% block content %}
+    <section class="gradient-custom py-4 py-md-5">
+        <div class="container-fluid px-3 px-md-4">
+            <div class="row">
+                <div class="col-12 col-lg-8 mx-auto">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-3 p-md-4">
+                            <h4 class="mb-3">Bildschirm- / Fenstergrösse</h4>
+                            <table class="table table-sm table-striped mb-0">
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Fenster (innerWidth x innerHeight)</th>
+                                        <td id="info-inner">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Fenster (outerWidth x outerHeight)</th>
+                                        <td id="info-outer">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Dokument (clientWidth x clientHeight)</th>
+                                        <td id="info-client">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Bildschirm (screen.width x screen.height)</th>
+                                        <td id="info-screen">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Bildschirm nutzbar (availWidth x availHeight)</th>
+                                        <td id="info-screen-avail">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Device Pixel Ratio</th>
+                                        <td id="info-dpr">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Orientierung</th>
+                                        <td id="info-orientation">-</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">User-Agent</th>
+                                        <td id="info-ua" style="word-break: break-all;">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function updateScreenInfo() {
+            document.getElementById('info-inner').textContent =
+                window.innerWidth + ' x ' + window.innerHeight;
+            document.getElementById('info-outer').textContent =
+                window.outerWidth + ' x ' + window.outerHeight;
+            document.getElementById('info-client').textContent =
+                document.documentElement.clientWidth + ' x ' + document.documentElement.clientHeight;
+            document.getElementById('info-screen').textContent =
+                window.screen.width + ' x ' + window.screen.height;
+            document.getElementById('info-screen-avail').textContent =
+                window.screen.availWidth + ' x ' + window.screen.availHeight;
+            document.getElementById('info-dpr').textContent = window.devicePixelRatio;
+            document.getElementById('info-orientation').textContent =
+                (window.screen.orientation && window.screen.orientation.type) || '-';
+            document.getElementById('info-ua').textContent = navigator.userAgent;
+        }
+
+        document.addEventListener('DOMContentLoaded', updateScreenInfo);
+        window.addEventListener('resize', updateScreenInfo);
+        window.addEventListener('orientationchange', updateScreenInfo);
+    </script>
+{% endblock %}

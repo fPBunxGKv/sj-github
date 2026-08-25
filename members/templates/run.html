@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ pagetitle | default:"SJ" }}</title>{% endblock %}
 {% block content %}
+    <script>
+        // Opt this page into nav-hide-on-scroll (small screens only, see base.html)
+        window.navHideOnScroll = true;
+        document.addEventListener('DOMContentLoaded', function () {
+            var navbar = document.querySelector('nav.navbar');
+            if (navbar && (window.innerWidth <= 800 || window.innerHeight <= 1300)) {
+                navbar.classList.add('navbar-hidden');
+            }
+        });
+    </script>
     <section class="vh-20 gradient-custom">
         <div class="container py-5 h-20">
             <form action="addrun/" method="post">
@@ -31,7 +41,7 @@
                                         id="addline{{ line | add:'1' }}"
                                         name="addline{{ line | add:'1' }}"
                                         value=""
-                                        class="form-control form-control-sm">
+                                        class="form-control form-control-sm add-run-input">
                                 <label class="form-label" for="addline{{ line | add:'1' }}">Bahn {{ line | add:"1" }}</label>
                             </div>
                             </div>
@@ -94,4 +104,22 @@
                     </div>
                 </div>
             </section>
+
+    <style>
+        /* Mobile-first: larger touch-friendly inputs */
+        .add-run-input {
+            font-size: 1.25rem;
+            padding: 0.75rem 1rem;
+            min-height: 3rem;
+        }
+
+        /* Desktop: keep the original compact format */
+        @media (min-width: 992px) {
+            .add-run-input {
+                font-size: inherit;
+                padding: 0.25rem 0.5rem;
+                min-height: auto;
+            }
+        }
+    </style>
         {% endblock %}
