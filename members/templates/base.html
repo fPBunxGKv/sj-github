@@ -19,6 +19,14 @@
                 }
             }
 
+            .navbar.sticky-top {
+                transition: transform 0.25s ease-in-out;
+            }
+
+            .navbar.navbar-hidden {
+                transform: translateY(-100%);
+            }
+
             .navbar-page-actions {
                 width: 100%;
                 padding-top: 0.75rem;
@@ -100,5 +108,35 @@
         </nav>
     {% endblock %}
     {% block content %}<!-- default content text (typically empty) -->{% endblock %}
+    <script>
+        // Nav-hide-on-scroll is opt-in per page (window.navHideOnScroll = true)
+        // and only applies on small screens (<= 1300x800)
+        document.addEventListener('DOMContentLoaded', function () {
+            var navbar = document.querySelector('nav.navbar');
+            if (!navbar || !window.navHideOnScroll) {
+                return;
+            }
+
+            function isSmallScreen() {
+                return window.innerWidth <= 1300 && window.innerHeight <= 800;
+            }
+
+            var lastScrollY = window.scrollY;
+            window.addEventListener('scroll', function () {
+                if (!isSmallScreen()) {
+                    navbar.classList.remove('navbar-hidden');
+                    lastScrollY = window.scrollY;
+                    return;
+                }
+                var currentScrollY = window.scrollY;
+                if (currentScrollY <= 0 || currentScrollY < lastScrollY) {
+                    navbar.classList.remove('navbar-hidden');
+                } else if (currentScrollY > lastScrollY) {
+                    navbar.classList.add('navbar-hidden');
+                }
+                lastScrollY = currentScrollY;
+            }, { passive: true });
+        });
+    </script>
 </body>
 </html>

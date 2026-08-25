@@ -4,12 +4,6 @@
     <!-- Run Bearbeiten - Optimized for mobile (1280x720) and desktop -->
     <section class="gradient-custom py-4 py-md-5">
         <div class="container-fluid px-3 px-md-4">
-            <div class="row mb-4">
-                <div class="col-12">
-                    <h1 class="text-center text-md-start mb-3">Bearbeiten</h1>
-                </div>
-            </div>
-
             <div class="row">
                 <div class="col-12 col-lg-8 mx-auto">
                     <form action="updaterun/" method="post" novalidate>
@@ -123,4 +117,22 @@
             }
         }
     </style>
+
+    <script>
+        // Opt this page into nav-hide-on-scroll (small screens only, see base.html)
+        window.navHideOnScroll = true;
+        document.addEventListener('DOMContentLoaded', function () {
+            var navbar = document.querySelector('nav.navbar');
+            if (navbar && window.innerWidth <= 1300 && window.innerHeight <= 800) {
+                navbar.classList.add('navbar-hidden');
+            }
+
+            // Focus and select the first input so typing overwrites it directly
+            var firstInput = document.querySelector('.edit-run-input');
+            if (firstInput) {
+                firstInput.focus();
+                firstInput.select();
+            }
+        });
+    </script>
 {% endblock %}
