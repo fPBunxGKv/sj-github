@@ -110,7 +110,7 @@
     {% block content %}<!-- default content text (typically empty) -->{% endblock %}
     <script>
         // Nav-hide-on-scroll is opt-in per page (window.navHideOnScroll = true)
-        // and only applies on small screens (<= 1300x800)
+        // and only applies on small screens (<= 360x539)
         document.addEventListener('DOMContentLoaded', function () {
             var navbar = document.querySelector('nav.navbar');
             if (!navbar || !window.navHideOnScroll) {
@@ -118,7 +118,7 @@
             }
 
             function isSmallScreen() {
-                return window.innerWidth <= 800 || window.innerHeight <= 1300;
+                return window.innerWidth <= 360 || window.innerHeight <= 539;
             }
 
             var lastScrollY = window.scrollY;
