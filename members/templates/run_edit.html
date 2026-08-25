@@ -125,8 +125,6 @@
             var navbar = document.querySelector('nav.navbar');
             if (navbar && (window.innerWidth <= 360 || window.innerHeight <= 539)) {
                 navbar.classList.add('navbar-hidden');
-                // navbar still reserves its layout space (sticky), so scroll past that gap
-                window.scrollTo(0, navbar.offsetHeight);
             }
 
             // Focus and select the first input so typing overwrites it directly

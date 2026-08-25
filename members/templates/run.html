@@ -8,13 +8,11 @@
             var navbar = document.querySelector('nav.navbar');
             if (navbar && (window.innerWidth <= 360 || window.innerHeight <= 539)) {
                 navbar.classList.add('navbar-hidden');
-                // navbar still reserves its layout space (sticky), so scroll past that gap
-                window.scrollTo(0, navbar.offsetHeight);
             }
         });
     </script>
-    <section class="vh-20 gradient-custom">
-        <div class="container py-5 h-20">
+    <section class="gradient-custom">
+        <div class="container py-2 py-md-4">
             <form action="addrun/" method="post">
                 {% csrf_token %}
                 <!-- --------------------------------------------------- -->
@@ -50,7 +48,7 @@
                             {% endfor %}
                             <div class="col-sm-1 mb-2">
                                 <div>
-                                    <input class="btn btn-primary btn-sm" type="submit" value="Speichern" />
+                                    <input class="btn btn-primary btn-sm action-btn" type="submit" value="Speichern" />
                                 </div>
                             </div>
                         </div>
@@ -114,12 +112,25 @@
             padding: 0.75rem 1rem;
             min-height: 3rem;
         }
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            min-height: 3rem;
+        }
+
 
         /* Desktop: keep the original compact format */
         @media (min-width: 992px) {
             .add-run-input {
                 font-size: inherit;
                 padding: 0.25rem 0.5rem;
+                min-height: auto;
+            }
+            .action-btn {
+                padding: 0.25rem 0.5rem;
+                font-size: inherit;
+                font-weight: 400;
                 min-height: auto;
             }
         }

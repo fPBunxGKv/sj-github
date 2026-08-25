@@ -20,11 +20,17 @@
             }
 
             .navbar.sticky-top {
-                transition: transform 0.25s ease-in-out;
+                overflow: hidden;
+                max-height: 600px;
+                transition: max-height 0.25s ease-in-out, padding 0.25s ease-in-out, border-width 0.25s ease-in-out;
             }
 
+            /* Collapse instead of transform: keeps no reserved gap so hidden pages start flush at top */
             .navbar.navbar-hidden {
-                transform: translateY(-100%);
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                border-width: 0;
             }
 
             .navbar-page-actions {
