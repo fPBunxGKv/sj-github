@@ -6,7 +6,7 @@
         <div class="container-fluid px-3 px-md-4">
             <div class="row">
                 <div class="col-12 col-lg-8 mx-auto">
-                    <form action="updaterun/" method="post" novalidate>
+                    <form action="{% url 'updaterun' %}" method="post" novalidate>
                         {% csrf_token %}
                         <input type="hidden" name="run_num" value="{{ run_num }}">
 

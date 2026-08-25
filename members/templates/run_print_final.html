@@ -6,36 +6,6 @@
 
 {% block content %}
     <style>
-        table {
-            width: 100%;
-            table-layout: fixed;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 0.35rem;
-            font-size: 14px;
-            vertical-align: top;
-            word-break: break-word;
-            overflow-wrap: anywhere;
-        }
-
-        th:first-child,
-        td:first-child {
-            width: 5rem;
-            white-space: nowrap;
-        }
-
-        th:not(:first-child),
-        td:not(:first-child) {
-            width: calc((100% - 5rem) / {{ lane_count }});
-            min-width: 5rem;
-        }
-
-        tr {
-            page-break-inside: avoid;
-        }
-
         .toolbar {
             display: flex;
             justify-content: flex-start;
@@ -64,36 +34,11 @@
                 padding: 0 !important;
                 font-size: 12px;
             }
-            th {
-                font-size: 16px;
-                padding: 0.2rem;
-                line-height: 1.2;
-            }
-            td {
-                font-size: 14px;
-                padding: 0.2rem;
-                padding-bottom: 0.8rem;
-                line-height: 1.2;
-                position: relative;
-            }
-
-            .print-meta-small {
-                font-size: 9px;
-                line-height: 1.1;
-            }
-
-            .print-category {
-                font-size: 11px;
-            }
 
             .print-page-container {
                 max-width: none !important;
                 padding: 0 !important;
                 margin: 0 !important;
-            }
-
-            .navbar {
-                display: none !important;
             }
 
             caption {
@@ -117,11 +62,6 @@
             .no-print {
                 display: none;
             }
-
-            /* Page break */
-            .page-break {
-                page-break-before: always;
-            }
         }
     </style>
 
@@ -134,11 +74,12 @@
                     <div class="toolbar no-print">
                         <button class="btn btn-primary" onclick="window.print()">Print</button>
                     </div>
-        
-                    <table class="table table-sm table-striped caption-top">
+<br><br>
+
+                    <table class="table table-sm table-striped caption-top sj-lanes-table" style="--lane-count: {{ lane_count }}">
             <caption><b>Finalläufe {{ event_info.name }}</b><br>
             <span class="print-meta-small">{{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
-            
+
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -162,7 +103,7 @@
                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
                                         <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                         <br>
-                                        <span style="display:block; height:12px;"></span>
+                                        <span class="print-spacer-block"></span>
                                         <hr class="my-1">
                                     {% endif %}
                                 {% endfor %}
@@ -175,12 +116,12 @@
                     </table>
 
         <!-- Page break -->
-                    <div class="page-break"></div>
+                    <div class="page-break-before"></div>
+<br><br>
+                    <table class="table table-sm table-striped caption-top sj-lanes-table" style="--lane-count: {{ lane_count }}">
+            <caption><b>Finalläufe {{ event_info.name }}</b><br>
+            <span class="print-meta-small">{{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
 
-                    <table class="table table-sm table-striped caption-top">
-            <caption><b>Finalläufe</b><br>
-            <span class="print-meta-small">{{ event_info.name }}, {{ event_info.date | date:"l, d. F Y" | default:"" }}</span></caption>
-            
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -204,7 +145,7 @@
                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b> <br>
                                         <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.result_category }} | {{ y.fk_sj_users.startnum }}</span><br>
                                         <br>
-                                        <span style="display:block; height:12px;"></span>
+                                        <span class="print-spacer-block"></span>
                                         <hr class="my-1">
                                     {% endif %}
                                 {% endfor %}

@@ -6,18 +6,18 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <table class="table table-fixed table-striped table-hover ">
-                    <thead>
-                        <tr>
-                            <th scope="col">Lauf #</th>
-                            {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% regroup runs by run_nr as new_runs %}
-                        <form action="{% url 'saveresults' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="state" value="{{ current_state }}">
+                <form action="{% url 'saveresults' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="state" value="{{ current_state }}">
+                    <table class="table table-fixed table-striped table-hover ">
+                        <thead>
+                            <tr>
+                                <th scope="col">Lauf #</th>
+                                {% for line in num_lines %}<th scope="col">Bahn {{ line | add:"1" }}</th>{% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% regroup runs by run_nr as new_runs %}
                             {% for x in new_runs %}
                                 <tr>
                                     <td class="align-middle">
@@ -36,43 +36,36 @@
                                         <td>
                                             {% for y in x.list %}
                                                 {% if line|add:"1" == y.line_nr %}
-                                                    {% if not y.result or y.result <= 0 %}
-                                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
-                                                        <br>
-                                                        <p>
-                                                        <span class="badge bg-info ms-2">{{ y.result_category }}</span>
-                                                        <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
-                                                        </p>
-                                                        <input {% if line == 0 %}autofocus="autofocus"{% endif %} type="number"
-                                                        id="add_res"
-                                                        name="add_res{{ line | add:'1' }}"
-                                                        value=""
-                                                        step="0.01"
-                                                        class="form-control form-control-sm">
-                                                    </td>
-                                                    {% endif %}
-                                                    {% if y.result > 0 %}
                                                     <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                     <br>
                                                     <p>
-                                                    <span class="badge bg-info ms-2">{{ y.result_category }}</span>
-                                                    <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                        <span class="badge bg-info ms-2">{{ y.result_category }}</span>
+                                                        <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                     </p>
-                                                    <input {% if line == 0 %}autofocus="autofocus"{% endif %} type="number"
-                                                           id="add_res"
-                                                           name="add_res{{ line | add:'1' }}"
-                                                           value="{{ y.result|unlocalize }}"
-                                                           step="0.01"
-                                                           class="form-control form-control-sm edit-result-input">
+                                                    {% if not y.result or y.result <= 0 %}
+                                                        <input {% if line == 0 %}autofocus="autofocus"{% endif %} type="number"
+                                                               id="add_res"
+                                                               name="add_res{{ line | add:'1' }}"
+                                                               value=""
+                                                               step="0.01"
+                                                               class="form-control form-control-sm">
+                                                    {% else %}
+                                                        <input {% if line == 0 %}autofocus="autofocus"{% endif %} type="number"
+                                                               id="add_res"
+                                                               name="add_res{{ line | add:'1' }}"
+                                                               value="{{ y.result|unlocalize }}"
+                                                               step="0.01"
+                                                               class="form-control form-control-sm edit-result-input">
+                                                    {% endif %}
                                                 {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                            {% endfor %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </form>
             </div>
         </div>
     </div>

@@ -9,7 +9,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">🗃️ Datenbank</h5>
-            <a class="btn btn-primary" href="/admin" role="button">DB Admin</a>
+            <a class="btn btn-primary" href="{% url 'admin:index' %}" role="button">DB Admin</a>
         </div>
     </div>
     
@@ -17,15 +17,15 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">🏁 Finalläufe verwalten</h5>
-            <form action="/setfinal/" method="post">
+            <form action="{% url 'set_final_runs' %}" method="post">
                 {% csrf_token %}
                 <div class="mb-2">
                     <button class="btn btn-success me-2" name="generate-final">Finalläufe erstellen</button>
                     <button class="btn btn-danger me-2" name="delete-final" onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
                 </div>
             </form>
-            <a class="btn btn-primary me-2" href="/printfinal" role="button">Finalläufe drucken</a>
-            <a class="btn btn-primary me-2" href="/ranking_export" role="button">Finalrangliste als CSV exportieren</a>
+            <a class="btn btn-primary me-2" href="{% url 'print_final_runs' %}" role="button">Finalläufe drucken</a>
+            <a class="btn btn-primary me-2" href="{% url 'ranking_export' %}" role="button">Finalrangliste als CSV exportieren</a>
         </div>
     </div>
 
@@ -163,7 +163,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">🧪 Testdaten erstellen</h5>
-            <form class="row g-2" action="/addtestdata/" method="post">
+            <form class="row g-2" action="{% url 'addtestdata' %}" method="post">
                 {% csrf_token %}
                 <div class="col-md-4">
                     <input type="number" class="form-control" placeholder="Anzahl Läufe" name="add_count_runs" required>

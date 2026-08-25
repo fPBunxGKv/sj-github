@@ -40,7 +40,7 @@
             </p>
 
             {% if reg_status %}
-                <a href="/anmeldung/" class="btn btn-success btn-lg mb-3" role="button">
+                <a href="{% url 'register_new' %}" class="btn btn-success btn-lg mb-3" role="button">
                     ✍️ Zur Anmeldung
                 </a>
             {% else %}

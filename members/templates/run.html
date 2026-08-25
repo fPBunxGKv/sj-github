@@ -9,11 +9,25 @@
             if (navbar && (window.innerWidth <= 360 || window.innerHeight <= 539)) {
                 navbar.classList.add('navbar-hidden');
             }
+
+            // Clear all lane input fields without submitting the form
+            var clearBtn = document.getElementById('clear-fields-btn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function () {
+                    document.querySelectorAll('.add-run-input').forEach(function (input) {
+                        input.value = '';
+                    });
+                    var firstInput = document.querySelector('.add-run-input');
+                    if (firstInput) {
+                        firstInput.focus();
+                    }
+                });
+            }
         });
     </script>
     <section class="gradient-custom">
         <div class="container py-2 py-md-4">
-            <form action="addrun/" method="post">
+            <form action="{% url 'addrun' %}" method="post">
                 {% csrf_token %}
                 <!-- --------------------------------------------------- -->
                 <div class="row mb-3">
@@ -49,6 +63,7 @@
                             <div class="col-sm-1 mb-2">
                                 <div>
                                     <input class="btn btn-primary btn-sm action-btn" type="submit" value="Speichern" />
+                                    <button type="button" class="btn btn-outline-secondary btn-sm action-btn" id="clear-fields-btn">leeren</button>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +90,7 @@
                                                 <td class="align-middle">
 
                                                     <a class="btn btn-primary btn-sm"
-                                                       href="edit/{{ x.grouper }}"
+                                                       href="{% url 'editrun' x.grouper %}"
                                                        role="button"><b>{{ x.grouper }}</b></a>
                                                 </td>
                                             {% else %}
