@@ -59,7 +59,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col">
-                            <table class="table table-striped table-hover caption-top">
+                            <table class="table table-striped table-hover caption-top sj-lanes-table" style="--lane-count: {{ num_lines|length }}">
                                 <caption><b>Eingeteilte Läufe</b></caption>
                                 <thead>
                                     <tr>
@@ -90,7 +90,8 @@
                                                             <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                             <br>
                                                             <p>
-                                                            <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                            <span class="badge bg-info ms-2">{{ y.result_category }}</span>
+                                                            <span class="print-meta-small">{{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                             </p>
                                                         {% endif %}
                                                     {% endfor %}

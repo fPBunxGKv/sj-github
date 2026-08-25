@@ -9,3 +9,64 @@
         page-break-inside: avoid;
     }
 }
+
+/* Shared table styling for run/lane overview pages (run.html, results_show.html, run_print_final.html) */
+.sj-lanes-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.sj-lanes-table th,
+.sj-lanes-table td {
+    padding: 0.35rem;
+    font-size: 14px;
+    vertical-align: top;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.sj-lanes-table th:first-child,
+.sj-lanes-table td:first-child {
+    width: 5rem;
+    white-space: nowrap;
+}
+
+.sj-lanes-table th:not(:first-child),
+.sj-lanes-table td:not(:first-child) {
+    width: calc((100% - 5rem) / var(--lane-count, 1));
+    min-width: 5rem;
+}
+
+.sj-lanes-table tr {
+    page-break-inside: avoid;
+}
+
+.print-meta-small {
+    font-size: 0.8rem;
+}
+
+@media print {
+    .sj-lanes-table th {
+        font-size: 16px;
+        padding: 0.2rem;
+        line-height: 1.2;
+    }
+
+    .sj-lanes-table td {
+        font-size: 14px;
+        padding: 0.2rem;
+        padding-bottom: 0.8rem;
+        line-height: 1.2;
+        position: relative;
+    }
+
+    .print-meta-small {
+        font-size: 9px;
+        line-height: 1.1;
+    }
+
+    .print-category {
+        font-size: 11px;
+    }
+}

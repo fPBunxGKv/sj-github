@@ -16,36 +16,6 @@
 {% endblock %}
 {% block content %}
     <style>
-        table {
-            width: 100%;
-            table-layout: fixed;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 0.35rem;
-            font-size: 14px;
-            vertical-align: top;
-            word-break: break-word;
-            overflow-wrap: anywhere;
-        }
-
-        th:first-child,
-        td:first-child {
-            width: 5rem;
-            white-space: nowrap;
-        }
-
-        th:not(:first-child),
-        td:not(:first-child) {
-            width: calc((100% - 5rem) / {{ lane_count }});
-            min-width: 5rem;
-        }
-
-        tr {
-            page-break-inside: avoid;
-        }
-
         /* Print-specific styles */
         @media print {
             @page {
@@ -58,36 +28,11 @@
                 padding: 0 !important;
                 font-size: 12px;
             }
-            th {
-                font-size: 16px;
-                padding: 0.2rem;
-                line-height: 1.2;
-            }
-            td {
-                font-size: 14px;
-                padding: 0.2rem;
-                padding-bottom: 0.8rem;
-                line-height: 1.2;
-                position: relative;
-            }
-
-            .print-meta-small {
-                font-size: 9px;
-                line-height: 1.1;
-            }
-
-            .print-category {
-                font-size: 11px;
-            }
 
             .print-page-container {
                 max-width: none !important;
                 padding: 0 !important;
                 margin: 0 !important;
-            }
-
-            .navbar {
-                display: none !important;
             }
 
             caption {
@@ -111,11 +56,6 @@
             .no-print {
                 display: none;
             }
-
-            /* Page break */
-            .page-break {
-                page-break-before: always;
-            }
         }
     </style>
 
@@ -123,7 +63,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover sj-lanes-table" style="--lane-count: {{ lane_count }}">
                     <thead>
                         <tr>
                             <th scope="col">Lauf #</th>
@@ -148,15 +88,17 @@
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
                                                         <p>
-                                                        <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
-                                                    </p>
-                                                    <b{% if y.result is None %} style="color:red"{% endif %}>
-                                                        Zeit: ---</b>
-                                                    {% else %}
-                                                        <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
-                                                        <br>
-                                                        <p>
-                                                        <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                            <span class="badge bg-info ms-2">{{ y.result_category }}</span>
+                                                            <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                        </p>
+                                                        <b{% if y.result is None %} style="color:red"{% endif %}>
+                                                            Zeit: ---</b>
+                                                            {% else %}
+                                                            <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
+                                                            <br>
+                                                            <p>
+                                                            <span class="badge bg-info ms-2">{{ y.result_category }}</span>
+                                                        <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                         </p>
                                                         <b{% if y.state == 'RQR' %} style="color:blue"{% elif y.state == 'RFR' %} style="color:darkgreen"{% endif %}>
                                                             Zeit: {{ y.result | stringformat:'0.2f' }}</b>

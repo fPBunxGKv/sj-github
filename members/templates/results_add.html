@@ -40,9 +40,10 @@
                                                         <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                         <br>
                                                         <p>
-                                                        <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                        <span class="badge bg-info ms-2">{{ y.result_category }}</span>
+                                                        <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                         </p>
-                                                        <input type="number"
+                                                        <input {% if line == 0 %}autofocus="autofocus"{% endif %} type="number"
                                                         id="add_res"
                                                         name="add_res{{ line | add:'1' }}"
                                                         value=""
@@ -54,14 +55,15 @@
                                                     <b>{{ y.fk_sj_users.firstname }} {{ y.fk_sj_users.lastname }}</b>
                                                     <br>
                                                     <p>
-                                                    <span class="print-meta-small">{{ y.result_category }} | {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
+                                                    <span class="badge bg-info ms-2">{{ y.result_category }}</span>
+                                                    <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                     </p>
-                                                    <input type="number"
+                                                    <input {% if line == 0 %}autofocus="autofocus"{% endif %} type="number"
                                                            id="add_res"
                                                            name="add_res{{ line | add:'1' }}"
                                                            value="{{ y.result|unlocalize }}"
                                                            step="0.01"
-                                                           class="form-control form-control-sm">
+                                                           class="form-control form-control-sm edit-result-input">
                                                 {% endif %}
                                             {% endif %}
                                         {% endfor %}
@@ -74,4 +76,16 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Focus and select the first input so typing overwrites it directly
+            var firstInput = document.querySelector('.edit-result-input');
+            if (firstInput) {
+                firstInput.focus();
+                firstInput.select();
+            }
+        });
+    </script>
+
 {% endblock %}
