@@ -77,6 +77,7 @@
                 <div class="mb-3">
                     <button class="btn btn-outline-secondary me-2" name="show_invitation_recipients" type="submit">
                         2. Einladungs-Empfänger ansehen
+                        <span class="badge text-bg-secondary ms-1">{{ invitation_recipient_count }}</span>
                     </button>
                     <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#sendInvitationEmailModal">
                         3. Einladungsemails senden
@@ -90,7 +91,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
                             </div>
                             <div class="modal-body">
-                                Möchtest du die Einladungsemails wirklich an alle berechtigten Empfänger senden?
+                                Möchtest du die Einladungsemails wirklich an {{ invitation_recipient_count }} Empfänger senden?
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
@@ -109,6 +110,7 @@
                 <div>
                     <button class="btn btn-outline-secondary me-2" name="show_closing_recipients" type="submit">
                         5. Abschluss-Empfänger ansehen
+                        <span class="badge text-bg-secondary ms-1">{{ closing_recipient_count }}</span>
                     </button>
                     <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#sendClosingEmailModal">
                         6. Abschlussemails senden
@@ -122,7 +124,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
                             </div>
                             <div class="modal-body">
-                                Möchtest du die Abschlussemails wirklich an alle berechtigten Empfänger senden?
+                                Möchtest du die Abschlussemails wirklich an {{ closing_recipient_count }} Empfänger senden?
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
@@ -135,7 +137,7 @@
 
             {% if invitation_recipients %}
             <div class="mt-3">
-                <h6><strong>Empfänger für Einladungsemails: {{ invitation_recipients | length }}</strong></h6>
+                <h6><strong>Empfänger für Einladungsemails <span class="badge text-bg-secondary">{{ invitation_recipients|length }}</span></strong></h6>
                 <ul class="mb-0">
                     {% for recipient in invitation_recipients %}
                     <li>{{ recipient.firstname }} {{ recipient.lastname }} — {{ recipient.email }}</li>
@@ -148,7 +150,7 @@
 
             {% if closing_recipients %}
             <div class="mt-3">
-                <h6><strong>Empfänger für Abschlussemails: {{ closing_recipients | length }}</strong></h6>
+                <h6><strong>Empfänger für Abschlussemails <span class="badge text-bg-secondary">{{ closing_recipients|length }}</span></strong></h6>
                 <ul class="mb-0">
                     {% for recipient in closing_recipients %}
                     <li>{{ recipient.0 }} {{ recipient.1 }} — {{ recipient.2 }}</li>

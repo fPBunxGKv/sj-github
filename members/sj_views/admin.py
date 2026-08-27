@@ -30,6 +30,28 @@ def is_admin(user):
 def administration(request):
     invitation_recipients = []
     closing_recipients = []
+    invitation_recipients_queryset = (
+        sj_users.objects
+        .filter(
+            Q(admin_state='') | Q(admin_state__isnull=True),
+            email__isnull=False,
+            email__gt='',
+        )
+        .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
+        .order_by('lastname', 'firstname')
+    )
+    invitation_recipient_count = invitation_recipients_queryset.count()
+    closing_recipient_emails = (
+        sj_results.objects
+        .filter(
+            fk_sj_events__event_active=True,
+            fk_sj_users__email__isnull=False,
+            fk_sj_users__email__gt='',
+        )
+        .values_list('fk_sj_users__email', flat=True)
+        .distinct()
+    )
+    closing_recipient_count = closing_recipient_emails.count()
 
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
@@ -39,16 +61,7 @@ def administration(request):
 
         if 'show_invitation_recipients' in request.POST:
             logger.info('Preparing invitation email recipient preview ...')
-            invitation_recipients = list(
-                sj_users.objects
-                .filter(
-                    Q(admin_state='') | Q(admin_state__isnull=True),
-                    email__isnull=False,
-                    email__gt='',
-                )
-                .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
-                .order_by('lastname', 'firstname')
-            )
+            invitation_recipients = list(invitation_recipients_queryset)
 
         if 'send_invitation_email' in request.POST:
             logger.info('Load event info ...')
@@ -105,14 +118,7 @@ def administration(request):
             plain_message = strip_tags(html_message)
             from_email = settings.DEFAULT_FROM_EMAIL
 
-            user_emails = (
-                sj_results.objects
-                .filter(fk_sj_events__event_active=True,
-                        fk_sj_users__email__isnull=False,
-                        fk_sj_users__email__gt='')  # Ensure email is not empty
-                .values_list('fk_sj_users__email', flat=True)
-                .distinct()
-                )
+            user_emails = closing_recipient_emails
 
             logger.info(f'Found {user_emails.count()} unique email addresses to send closing emails to.')
 
@@ -165,7 +171,9 @@ def administration(request):
     context = {
         'pagetitle': 'SJ - Administration',
         'invitation_recipients': invitation_recipients,
+        'invitation_recipient_count': invitation_recipient_count,
         'closing_recipients': closing_recipients,
+        'closing_recipient_count': closing_recipient_count,
         'total_users_with_email': total_users_with_email,
         'total_users_state_yes': total_users_state_yes,
         'total_users_state_no': total_users_state_no,

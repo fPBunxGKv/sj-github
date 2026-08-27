@@ -63,6 +63,35 @@ class AdministrationViewTests(TestCase):
             admin_state='',
         )
 
+    def test_administration_shows_invitation_recipient_count_without_preview(self):
+        response = self.client.get(reverse('administration'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['invitation_recipient_count'], 1)
+        self.assertContains(response, 'Einladungs-Empfänger ansehen')
+        self.assertContains(response, 'badge text-bg-secondary ms-1">1</span>', html=False)
+
+    def test_administration_shows_closing_recipient_count_without_preview(self):
+        event = sj_events.objects.create(
+            event_name='Active Event',
+            event_date=timezone.now().date(),
+            event_active=True,
+            event_reg_start=timezone.now(),
+            event_reg_end=timezone.now() + timedelta(days=1),
+        )
+        alice = sj_users.objects.get(email='alice@example.com')
+        sj_results.objects.create(
+            fk_sj_users=alice,
+            fk_sj_events=event,
+            result_category='W',
+        )
+
+        response = self.client.get(reverse('administration'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['closing_recipient_count'], 1)
+        self.assertContains(response, 'Abschluss-Empfänger ansehen')
+
     def test_show_invitation_recipients_lists_filtered_users(self):
         response = self.client.post(reverse('administration'), {'show_invitation_recipients': '1'})
 
