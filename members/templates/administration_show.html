@@ -21,7 +21,24 @@
                 {% csrf_token %}
                 <div class="mb-2">
                     <button class="btn btn-success me-2" name="generate-final">Finalläufe erstellen</button>
-                    <button class="btn btn-danger me-2" name="delete-final" onclick="return confirm('Bist du sicher?');">Finalläufe löschen</button>
+                    <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteFinalRunsModal">Finalläufe löschen</button>
+                </div>
+                <div class="modal fade" id="deleteFinalRunsModal" tabindex="-1" aria-labelledby="deleteFinalRunsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteFinalRunsModalLabel">Finalläufe löschen?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                            </div>
+                            <div class="modal-body">
+                                Möchtest du wirklich alle Finalläufe löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-danger" name="delete-final">Ja, löschen</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
             <a class="btn btn-primary me-2" href="{% url 'print_final_runs' %}" role="button">Finalläufe drucken</a>
@@ -36,17 +53,51 @@
             <form method="post" action="{% url 'administration' %}">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <button class="btn btn-warning me-2" name="reset_admin_state">
+                    <button type="button" class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#resetAdminStateModal">
                         1. Admin-Status zurücksetzen
                     </button>
+                </div>
+                <div class="modal fade" id="resetAdminStateModal" tabindex="-1" aria-labelledby="resetAdminStateModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="resetAdminStateModalLabel">Admin-Status zurücksetzen?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                            </div>
+                            <div class="modal-body">
+                                Möchtest du den Admin-Status aller Benutzer wirklich zurücksetzen?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-warning" name="reset_admin_state">Ja, zurücksetzen</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <button class="btn btn-outline-secondary me-2" name="show_invitation_recipients" type="submit">
                         2. Einladungs-Empfänger ansehen
                     </button>
-                    <button class="btn btn-success me-2" name="send_invitation_email">
+                    <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#sendInvitationEmailModal">
                         3. Einladungsemails senden
                     </button>
+                </div>
+                <div class="modal fade" id="sendInvitationEmailModal" tabindex="-1" aria-labelledby="sendInvitationEmailModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="sendInvitationEmailModalLabel">Einladungsemails senden?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                            </div>
+                            <div class="modal-body">
+                                Möchtest du die Einladungsemails wirklich an alle berechtigten Empfänger senden?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-success" name="send_invitation_email">Ja, senden</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -59,9 +110,26 @@
                     <button class="btn btn-outline-secondary me-2" name="show_closing_recipients" type="submit">
                         5. Abschluss-Empfänger ansehen
                     </button>
-                    <button class="btn btn-success me-2" name="send_closing_email">
+                    <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#sendClosingEmailModal">
                         6. Abschlussemails senden
                     </button>
+                </div>
+                <div class="modal fade" id="sendClosingEmailModal" tabindex="-1" aria-labelledby="sendClosingEmailModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="sendClosingEmailModalLabel">Abschlussemails senden?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                            </div>
+                            <div class="modal-body">
+                                Möchtest du die Abschlussemails wirklich an alle berechtigten Empfänger senden?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-success" name="send_closing_email">Ja, senden</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
 
