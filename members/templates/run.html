@@ -70,6 +70,82 @@
                     </form>
                 </div>
 
+                {% if duplicate_run_warning %}
+                <!-- Warnung: Benutzer mit bereits 3 Läufen -->
+                <div class="modal fade" id="duplicateRunsModal" tabindex="-1" aria-labelledby="duplicateRunsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="duplicateRunsModalLabel">Benutzer hat bereits 3 Läufe</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Folgende Benutzer haben bereits 3 Läufe in diesem Event:</p>
+                                <ul>
+                                    {% for user in duplicate_run_warning.users %}
+                                        <li>{{ user.firstname }} {{ user.lastname }} (Startnummer {{ user.startnum }}) - bereits {{ user.existing_run_count }} Läufe</li>
+                                    {% endfor %}
+                                </ul>
+                                <p>Soll der Lauf trotzdem gespeichert werden?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                                <form action="{% url 'addrun' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="confirm_duplicate_runs" value="1">
+                                    <input type="hidden" name="run_nr" value="{{ duplicate_run_warning.run_nr }}">
+                                    {% for value in duplicate_run_warning.lines %}
+                                        <input type="hidden" name="addline{{ forloop.counter }}" value="{{ value }}">
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-warning">Ja, trotzdem speichern</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var duplicateModalEl = document.getElementById('duplicateRunsModal');
+                        if (duplicateModalEl) {
+                            new bootstrap.Modal(duplicateModalEl).show();
+                        }
+                    });
+                </script>
+                {% endif %}
+
+                {% if dup_line_warning %}
+                <!-- Warnung: doppelte Startnummer im selben Lauf -->
+                <div class="modal fade" id="dupLineModal" tabindex="-1" aria-labelledby="dupLineModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dupLineModalLabel">Doppelte Startnummer</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Folgende Startnummer(n) wurden mehrfach im selben Lauf eingetragen, der Lauf wurde nicht gespeichert:</p>
+                                <ul>
+                                    {% for startnum in dup_line_warning.startnums %}
+                                        <li>{{ startnum }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var dupLineModalEl = document.getElementById('dupLineModal');
+                        if (dupLineModalEl) {
+                            new bootstrap.Modal(dupLineModalEl).show();
+                        }
+                    });
+                </script>
+                {% endif %}
+
                 <!-- Tabelle mit eingeteilten Läufen -->
                 <div class="container">
                     <div class="row">

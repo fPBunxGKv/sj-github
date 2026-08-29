@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from django.forms import Form, IntegerField
 
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Count
 from django.db.models import F, Window
 from django.db.models.functions import Rank
 from django.db.models import Q
@@ -125,10 +125,33 @@ class AddRunForm(Form):
         for index in range(1, line_count + 1):
             self.fields[f'addline{index}'] = IntegerField(required=False)
 
+def _render_run_page_with_warning(request, event_info, extra_context):
+    num_lines = event_info['lines']
+    event_id = event_info['id']
+
+    run_max = sj_results.objects.filter(fk_sj_events=event_id).aggregate(Max('run_nr'))
+    runs_all_data = (
+        sj_results.objects.select_related('fk_sj_users')
+        .filter(fk_sj_events=event_id)
+        .order_by('-run_nr', 'line_nr')
+    )
+
+    template = loader.get_template('run.html')
+    context = {
+        'runs': runs_all_data,
+        'run_max': run_max['run_nr__max'],
+        'num_lines': range(num_lines),
+        'pagetitle': 'SJ - Laufeinteilung',
+        **extra_context,
+    }
+    return HttpResponse(template.render(context, request))
+
+
 @login_required
 def addrun(request):
     event_info = get_event_info()
     num_lines = event_info['lines']
+    event_id = event_info['id']
 
     form = AddRunForm(request.POST or None, line_count=num_lines)
 
@@ -140,19 +163,53 @@ def addrun(request):
         # Prüfen auf doppelte Startnummer in einem Lauf
         if test_dup_user(lines):
             logger.warning(f'Doppelte Einträge in Laufeinteilung - Lauf wird nicht erfasst: {lines}')
+            duplicate_startnums = sorted({num for num in lines if lines.count(num) > 1 and num != 0})
+            return _render_run_page_with_warning(request, event_info, {
+                'dup_line_warning': {
+                    'startnums': duplicate_startnums,
+                },
+            })
 
         else:
             users = sj_users.objects.filter(startnum__in=lines, state='YES')
-            user_data = {user.startnum: (user.id, user.byear, user.gender) for user in users}
-            logger.debug(f'User Data: {user_data}')
+            users_by_startnum = {user.startnum: user for user in users}
+            logger.debug(f'User Data: {users_by_startnum}')
+
+            # Prüfen ob ein Benutzer bereits 3 Läufe im aktiven Event hat,
+            # ausser der Benutzer hat die Warnung bereits bestätigt
+            if request.POST.get('confirm_duplicate_runs') != '1':
+                user_ids = [user.id for user in users_by_startnum.values()]
+                run_counts = (
+                    sj_results.objects.filter(fk_sj_events=event_id, fk_sj_users_id__in=user_ids)
+                    .values('fk_sj_users_id')
+                    .annotate(run_count=Count('id'))
+                )
+                run_count_map = {rc['fk_sj_users_id']: rc['run_count'] for rc in run_counts}
+
+                duplicate_users = []
+                for user in users_by_startnum.values():
+                    run_count = run_count_map.get(user.id, 0)
+                    if run_count >= 3:
+                        user.existing_run_count = run_count
+                        duplicate_users.append(user)
+
+                if duplicate_users:
+                    logger.warning(f'Benutzer mit bereits 3 Läufen: {[u.startnum for u in duplicate_users]}')
+                    return _render_run_page_with_warning(request, event_info, {
+                        'duplicate_run_warning': {
+                            'run_nr': run_num,
+                            'lines': lines,
+                            'users': duplicate_users,
+                        },
+                    })
 
             results = []
             for i, startnum in enumerate(lines):
                 if startnum != 0:
-                    if startnum in user_data:
-                        id, byear, gender = user_data[startnum]
-                        result_category = calc_cat(gender, byear, event_info['date'].year)
-                        results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=id, fk_sj_events_id=event_info['id']))
+                    if startnum in users_by_startnum:
+                        user = users_by_startnum[startnum]
+                        result_category = calc_cat(user.gender, user.byear, event_info['date'].year)
+                        results.append(sj_results(run_nr=run_num, line_nr=i+1, state='SQR', result_category=result_category, fk_sj_users_id=user.id, fk_sj_events_id=event_info['id']))
 
             sj_results.objects.bulk_create(results)
 
