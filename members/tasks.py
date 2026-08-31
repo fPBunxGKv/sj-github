@@ -73,6 +73,58 @@ def send_invitation_email_task(email, event_info):
 
 
 @shared_task
+def send_reminder_email_task(email, event_info):
+    if not event_info:
+        logger.error("send_reminder_email_task: Event information is missing.")
+        return
+
+    user_records = (sj_users.objects
+        .filter(email=email, admin_state='EMAIL_SENT', state='')
+    )
+    num_runners = user_records.count()
+
+    ctx_body = {
+        'num_runners': num_runners,
+        'user_datasets': user_records,
+        'event_info': event_info,
+        'main_url': settings.MAIN_URL,
+    }
+    subject=f"Erinnerung: Voranmeldung für den {event_info['name']}"
+
+    # Render the email body HTML
+    body_html = render_to_string('emails/reminder_registation.html', ctx_body)
+
+    # Strip HTML tags to create a plain text version of the email body.
+    body_plain = strip_tags(body_html)
+
+    # Then, create a multipart email instance.
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=body_plain,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email],
+        bcc=[settings.EMAIL_BCC],  # Bcc list
+    )
+
+    # Lastly, attach the HTML content to the email instance and send.
+    msg.attach_alternative(body_html, "text/html")
+
+    logger.debug(f"Sending reminder email to {email} with subject: {subject}")
+
+    try:
+        result = msg.send()
+        if result:
+            user_records.update(admin_state='REMINDER_SENT')
+            logger.info(f"Reminder email sent to {email}")
+        else:
+            user_records.update(admin_state='REMINDER_EMAIL_FAILED')
+            logger.warning(f"Reminder email not sent to {email}")
+    except Exception as e:
+        user_records.update(admin_state='REMINDER_EMAIL_ERROR')
+        logger.exception(f"Error sending reminder email to {email}: {e}")
+
+
+@shared_task
 def send_closing_email_task(email, subject="Fotos und Ranglisten", body_html="", body_plain="", from_email=""):
     if not body_html or not body_plain:
         logger.error("Email body content is missing.")

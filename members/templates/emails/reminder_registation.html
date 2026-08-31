@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erinnerung Anmeldung - {{ event_info.name | default:"Event" }}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: transparent;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: transparent;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: transparent;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        h1 {
+            color: #0066cc;
+            font-size: 24px;
+            margin: 0 0 20px;
+        }
+
+        p {
+            margin: 0 0 15px;
+        }
+
+        a.link {
+            color: #0066cc !important;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        a.link:hover {
+            text-decoration: underline;
+        }
+
+        @media screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 0;
+            }
+
+            .email-container {
+                padding: 0;
+                border-radius: 0;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            a.link {
+                display: block;
+                width: 100%;
+                text-align: center;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-container">
+            {% if num_runners < 2 %}
+                <h1>Hallo {{ user_datasets.0.firstname }}</h1>
+
+                <p>Wir vermissen dich! Bisher haben wir noch nichts von dir gehört zum <strong>{{ event_info.name | default:"" }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> beim <strong>{{ event_info.location | default:"" }}</strong>.</p>
+
+                <p>Meld dich doch schnell über den untenstehenden Link an, wir freuen uns auf dich!</p>
+                <p>
+                    <strong>{{ user_datasets.0.firstname|default:"->" }}, </strong>
+                    <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}" class="link">
+                        dein persönlicher Link.
+                    </a>
+                </p>
+                <p>Oder kopiere diesen Link in deinen Browser:<br>
+                <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}">{{ main_url }}/register/{{ user_datasets.0.uuid }}</a></p>
+
+            {% else %}
+                <h1>Hallo zusammen</h1>
+                <p>Wir vermissen euch! Bisher haben wir noch nichts von euch gehört zum <strong>{{ event_info.name | default:"" }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> beim <strong>{{ event_info.location | default:"" }}</strong>.</p>
+
+                <p>Meldet euch doch schnell über die untenstehenden Links an, wir freuen uns auf euch!</p>
+                {% for user in user_datasets %}
+                    <p>
+                        <strong>{{ user.firstname }}, </strong>
+                        <a href="{{ main_url }}/register/{{ user.uuid }}" class="link">
+                            dein persönlicher Link.
+                        </a>
+                    </p>
+                    <p>Oder kopiere diesen Link in deinen Browser:<br>
+                    <a href="{{ main_url }}/register/{{ user.uuid }}">{{ main_url }}/register/{{ user.uuid }}</a></p>
+                    <br>
+                {% endfor %}
+            {% endif %}
+
+            <br>
+            <p>Sportliche Grüsse<br>
+            OK Schnällschte Jegenstorfer</p>
+        </div>
+    </div>
+</body>
+</html>

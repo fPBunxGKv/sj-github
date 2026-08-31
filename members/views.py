@@ -510,6 +510,7 @@ def saveresults(request):
 
     filter_state = request.POST.get('state', '')
     redirect_url = reverse('results')
+    
     if filter_state:
         redirect_url = f"{redirect_url}?state={filter_state}"
 

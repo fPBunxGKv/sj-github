@@ -16,7 +16,7 @@ from django.db.models.functions import TruncDate
 from members.models import sj_users, sj_results
 from members.sj_utils import get_event_info, sendmail
 
-from members.tasks import print_registered_users_task, send_invitation_email_task, send_closing_email_task
+from members.tasks import print_registered_users_task, send_invitation_email_task, send_closing_email_task, send_reminder_email_task
 
 # Logging setup
 logger = logging.getLogger('sj.logger')
@@ -30,6 +30,7 @@ def is_admin(user):
 def administration(request):
     invitation_recipients = []
     closing_recipients = []
+    reminder_recipients = []
     invitation_recipients_queryset = (
         sj_users.objects
         .filter(
@@ -52,6 +53,12 @@ def administration(request):
         .distinct()
     )
     closing_recipient_count = closing_recipient_emails.count()
+    reminder_recipients_queryset = (
+        sj_users.objects
+        .filter(admin_state='EMAIL_SENT', state='')
+        .order_by('lastname', 'firstname')
+    )
+    reminder_recipient_count = reminder_recipients_queryset.count()
 
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
@@ -90,6 +97,33 @@ def administration(request):
                 # Queue the email task with a delay
                 logger.info(f'Scheduling email to {email} with delay {total_delay} seconds.')
                 send_invitation_email_task.apply_async(args=[email, event_info], countdown=total_delay)
+
+        if 'show_reminder_recipients' in request.POST:
+            logger.info('Preparing reminder email recipient preview ...')
+            reminder_recipients = list(reminder_recipients_queryset)
+
+        if 'send_reminder_email' in request.POST:
+            logger.info('Load event info ...')
+            event_info = get_event_info()
+            if not event_info:
+                logger.error('No event information found.')
+                return HttpResponse("No event information found.", status=500)
+
+            logger.info('Sending reminder emails ...')
+            user_emails = (
+                reminder_recipients_queryset
+                .filter(email__isnull=False, email__gt='')
+                .values_list('email', flat=True)
+                .distinct()
+            )
+            logger.info(f'Found {user_emails.count()} users to send reminder emails to.')
+
+            for i, email in enumerate(user_emails):
+                jitter = random.randint(0, 2)
+                total_delay = i + jitter
+                # Queue the email task with a delay
+                logger.info(f'Scheduling reminder email to {email} with delay {total_delay} seconds.')
+                send_reminder_email_task.apply_async(args=[email, event_info], countdown=total_delay)
 
         if 'show_closing_recipients' in request.POST:
             logger.info('Preparing closing email recipient preview ...')
@@ -174,6 +208,8 @@ def administration(request):
         'invitation_recipient_count': invitation_recipient_count,
         'closing_recipients': closing_recipients,
         'closing_recipient_count': closing_recipient_count,
+        'reminder_recipients': reminder_recipients,
+        'reminder_recipient_count': reminder_recipient_count,
         'total_users_with_email': total_users_with_email,
         'total_users_state_yes': total_users_state_yes,
         'total_users_state_no': total_users_state_no,
