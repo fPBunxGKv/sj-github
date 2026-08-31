@@ -82,7 +82,7 @@
 
                 <p>Wir vermissen dich! Bisher haben wir noch nichts von dir gehört zum <strong>{{ event_info.name | default:"" }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> beim <strong>{{ event_info.location | default:"" }}</strong>.</p>
 
-                <p>Meld dich doch schnell über den untenstehenden Link an, wir freuen uns auf dich!</p>
+                <p>Falls du Zeit und Lust hast, melde dich über den untenstehenden Link an, wir freuen uns auf dich!</p>
                 <p>
                     <strong>{{ user_datasets.0.firstname|default:"->" }}, </strong>
                     <a href="{{ main_url }}/register/{{ user_datasets.0.uuid }}" class="link">
@@ -96,7 +96,7 @@
                 <h1>Hallo zusammen</h1>
                 <p>Wir vermissen euch! Bisher haben wir noch nichts von euch gehört zum <strong>{{ event_info.name | default:"" }}</strong> am <strong>{{ event_info.date | date:"l, d. F Y" | default:"" }}</strong> beim <strong>{{ event_info.location | default:"" }}</strong>.</p>
 
-                <p>Meldet euch doch schnell über die untenstehenden Links an, wir freuen uns auf euch!</p>
+                <p>Falls ihr Lust und Zeit habt, meldet euch über die untenstehenden Links an, wir freuen uns auf euch!</p>
                 {% for user in user_datasets %}
                     <p>
                         <strong>{{ user.firstname }}, </strong>
