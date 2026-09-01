@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -427,6 +428,87 @@ class EventInfoTests(TestCase):
         result.refresh_from_db()
         self.assertIsNone(result.result)
         self.assertEqual(result.state, 'SQR')
+
+    @patch('members.views.print_paper')
+    def test_saveresults_fourth_run_saves_result_without_printing_and_sets_dnf(self, mock_print):
+        self.user = get_user_model().objects.create_user(username='admin_four', password='secret')
+        self.group = Group.objects.create(name='grp-admin-four')
+        self.user.groups.add(self.group)
+        self.client.force_login(self.user)
+
+        event = sj_events.objects.create(
+            event_name='Four Runs Event',
+            event_date=timezone.now().date() + timedelta(days=7),
+            event_reg_start=timezone.now() - timedelta(days=1),
+            event_reg_end=timezone.now() + timedelta(days=3),
+            event_active=True,
+            event_num_lines=1,
+        )
+        participant = sj_users.objects.create(
+            firstname='Runner',
+            lastname='Four',
+            email='runner4@example.com',
+            gender='M',
+            byear=1990,
+            state='YES',
+            startnum=400010,
+        )
+
+        # Create 3 existing runs with results
+        for run_nr, time_val in enumerate([12.0, 11.5, 11.0], start=1):
+            sj_results.objects.create(
+                fk_sj_users=participant,
+                fk_sj_events=event,
+                run_nr=run_nr,
+                line_nr=1,
+                state='RQR',
+                result_category='M16/Open',
+                result=time_val,
+            )
+
+        # 4th run set up
+        run4 = sj_results.objects.create(
+            fk_sj_users=participant,
+            fk_sj_events=event,
+            run_nr=4,
+            line_nr=1,
+            state='SQR',
+            result_category='M16/Open',
+            result=None,
+        )
+
+        # Save result for 4th run with best time 10.0
+        response = self.client.post(
+            reverse('saveresults'),
+            {'run_num': 4, 'add_res1': '10.0'},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        run4.refresh_from_db()
+        # Result is saved
+        self.assertEqual(run4.result, 10.0)
+        # State is set to DNF (not in ranking)
+        self.assertEqual(run4.state, 'DNF')
+        # Printing was not called
+        mock_print.assert_not_called()
+
+        # Check ranking view doesn't include the 4th run (best time in ranking should be 11.0)
+        rank_response = self.client.get(reverse('ranking'))
+        self.assertEqual(rank_response.status_code, 200)
+        results_per_cat = rank_response.context['results_per_cat']
+        user_cat_results = [r for r in results_per_cat if r['fk_sj_users'] == participant.id]
+        self.assertEqual(len(user_cat_results), 1)
+        self.assertEqual(user_cat_results[0]['fast_run'], 11.0)
+
+        # Editing/correcting run 3 should keep run 3 as RQR and count for ranking
+        response = self.client.post(
+            reverse('saveresults'),
+            {'run_num': 3, 'add_res1': '10.8'},
+        )
+        self.assertEqual(response.status_code, 302)
+        run3 = sj_results.objects.get(fk_sj_events=event, fk_sj_users=participant, run_nr=3)
+        self.assertEqual(run3.result, 10.8)
+        self.assertEqual(run3.state, 'RQR')
 
     def test_results_displays_null_result_entries(self):
         user = get_user_model().objects.create_user(username='results-viewer', password='secret')

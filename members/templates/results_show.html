@@ -100,7 +100,7 @@
                                                             <span class="badge bg-info ms-2">{{ y.result_category }}</span>
                                                         <span class="print-meta-small"> {{ y.fk_sj_users.byear }} | {{ y.fk_sj_users.startnum }} | {{ y.state }}</span>
                                                         </p>
-                                                        <b{% if y.state == 'RQR' %} style="color:blue"{% elif y.state == 'RFR' %} style="color:darkgreen"{% endif %}>
+                                                        <b{% if y.state == 'RQR' %} style="color:blue"{% elif y.state == 'RFR' %} style="color:darkgreen"{% elif y.state == 'DNF' %} style="color:orange"{% endif %}>
                                                             Zeit: {{ y.result | stringformat:'0.2f' }}</b>
                                                         </b>
                                                     {% endif %}

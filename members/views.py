@@ -554,15 +554,27 @@ def saveresults(request):
             )
         }
         user_ids = {result.fk_sj_users_id for result in results_by_line.values()}
+        previous_results = sj_results.objects.filter(
+            fk_sj_events=event_id,
+            fk_sj_users_id__in=user_ids,
+            result__isnull=False,
+            run_nr__lt=num,
+        ).exclude(
+            id__in=[result.id for result in results_by_line.values()]
+        )
         previous_mins = dict(
-            sj_results.objects.filter(
-                fk_sj_events=event_id,
-                fk_sj_users_id__in=user_ids,
-                result__isnull=False,
+            previous_results.filter(
+                state='RQR'
             ).values('fk_sj_users_id').annotate(
                 previous_min=Min('result'),
             ).values_list('fk_sj_users_id', 'previous_min')
         )
+        previous_counts = dict(
+            previous_results.values('fk_sj_users_id').annotate(
+                count=Count('id'),
+            ).values_list('fk_sj_users_id', 'count')
+        )
+        user_run_counts = dict(previous_counts)
         updated_results = []
 
         for i, value in lines.items():
@@ -573,22 +585,29 @@ def saveresults(request):
 
             logger.debug(f'  --> resulte state: {result_add_res.state}')
 
-            if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
+            if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR') or (result_add_res.state == 'DNF'):
+                user_result_count = user_run_counts.get(result_add_res.fk_sj_users_id, 0)
                 previous_min = previous_mins.get(result_add_res.fk_sj_users_id)
-                logger.debug(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {value}")
+                logger.debug(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bisherige Resultate: {user_result_count}\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {value}")
 
-                # Print or not (paper)
-                if (previous_min == None):
-                    logger.debug(" - Zettel für Wäscheleine drucken (none)!")
-                    print_paper(user_data=result_add_res,  run_time=value, template='run',printer_ip=settings.PRINTER_RUN_IP)
-                elif (value < previous_min):
-                    logger.debug(" - Zettel für Wäscheleine drucken (besser)!")
-                    print_paper(user_data=result_add_res,  run_time=value, template='run', printer_ip=settings.PRINTER_RUN_IP)
+                if user_result_count >= 3:
+                    logger.debug(" - Benutzer hat bereits 3 Resultate: Kein Ausdruck für Wäscheleine, nicht in Rangliste (Status DNF).")
+                    result_add_res.state = 'DNF'
                 else:
-                    logger.debug(" - Leider keine neue Bestzeit!")
+                    # Print or not (paper)
+                    if (previous_min == None):
+                        logger.debug(" - Zettel für Wäscheleine drucken (none)!")
+                        print_paper(user_data=result_add_res,  run_time=value, template='run',printer_ip=settings.PRINTER_RUN_IP)
+                    elif (value < previous_min):
+                        logger.debug(" - Zettel für Wäscheleine drucken (besser)!")
+                        print_paper(user_data=result_add_res,  run_time=value, template='run', printer_ip=settings.PRINTER_RUN_IP)
+                    else:
+                        logger.debug(" - Leider keine neue Bestzeit!")
 
-                # Set the sate for the result - used for ranking (qualy/final)
-                result_add_res.state = 'RQR'
+                    # Set the sate for the result - used for ranking (qualy/final)
+                    result_add_res.state = 'RQR'
+
+                user_run_counts[result_add_res.fk_sj_users_id] = user_result_count + 1
 
             elif (result_add_res.state == 'SFR') or (result_add_res.state == 'RFR'):
                 # Set the sate for the result - used for ranking (qualy/final)
