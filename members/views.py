@@ -12,6 +12,7 @@ from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.urls import reverse
 from django.template.loader import render_to_string
+from django.utils import timezone as django_timezone
 from django.utils.html import strip_tags
 
 from django.conf import settings
@@ -544,13 +545,36 @@ def saveresults(request):
         logger.debug(f'SAVE-RESULTS --> request, run-num = {num}, lines {i}: {value}')
 
     with transaction.atomic():
+        results_by_line = {
+            result.line_nr: result
+            for result in sj_results.objects.select_related('fk_sj_users').filter(
+                run_nr=num,
+                line_nr__in=[line_number + 1 for line_number in lines],
+                fk_sj_events=event_id,
+            )
+        }
+        user_ids = {result.fk_sj_users_id for result in results_by_line.values()}
+        previous_mins = dict(
+            sj_results.objects.filter(
+                fk_sj_events=event_id,
+                fk_sj_users_id__in=user_ids,
+                result__isnull=False,
+            ).values('fk_sj_users_id').annotate(
+                previous_min=Min('result'),
+            ).values_list('fk_sj_users_id', 'previous_min')
+        )
+        updated_results = []
+
         for i, value in lines.items():
-            result_add_res = sj_results.objects.get(run_nr = num, line_nr = i+1, fk_sj_events = event_id)
+            result_add_res = results_by_line.get(i + 1)
+            if result_add_res is None:
+                messages.error(request, 'Die Bahn gehört nicht zu diesem Lauf.')
+                return HttpResponseRedirect(redirect_url)
 
             logger.debug(f'  --> resulte state: {result_add_res.state}')
 
             if (result_add_res.state == 'SQR') or (result_add_res.state == 'RQR'):
-                previous_min = sj_results.objects.filter(fk_sj_users=result_add_res.fk_sj_users, fk_sj_events=event_id, result__isnull=False).aggregate(Min('result'))['result__min']
+                previous_min = previous_mins.get(result_add_res.fk_sj_users_id)
                 logger.debug(f"{result_add_res.fk_sj_users}\n - Resulat Status: {result_add_res.state}\n - Event-ID: { event_id }\n - Bestzeit bisher: {previous_min}\n - neu Zeit: {value}")
 
                 # Print or not (paper)
@@ -574,7 +598,10 @@ def saveresults(request):
                 result_add_res.state = 'DNF'
 
             result_add_res.result = value
-            result_add_res.save()
+            result_add_res.updated_at = django_timezone.now()
+            updated_results.append(result_add_res)
+
+        sj_results.objects.bulk_update(updated_results, ['state', 'result', 'updated_at'])
 
     return HttpResponseRedirect(redirect_url)
 
@@ -639,32 +666,36 @@ def getResultsPerCategory(event_id, stateStr):
                 'result_category'
             )
 
-    # Resultate pro Kategorie -> Rangliste
-    results_per_cat = []
+    result_rows = sj_results.objects.filter(
+        fk_sj_events=event_id,
+        state=stateStr,
+    ).values(
+        'fk_sj_users',
+        'fk_sj_users__firstname',
+        'fk_sj_users__lastname',
+        'result_category',
+    ).annotate(
+        fast_run=Min('result'),
+    ).order_by('result_category', 'fast_run')
 
-    for q in dist_cat:
-        # Query Resultate pro Kategorie
-        result_best_cat=list(sj_results.objects.filter(
-                fk_sj_events=event_id,
-                state=stateStr,
-                result_category=q['result_category'],
-            ).values(
-                'fk_sj_users',
-                'fk_sj_users__firstname',
-                'fk_sj_users__lastname',
-                'result_category',
-            ).annotate(
-                fast_run=Min('result'),
-                rank=Window(
-                    expression=Rank(),
-                    order_by=F('fast_run').asc()),
-            ).order_by(
-                'result_category',
-                'fast_run'
-            )
-        )
-        # Ranglist pro Kategorie zu Array hinzufügen
-        results_per_cat.extend(result_best_cat)
+    results_per_cat = []
+    current_category = None
+    previous_time = None
+    current_rank = 0
+    category_position = 0
+    for result in result_rows:
+        if result['result_category'] != current_category:
+            current_category = result['result_category']
+            previous_time = None
+            current_rank = 0
+            category_position = 0
+
+        category_position += 1
+        if result['fast_run'] != previous_time:
+            current_rank = category_position
+            previous_time = result['fast_run']
+        result['rank'] = current_rank
+        results_per_cat.append(result)
 
     return dist_cat, results_per_cat
 

@@ -41,7 +41,6 @@ def administration(request):
         .exclude(state__in=['DEL', 'NOMAIL', 'YES'])
         .order_by('lastname', 'firstname')
     )
-    invitation_recipient_count = invitation_recipients_queryset.count()
     closing_recipient_emails = (
         sj_results.objects
         .filter(
@@ -58,7 +57,6 @@ def administration(request):
         .filter(admin_state='EMAIL_SENT', state='')
         .order_by('lastname', 'firstname')
     )
-    reminder_recipient_count = reminder_recipients_queryset.count()
 
     if request.method == 'POST':
         if 'reset_admin_state' in request.POST:
@@ -78,7 +76,7 @@ def administration(request):
                 return HttpResponse("No event information found.", status=500)
 
             logger.info('Sending invitation emails ...')
-            user_emails = (
+            user_emails = list(
                 sj_users.objects
                 .filter(
                     Q(admin_state='') | Q(admin_state__isnull=True),
@@ -89,7 +87,7 @@ def administration(request):
                 .values_list('email', flat=True)
                 .distinct()
             )
-            logger.info(f'Found {user_emails.count()} users to send emails to.')
+            logger.info(f'Found {len(user_emails)} users to send emails to.')
 
             for i, email in enumerate(user_emails):
                 jitter = random.randint(0, 2)
@@ -110,13 +108,13 @@ def administration(request):
                 return HttpResponse("No event information found.", status=500)
 
             logger.info('Sending reminder emails ...')
-            user_emails = (
+            user_emails = list(
                 reminder_recipients_queryset
                 .filter(email__isnull=False, email__gt='')
                 .values_list('email', flat=True)
                 .distinct()
             )
-            logger.info(f'Found {user_emails.count()} users to send reminder emails to.')
+            logger.info(f'Found {len(user_emails)} users to send reminder emails to.')
 
             for i, email in enumerate(user_emails):
                 jitter = random.randint(0, 2)
@@ -152,9 +150,9 @@ def administration(request):
             plain_message = strip_tags(html_message)
             from_email = settings.DEFAULT_FROM_EMAIL
 
-            user_emails = closing_recipient_emails
+            user_emails = list(closing_recipient_emails)
 
-            logger.info(f'Found {user_emails.count()} unique email addresses to send closing emails to.')
+            logger.info(f'Found {len(user_emails)} unique email addresses to send closing emails to.')
 
             for i, email in enumerate(user_emails):
                 jitter = random.randint(2, 7)
@@ -171,10 +169,14 @@ def administration(request):
             event_info = get_event_info()
             print_registered_users_task.delay(event_info)
 
-    total_users_with_email = sj_users.objects.filter(email__isnull=False, email__gt='').count()
-    total_users_state_yes = sj_users.objects.filter(state='YES').count()
-    total_users_state_no = sj_users.objects.filter(state='NO').count()
-    total_users_registered = sj_users.objects.exclude(state__in=['DEL', 'NOMAIL']).count()
+    invitation_recipient_count = invitation_recipients_queryset.count()
+    reminder_recipient_count = reminder_recipients_queryset.count()
+    totals = sj_users.objects.aggregate(
+        total_users_with_email=Count('id', filter=Q(email__isnull=False, email__gt='')),
+        total_users_state_yes=Count('id', filter=Q(state='YES')),
+        total_users_state_no=Count('id', filter=Q(state='NO')),
+        total_users_registered=Count('id', filter=~Q(state__in=['DEL', 'NOMAIL'])),
+    )
 
     recent_since = timezone.now() - timedelta(days=7)
     recent_activity_qs = (
@@ -210,10 +212,7 @@ def administration(request):
         'closing_recipient_count': closing_recipient_count,
         'reminder_recipients': reminder_recipients,
         'reminder_recipient_count': reminder_recipient_count,
-        'total_users_with_email': total_users_with_email,
-        'total_users_state_yes': total_users_state_yes,
-        'total_users_state_no': total_users_state_no,
-        'total_users_registered': total_users_registered,
+        **totals,
         'recent_activity': recent_activity,
     }
     return render(request, 'administration_show.html', context)

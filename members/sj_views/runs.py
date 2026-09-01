@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.forms import Form, IntegerField
 
 from django.db.models import Max, Min, Count
+from django.db import transaction
 from django.db.models import F, Window
 from django.db.models.functions import Rank
 from django.db.models import Q
@@ -495,33 +496,30 @@ def addrun_testdata(request, add_lines=1):
     total_runs_to_add = start_run_nr + add_lines - 1
 
     all_users = list(
-        sj_users.objects.exclude(state='DEL').filter(state='YES').values('byear', 'gender', 'startnum')
+        sj_users.objects.filter(state='YES').values('id', 'byear', 'gender', 'startnum')
     )
     if not all_users:
         logger.warning('No eligible users available for test data generation')
         return redirect('run')
 
-    seed()
-    active_event = sj_events.objects.get(pk=event_id)
-
     run_assignments = {}
+    results = []
 
     for run_nr in range(start_run_nr, total_runs_to_add + 1):
-        run_users = list(all_users)
-        seed()
+        run_users = [
+            user_data for user_data in all_users
+            if run_assignments.get(user_data['startnum'], 0) < 3
+        ]
+        random.shuffle(run_users)
 
         for line_nr in range(1, lines_per_run + 1):
             if not run_users:
                 break
 
-            user_index = randint(0, len(run_users) - 1)
-            user_data = run_users.pop(user_index)
+            user_data = run_users.pop()
 
             startnum = user_data['startnum']
             assignment_count = run_assignments.get(startnum, 0)
-            if assignment_count >= 3:
-                continue
-
             run_assignments[startnum] = assignment_count + 1
 
             category = calc_cat(
@@ -533,14 +531,17 @@ def addrun_testdata(request, add_lines=1):
             result_value = round(uniform(9, 12), 2) if run_nr < total_runs_to_add else None
             result_state = 'RQR' if result_value is not None else 'SQR'
 
-            sj_results.objects.create(
+            results.append(sj_results(
                 run_nr=run_nr,
                 line_nr=line_nr,
                 state=result_state,
                 result_category=category,
-                fk_sj_users=sj_users.objects.get(startnum=user_data['startnum']),
-                fk_sj_events=active_event,
+                fk_sj_users_id=user_data['id'],
+                fk_sj_events_id=event_id,
                 result=result_value,
-            )
+            ))
+
+    with transaction.atomic():
+        sj_results.objects.bulk_create(results)
 
     return redirect('run')

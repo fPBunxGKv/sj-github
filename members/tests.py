@@ -682,6 +682,154 @@ class EventInfoTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Historical Results Event')
 
+    def test_ranking_assigns_competition_ranks_for_tied_category_results(self):
+        event = sj_events.objects.create(
+            event_name='Two Category Ranking Event',
+            event_date=timezone.now().date() - timedelta(days=30),
+            event_reg_start=timezone.now() - timedelta(days=60),
+            event_reg_end=timezone.now() - timedelta(days=31),
+            event_active=False,
+            event_num_lines=4,
+        )
+        participants = [
+            sj_users.objects.create(
+                firstname=firstname,
+                lastname='Ranking',
+                email=f'{firstname.lower()}@example.com',
+                gender=gender,
+                byear=2020,
+                state='YES',
+                startnum=820000 + index,
+            )
+            for index, (firstname, gender) in enumerate(
+                [
+                    ('Wanda', 'W'),
+                    ('Wilma', 'W'),
+                    ('Wendy', 'W'),
+                    ('Winona', 'W'),
+                    ('Wiebke', 'W'),
+                    ('Mark', 'M'),
+                    ('Martin', 'M'),
+                    ('Matteo', 'M'),
+                    ('Milan', 'M'),
+                ],
+                start=1,
+            )
+        ]
+        wanda, wilma, wendy, winona, wiebke, mark, martin, matteo, milan = participants
+        sj_results.objects.bulk_create([
+            sj_results(
+                fk_sj_users=wanda,
+                fk_sj_events=event,
+                run_nr=1,
+                line_nr=1,
+                state='RQR',
+                result_category='W05',
+                result=10.5,
+            ),
+            sj_results(
+                fk_sj_users=wilma,
+                fk_sj_events=event,
+                run_nr=1,
+                line_nr=2,
+                state='RQR',
+                result_category='W05',
+                result=10.2,
+            ),
+            sj_results(
+                fk_sj_users=wendy,
+                fk_sj_events=event,
+                run_nr=1,
+                line_nr=3,
+                state='RQR',
+                result_category='W05',
+                result=10.5,
+            ),
+            sj_results(
+                fk_sj_users=winona,
+                fk_sj_events=event,
+                run_nr=2,
+                line_nr=1,
+                state='RQR',
+                result_category='W05',
+                result=10.8,
+            ),
+            sj_results(
+                fk_sj_users=wiebke,
+                fk_sj_events=event,
+                run_nr=2,
+                line_nr=2,
+                state='RQR',
+                result_category='W05',
+                result=11.0,
+            ),
+            sj_results(
+                fk_sj_users=mark,
+                fk_sj_events=event,
+                run_nr=2,
+                line_nr=3,
+                state='RQR',
+                result_category='M05',
+                result=9.8,
+            ),
+            sj_results(
+                fk_sj_users=martin,
+                fk_sj_events=event,
+                run_nr=3,
+                line_nr=1,
+                state='RQR',
+                result_category='M05',
+                result=9.8,
+            ),
+            sj_results(
+                fk_sj_users=matteo,
+                fk_sj_events=event,
+                run_nr=3,
+                line_nr=2,
+                state='RQR',
+                result_category='M05',
+                result=10.1,
+            ),
+            sj_results(
+                fk_sj_users=milan,
+                fk_sj_events=event,
+                run_nr=3,
+                line_nr=3,
+                state='RQR',
+                result_category='M05',
+                result=10.4,
+            ),
+        ])
+
+        response = self.client.get(reverse('ranking'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'W05')
+        self.assertContains(response, 'M05')
+        self.assertContains(response, 'Wanda Ranking')
+        self.assertContains(response, 'Wilma Ranking')
+        self.assertContains(response, 'Wendy Ranking')
+        self.assertContains(response, 'Winona Ranking')
+        self.assertContains(response, 'Wiebke Ranking')
+        self.assertContains(response, 'Mark Ranking')
+        self.assertContains(response, 'Martin Ranking')
+        self.assertContains(response, 'Matteo Ranking')
+        self.assertContains(response, 'Milan Ranking')
+        self.assertEqual(
+            [(result['fk_sj_users'], result['rank']) for result in response.context['results_per_cat']],
+            [
+                (mark.id, 1),
+                (martin.id, 1),
+                (matteo.id, 3),
+                (milan.id, 4),
+                (wilma.id, 1),
+                (wanda.id, 2),
+                (wendy.id, 2),
+                (winona.id, 4),
+                (wiebke.id, 5),
+            ],
+        )
+
 class AuthenticationTemplateTests(TestCase):
     def setUp(self):
         self.login_url = reverse('login')

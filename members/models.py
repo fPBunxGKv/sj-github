@@ -85,6 +85,16 @@ class sj_results(models.Model):
                 name='sj_results_result_non_negative',
             ),
         ]
+        indexes = [
+            models.Index(
+                fields=['fk_sj_events', 'run_nr', 'line_nr'],
+                name='sj_result_event_run_line_idx',
+            ),
+            models.Index(
+                fields=['fk_sj_events', 'state', 'result_category'],
+                name='sj_result_event_state_cat_idx',
+            ),
+        ]
 
 # Printer configuration
     # IP-Address, logo, paper (54mm, 80mm), what for (run, registration, ...)
