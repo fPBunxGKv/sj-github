@@ -352,7 +352,7 @@ def users(request):
                 obj = form.save(commit=False)
 
                 # Generate a unique start number if not set
-                if not obj.startnum:
+                if not obj.startnum or obj.startnum == 0:
                     logger.debug("No start number provided, generating a new one.")
                     obj.startnum = generate_startnumber()
 
@@ -380,6 +380,9 @@ def users(request):
 
                 # initialize the empty form for a new user
                 form = UserForm(initial={'state': 'YES'})
+
+        elif 'cancel' in request.POST:
+            form = UserForm(initial={'state': 'YES'})
 
         elif 'print' in request.POST:
             pk = request.POST.get('print')

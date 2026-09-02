@@ -83,7 +83,7 @@
                                 <p>Folgende Benutzer haben bereits 3 Läufe in diesem Event:</p>
                                 <ul>
                                     {% for user in duplicate_run_warning.users %}
-                                        <li>{{ user.firstname }} {{ user.lastname }} (Startnummer {{ user.startnum }}) - bereits {{ user.existing_run_count }} Läufe</li>
+                                        <li>{{ user.firstname }} {{ user.lastname }} ({{ user.startnum }}) - {{ user.existing_run_count }} Läufe</li>
                                     {% endfor %}
                                 </ul>
                                 <p>Soll der Lauf trotzdem gespeichert werden?</p>

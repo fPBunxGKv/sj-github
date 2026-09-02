@@ -53,7 +53,7 @@ class RegisterUserForm(forms.ModelForm):
 
         widgets = {
             'firstname': forms.TextInput(attrs={
-                'class': 'form-floating mb-4 form-control form-control-lg',
+                'class': 'form-outline mb-4 form-control form-control-lg',
                 'required': True,
                 }),
             'lastname': forms.TextInput(attrs={
@@ -131,44 +131,51 @@ class UserForm(forms.ModelForm):
             'gender',
             'email',
             'city',
-            'state'
+            'state',
+            'startnum',
         ]
 
         widgets = {
             'firstname': forms.TextInput(
                 attrs={
-                    'class': 'form-floating mb-4 form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'required': True,
                     'placeholder': 'Vorname *',
                 }),
             'lastname': forms.TextInput(
                 attrs={
-                    'class': 'form-outline mb-4 form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'required': True,
                     'placeholder': 'Nachname *',
                 }),
             'byear': forms.NumberInput(attrs={
-                    'class': 'form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'required': True,
                 }),
             'gender': forms.Select(attrs={
-                    'class': 'form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'required': True,
                 }),
             'email': forms.EmailInput(attrs={
-                    'class': 'form-outline mb-4 form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'placeholder': 'E-Mail',
                 }),
             'phone': forms.TextInput(attrs={
-                    'class': 'form-outline mb-4 form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                 }),
             'city': forms.TextInput(attrs={
-                    'class': 'form-outline mb-4 form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'placeholder': 'Ort',
                 }),
             'state': forms.Select(attrs={
-                    'class': 'form-control form-control-md',
+                    'class': 'form-outline form-control form-control-md',
                     'required': True,
+                }),
+            'startnum': forms.NumberInput(attrs={
+                    'class': 'form-outline form-control form-control-md bg-light text-muted',
+                    'readonly': True,
+                    'tabindex': '-1',
+                    'style': 'user-select: none; pointer-events: none;',
                 }),
         }
 
@@ -181,6 +188,7 @@ class UserForm(forms.ModelForm):
             'phone' : 'Telefon',
             'city' : 'Ort',
             'state' : 'An/Abmelden *',
+            'startnum' : 'Startnummer',
         }
 
     def clean(self):
@@ -188,7 +196,8 @@ class UserForm(forms.ModelForm):
 
         firstname = cleaned_data.get('firstname')
         if not re.match(NAME_REGEX, firstname):
-            self.add_error('firstname', f"Im Vorname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt.")
+            firstname_error = f"Im Vorname sind nur Buchstaben, Bindestriche und Leerzeichen erlaubt."
+            self.add_error('firstname', firstname_error)
 
         lastname = cleaned_data.get('lastname')
         if not re.match(NAME_REGEX, lastname):
