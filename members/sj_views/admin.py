@@ -13,7 +13,7 @@ from django.utils.html import strip_tags
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
 
-from members.models import sj_users, sj_results
+from members.models import sj_events, sj_users, sj_results
 from members.sj_utils import get_event_info, sendmail
 
 from members.tasks import print_registered_users_task, send_invitation_email_task, send_closing_email_task, send_reminder_email_task
@@ -177,6 +177,12 @@ def administration(request):
         total_users_state_no=Count('id', filter=Q(state='NO')),
         total_users_registered=Count('id', filter=~Q(state__in=['DEL', 'NOMAIL'])),
     )
+    active_event = sj_events.objects.filter(event_active=True).order_by('-event_date').first()
+    total_new_registrations = (
+        sj_users.objects.filter(created_at__gte=active_event.event_reg_start).count()
+        if active_event
+        else 0
+    )
 
     recent_since = timezone.now() - timedelta(days=7)
     recent_activity_qs = (
@@ -213,6 +219,7 @@ def administration(request):
         'reminder_recipients': reminder_recipients,
         'reminder_recipient_count': reminder_recipient_count,
         **totals,
+        'total_new_registrations': total_new_registrations,
         'recent_activity': recent_activity,
     }
     return render(request, 'administration_show.html', context)

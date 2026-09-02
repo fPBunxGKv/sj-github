@@ -93,6 +93,37 @@ class AdministrationViewTests(TestCase):
         self.assertEqual(response.context['closing_recipient_count'], 1)
         self.assertContains(response, 'Abschluss-Empfänger ansehen')
 
+    def test_administration_counts_new_registrations_since_active_event_start(self):
+        registration_start = timezone.now()
+        sj_events.objects.create(
+            event_name='Active Event',
+            event_date=registration_start.date(),
+            event_active=True,
+            event_reg_start=registration_start,
+            event_reg_end=registration_start + timedelta(days=1),
+        )
+        new_user = sj_users.objects.create(
+            firstname='Eve',
+            lastname='Example',
+            email='eve@example.com',
+            gender='W',
+            byear=1990,
+            state='YES',
+        )
+        sj_users.objects.filter(pk=new_user.pk).update(created_at=registration_start + timedelta(seconds=1))
+
+        response = self.client.get(reverse('administration'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_new_registrations'], 1)
+        self.assertContains(response, 'Neuanmeldungen')
+
+    def test_administration_shows_no_new_registrations_without_active_event(self):
+        response = self.client.get(reverse('administration'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_new_registrations'], 0)
+
     def test_show_invitation_recipients_lists_filtered_users(self):
         response = self.client.post(reverse('administration'), {'show_invitation_recipients': '1'})
 
