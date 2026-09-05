@@ -175,7 +175,7 @@ def print_registered_users_task(event_info):
 
     # Use env var or default to known path
     json_file_path = os.getenv('PRINT_TEMPLATE_PATH', "members/templates/printer/starting_coupons_a5.json")
-    logo_file_path = os.getenv('LOGO_FILE_PATH', "members/static/logo_211x211.png")
+    logo_file_path = os.getenv('SJ_LOGO_FILE_PATH', "members/static/sj-logo-x211-y232.png")
     if not os.path.exists(json_file_path):
         logger.error(f"Template JSON file not found at: {json_file_path}")
         return
