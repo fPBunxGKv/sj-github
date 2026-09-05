@@ -122,6 +122,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+SJ_LOGO_FILE_PATH = os.getenv('SJ_LOGO_FILE_PATH', 'members/static/sj-logo-x211-y232.png')
+TV_LOGO_FILE_PATH = os.getenv('TV_LOGO_FILE_PATH', 'members/static/logo_211x211.png')
 
 
 # Default primary key field type

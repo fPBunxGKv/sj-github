@@ -44,11 +44,24 @@ from .sj_utils import print_paper, is_valid_uuid, sendmail, get_event_info, dele
 
 import logging
 import math
+import os
 
 from django.db import transaction
 # Logging setup
 from django.conf import settings
 logger = logging.getLogger('sj.logger')
+
+
+def _logo_context():
+    static_dir = settings.BASE_DIR / 'members' / 'static'
+    return {
+        'sj_logo_file_path': os.path.relpath(
+            os.path.join(settings.BASE_DIR, settings.SJ_LOGO_FILE_PATH), static_dir
+        ),
+        'tv_logo_file_path': os.path.relpath(
+            os.path.join(settings.BASE_DIR, settings.TV_LOGO_FILE_PATH), static_dir
+        ),
+    }
 
 
 # ---------- Pages ----------
@@ -61,7 +74,8 @@ def index(request):
         'event_info': event_info,
         'pagetitle' : 'SJ - Home',
         'reg_status': reg_status,
-        'reg_message': reg_message
+        'reg_message': reg_message,
+        **_logo_context(),
     }
     return HttpResponse(template.render(context, request))
 
@@ -242,7 +256,8 @@ def thankyou(request, state=''):
     template = loader.get_template('thankyou.html')
     context = {
         'event_info': event_info,
-        'pagetitle' : 'SJ - Danke'
+        'pagetitle' : 'SJ - Danke',
+        **_logo_context(),
     }
     return HttpResponse(template.render(context, request))
 
@@ -868,6 +883,7 @@ def ranking(request):
         'fin_categories' : fin_dist_cat,
         'ranking_events': ranking_events,
         'selected_event_id': str(event_id) if event_id is not None else '',
+        **_logo_context(),
     }
 
     template = loader.get_template('rank_show.html')
