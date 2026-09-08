@@ -109,19 +109,20 @@ def register_new(request, id=''):
 
     # if this is a POST request we need to process the form data
     if request.method == "POST":
+        # If we have a valid UUID, bind the form to that instance from the start so
+        # disabled fields (firstname/lastname/byear/gender) validate against the
+        # stored values instead of failing as "required" (browsers don't submit
+        # disabled inputs).
+        member = sj_users.objects.filter(uuid=id).first() if isUUID else None
+
         # create a form instance and populate it with data from the request:
-        form = RegisterUserForm(request.POST or None)
+        form = RegisterUserForm(request.POST, instance=member)
         # check whether it's valid:
         if form.is_valid():
             # If we have a valid UUID with data -> update this record
             if isUUID:
                 logger.info(f"Register NEW - Update record for UUID {id}")
-                member = sj_users.objects.get(uuid=id)
-                form = RegisterUserForm(request.POST, instance=member)
                 form.save()
-                # send status email to the user
-                #sendmail(form.cleaned_data["state"], form.cleaned_data["firstname"], form.cleaned_data["email"], "Existing User")
-
             else:
                 # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
 
@@ -343,7 +344,7 @@ def users(request):
     searched = ""
 
     # Initialize the form
-    form = UserForm(initial={'state': 'YES'})
+    form = UserForm(initial={'state': 'YES'}, user=request.user)
 
     if request.method == 'POST':
         if 'clear' in request.POST:
@@ -358,9 +359,9 @@ def users(request):
             logger.debug(f"User {pk} - Save form")
             if int(pk) > 0:
                 user = sj_users.objects.get(id=pk)
-                form = UserForm(request.POST, instance=user)
+                form = UserForm(request.POST, instance=user, user=request.user)
             else:
-                form = UserForm(request.POST or None)
+                form = UserForm(request.POST or None, user=request.user)
             
             # check whether it's valid:
             if form.is_valid():
@@ -394,10 +395,10 @@ def users(request):
                 obj.save()
 
                 # initialize the empty form for a new user
-                form = UserForm(initial={'state': 'YES'})
+                form = UserForm(initial={'state': 'YES'}, user=request.user)
 
         elif 'cancel' in request.POST:
-            form = UserForm(initial={'state': 'YES'})
+            form = UserForm(initial={'state': 'YES'}, user=request.user)
 
         elif 'print' in request.POST:
             pk = request.POST.get('print')
@@ -430,9 +431,9 @@ def users(request):
             # then set the state to YES
             if user.state.upper() not in ['DEL', ]:
                 user.state = 'YES'
-                logger.debug(f'User {user.firstname} {user.lastname} - STATE {user.state} -> set to YES')
+                logger.debug(f'User: {user.firstname} {user.lastname} -> set user.state to; {user.state}')
 
-            form = UserForm(instance=user)
+            form = UserForm(instance=user, user=request.user)
 
     template = loader.get_template('users_show.html')
 

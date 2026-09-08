@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger('sj.logger')
+
 from django import forms
 from .models import sj_users,sj_results
 from django.core.exceptions import ValidationError
@@ -24,19 +27,33 @@ class RegisterRunsForm(forms.ModelForm):
 
         return cleaned_data
 
-# RegisterUserForm is used to register a new user
+# RegisterUserForm is used to register a new athlete via the web interface
 # if lastname and firstname field is empty, hide state field
+# if one of firstname, lastname, byear, gender is set, set these fields to readonly (diable) and show state field
 class RegisterUserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        firstname = self.data.get('firstname') if self.is_bound else self.initial.get('firstname')
-        lastname = self.data.get('lastname') if self.is_bound else self.initial.get('lastname')
+        # Use self.instance (not self.data) so this is reliable on POST too: disabled
+        # fields aren't submitted by the browser, so self.data would be empty for them.
+        firstname = self.instance.firstname if self.instance.pk else None
+        lastname = self.instance.lastname if self.instance.pk else None
+        byear = self.instance.byear if self.instance.pk else None
+        gender = self.instance.gender if self.instance.pk else None
 
         if not firstname and not lastname:
-            print("RegisterUserForm: firstname or lastname is empty, hiding state field")
+            logger.debug(f"RegisterUserForm (online reg): firstname or lastname is empty, hiding state field")
             self.fields['state'].widget = forms.HiddenInput()
+
+        if firstname:
+            self.fields['firstname'].disabled = True
+        if lastname:
+            self.fields['lastname'].disabled = True
+        if byear:
+            self.fields['byear'].disabled = True
+        if gender:
+            self.fields['gender'].disabled = True
 
     # specify the name of model to use
     class Meta:
@@ -114,10 +131,42 @@ class RegisterUserForm(forms.ModelForm):
 
 
 # UserForm is used to update user data as logged in user
+"""
+Logged in Member of group grp-admin are allowed to edit every field
+all other users have restricted access
+"""
 class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
+        # Popped before super().__init__() - not a model field, only used to check group membership.
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
+        # Use self.instance (not self.data) so this is reliable on POST too: disabled
+        # fields aren't submitted by the browser, so self.data would be empty for them.
+        firstname = self.instance.firstname if self.instance.pk else None
+        lastname = self.instance.lastname if self.instance.pk else None
+        byear = self.instance.byear if self.instance.pk else None
+        gender = self.instance.gender if self.instance.pk else None
+        logger.debug(f"UserForm: firstname={firstname}, lastname={lastname}, byear={byear}, gender={gender}")
+
+        is_admin = bool(user) and user.groups.filter(name='grp-admin').exists()
+
+        if not is_admin:
+            # disabled=True is enforced server-side: submitted values are ignored and
+            # the initial value is used instead (readonly widget attrs are not, and
+            # have no effect on <select> widgets like gender).
+            if firstname:
+                self.fields['firstname'].disabled = True
+            if lastname:
+                self.fields['lastname'].disabled = True
+            if byear:
+                self.fields['byear'].disabled = True
+            if gender:
+                self.fields['gender'].disabled = True
+
+            self.fields['startnum'].disabled = True
+
         self.fields['email'].required = False
         self.fields['city'].required = False
 
