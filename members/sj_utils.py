@@ -407,34 +407,49 @@ def create_past_event_demo_results(event, max_users_per_category=8, finalists_pe
         'final_results_created': len(final_rows),
     }
 
-def delete_user(id, state='DEL'):
+def delete_user(user_id, state='DEL'):
     '''
-    Delete all data of a user if he has no results in the database.
-    Else just overwrite first/lastname with "***" and only keep ranking/result
-    relevant values.
-    Set state to DEL.
-    '''
-    user = sj_users.objects.get(id=id)
+    Delete or anonymize a user, depending on whether results reference them.
 
-    if sj_results.objects.filter(fk_sj_users=user.id).count() < 1:
-        logger.info("Delete user -> No results, delete the user")
-        user.delete()
-    elif state == 'DEL':
-        logger.info("Delete user -> Member has results, keep but clean it")
-        user.firstname = '***'
-        user.lastname = '***'
-        user.email = ''
-        user.phone = ''
-        user.city = ''
-        user.state = 'DEL'
-        user.save()
-    elif state == 'NOMAIL':
-        user.email = ''
-        user.phone = ''
-        user.state = 'NOMAIL'
-        user.save()
-    else:
-        logger.info("Delete user -> No action taken")
+    - No results at all: the row is fully deleted.
+    - Has results and state == 'DEL': personal data is cleared, state set to 'DEL'
+      (results are kept for ranking).
+    - Has results and state == 'NOMAIL': only email/phone are cleared.
+
+    Returns True if an action was performed, False if the user doesn't exist
+    or state is not one of 'DEL'/'NOMAIL'.
+    '''
+    if state not in ('DEL', 'NOMAIL'):
+        logger.warning(f"delete_user -> unsupported state {state!r}, no action taken")
+        return False
+
+    try:
+        user = sj_users.objects.get(id=user_id)
+    except (sj_users.DoesNotExist, ValueError, TypeError):
+        logger.warning(f"delete_user -> user with id={user_id!r} not found, no action taken")
+        return False
+
+    with transaction.atomic():
+        if not sj_results.objects.filter(fk_sj_users=user.id).exists():
+            logger.info(f"Delete user {user.id} -> No results, delete the user")
+            user.delete()
+        elif state == 'DEL':
+            logger.info(f"Delete athlete {user.id} -> Member has results, keep but clean it")
+            user.firstname = '***'
+            user.lastname = '***'
+            user.email = ''
+            user.phone = ''
+            user.city = ''
+            user.state = 'DEL'
+            user.save()
+        else:  # state == 'NOMAIL'
+            logger.info(f"Delete athlete's email {user.id}")
+            user.email = ''
+            user.phone = ''
+            user.state = 'NOMAIL'
+            user.save()
+
+    return True
 
 def generate_startnumber():
     seed()

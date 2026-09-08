@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .models import sj_events, sj_results, sj_users
-from .sj_utils import get_event_info
+from .sj_utils import get_event_info, delete_user
 
 
 class AdministrationViewTests(TestCase):
@@ -942,6 +942,86 @@ class EventInfoTests(TestCase):
                 (wiebke.id, 5),
             ],
         )
+
+class DeleteUserUtilTests(TestCase):
+    '''Tests for sj_utils.delete_user() covering every branch of the function.'''
+
+    def setUp(self):
+        self.event = sj_events.objects.create(
+            event_name='Delete User Event',
+            event_date=timezone.now().date(),
+            event_active=True,
+            event_reg_start=timezone.now(),
+            event_reg_end=timezone.now() + timedelta(days=1),
+        )
+
+    def _create_user(self, **overrides):
+        defaults = dict(
+            firstname='Original',
+            lastname='Name',
+            email='original@example.com',
+            phone='123456',
+            city='Bern',
+            gender='W',
+            byear=1990,
+            state='YES',
+        )
+        defaults.update(overrides)
+        return sj_users.objects.create(**defaults)
+
+    def test_deletes_user_without_results(self):
+        user = self._create_user()
+
+        self.assertTrue(delete_user(user.id))
+
+        self.assertFalse(sj_users.objects.filter(id=user.id).exists())
+
+    def test_anonymizes_user_with_results_on_state_del(self):
+        user = self._create_user()
+        sj_results.objects.create(fk_sj_users=user, fk_sj_events=self.event, result_category='W05')
+
+        self.assertTrue(delete_user(user.id))
+
+        user.refresh_from_db()
+        self.assertEqual(user.firstname, '***')
+        self.assertEqual(user.lastname, '***')
+        self.assertEqual(user.email, '')
+        self.assertEqual(user.phone, '')
+        self.assertEqual(user.city, '')
+        self.assertEqual(user.state, 'DEL')
+
+    def test_clears_email_only_on_state_nomail(self):
+        user = self._create_user()
+        sj_results.objects.create(fk_sj_users=user, fk_sj_events=self.event, result_category='W05')
+
+        self.assertTrue(delete_user(user.id, state='NOMAIL'))
+
+        user.refresh_from_db()
+        self.assertEqual(user.firstname, 'Original')
+        self.assertEqual(user.lastname, 'Name')
+        self.assertEqual(user.email, '')
+        self.assertEqual(user.phone, '')
+        self.assertEqual(user.state, 'NOMAIL')
+
+    def test_unsupported_state_is_a_noop(self):
+        user = self._create_user()
+        sj_results.objects.create(fk_sj_users=user, fk_sj_events=self.event, result_category='W05')
+
+        self.assertFalse(delete_user(user.id, state='BOGUS'))
+
+        user.refresh_from_db()
+        self.assertEqual(user.firstname, 'Original')
+        self.assertEqual(user.state, 'YES')
+
+    def test_nonexistent_user_id_returns_false(self):
+        self.assertFalse(delete_user(999999))
+
+    def test_non_numeric_user_id_returns_false(self):
+        self.assertFalse(delete_user('not-an-id'))
+
+    def test_none_user_id_returns_false(self):
+        self.assertFalse(delete_user(None))
+
 
 class AuthenticationTemplateTests(TestCase):
     def setUp(self):

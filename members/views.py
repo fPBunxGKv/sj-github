@@ -421,7 +421,8 @@ def users(request):
 
         elif 'delete' in request.POST:
             pk = request.POST.get('delete')
-            delete_user(pk)
+            if not delete_user(pk):
+                messages.error(request, 'Löschen fehlgeschlagen: Benutzer nicht gefunden.')
 
         elif 'edit' in request.POST:
             pk = request.POST.get('edit')
