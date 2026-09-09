@@ -398,10 +398,10 @@ def users(request):
                 # Keep the existing start number when reusing a matching user.
                 if existing_user is not None:
                     obj.startnum = existing_startnum
-                    logger.debug(f"Reusing existing start number {obj.startnum} for user {obj.firstname} {obj.lastname}.")
+                    logger.info(f"Reusing existing start number {obj.startnum} for user {obj.firstname} {obj.lastname}.")
                 elif not obj.startnum or obj.startnum == 0:
-                    logger.debug("No start number provided, generating a new one.")
                     obj.startnum = generate_startnumber()
+                    logger.info(f"No start number provided, generated {obj.startnum} for user {obj.firstname} {obj.lastname}.")
 
                 # Startzettel ausdrucken
                 if obj.state == 'YES':
