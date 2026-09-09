@@ -943,6 +943,97 @@ class EventInfoTests(TestCase):
             ],
         )
 
+class UsersViewTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='users-admin', password='secret')
+        self.client.force_login(self.user)
+
+    def _create_user(self):
+        return sj_users.objects.create(
+            firstname='Original',
+            lastname='Name',
+            email='original@example.com',
+            phone='123456',
+            city='Bern',
+            gender='W',
+            byear=1990,
+            state='YES',
+        )
+
+    def test_delete_modal_actions_are_explicit(self):
+        response = self.client.get(reverse('users'))
+
+        self.assertContains(response, 'name="delete_nomail"')
+        self.assertContains(response, 'name="delete"')
+        self.assertContains(response, 'im Ranking erhalten')
+
+    @patch('members.views.print_paper', return_value=True)
+    def test_save_new_user_updates_existing_matching_user(self, mock_print):
+        event = sj_events.objects.create(
+            event_name='Users Save Event',
+            event_date=timezone.now().date(),
+            event_active=True,
+            event_reg_start=timezone.now(),
+            event_reg_end=timezone.now() + timedelta(days=1),
+        )
+        existing_user = self._create_user()
+        existing_user.startnum = 555555
+        existing_user.state = 'NO'
+        existing_user.save()
+
+        response = self.client.post(reverse('users'), {
+            'save': '0',
+            'firstname': existing_user.firstname,
+            'lastname': existing_user.lastname,
+            'byear': existing_user.byear,
+            'gender': existing_user.gender,
+            'email': 'updated@example.com',
+            'city': 'Zurich',
+            'state': 'YES',
+            'startnum': '0',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(sj_users.objects.count(), 1)
+        existing_user.refresh_from_db()
+        self.assertEqual(existing_user.startnum, 555555)
+        self.assertEqual(existing_user.email, 'updated@example.com')
+        self.assertEqual(existing_user.city, 'Zurich')
+        self.assertEqual(existing_user.admin_state, 'PRINTED')
+        mock_print.assert_called_once()
+        self.assertEqual(mock_print.call_args.kwargs['user_data'].pk, existing_user.pk)
+
+    def test_delete_nomail_action_preserves_user_and_clears_contact_details(self):
+        user = self._create_user()
+
+        response = self.client.post(reverse('users'), {'delete_nomail': user.id})
+
+        self.assertEqual(response.status_code, 200)
+        user.refresh_from_db()
+        self.assertEqual(user.state, 'NOMAIL')
+        self.assertEqual(user.email, '')
+        self.assertEqual(user.phone, '')
+        self.assertEqual(user.firstname, 'Original')
+
+    def test_delete_action_anonymizes_user_with_results(self):
+        user = self._create_user()
+        event = sj_events.objects.create(
+            event_name='Users View Event',
+            event_date=timezone.now().date(),
+            event_reg_start=timezone.now(),
+            event_reg_end=timezone.now() + timedelta(days=1),
+        )
+        sj_results.objects.create(fk_sj_users=user, fk_sj_events=event, result_category='W05')
+
+        response = self.client.post(reverse('users'), {'delete': user.id})
+
+        self.assertEqual(response.status_code, 200)
+        user.refresh_from_db()
+        self.assertEqual(user.state, 'DEL')
+        self.assertEqual(user.firstname, '***')
+        self.assertEqual(user.lastname, '***')
+
+
 class DeleteUserUtilTests(TestCase):
     '''Tests for sj_utils.delete_user() covering every branch of the function.'''
 

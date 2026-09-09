@@ -411,10 +411,10 @@ def delete_user(user_id, state='DEL'):
     '''
     Delete or anonymize a user, depending on whether results reference them.
 
-    - No results at all: the row is fully deleted.
+        - No results at all and state == 'DEL': the row is fully deleted.
     - Has results and state == 'DEL': personal data is cleared, state set to 'DEL'
       (results are kept for ranking).
-    - Has results and state == 'NOMAIL': only email/phone are cleared.
+        - State == 'NOMAIL': only email/phone are cleared, regardless of results.
 
     Returns True if an action was performed, False if the user doesn't exist
     or state is not one of 'DEL'/'NOMAIL'.
@@ -430,10 +430,16 @@ def delete_user(user_id, state='DEL'):
         return False
 
     with transaction.atomic():
-        if not sj_results.objects.filter(fk_sj_users=user.id).exists():
+        if state == 'NOMAIL':
+            logger.info(f"Delete athlete's email {user.id}")
+            user.email = ''
+            user.phone = ''
+            user.state = 'NOMAIL'
+            user.save()
+        elif not sj_results.objects.filter(fk_sj_users=user.id).exists():
             logger.info(f"Delete user {user.id} -> No results, delete the user")
             user.delete()
-        elif state == 'DEL':
+        else:  # state == 'DEL' and results exist
             logger.info(f"Delete athlete {user.id} -> Member has results, keep but clean it")
             user.firstname = '***'
             user.lastname = '***'
@@ -441,12 +447,6 @@ def delete_user(user_id, state='DEL'):
             user.phone = ''
             user.city = ''
             user.state = 'DEL'
-            user.save()
-        else:  # state == 'NOMAIL'
-            logger.info(f"Delete athlete's email {user.id}")
-            user.email = ''
-            user.phone = ''
-            user.state = 'NOMAIL'
             user.save()
 
     return True

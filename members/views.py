@@ -64,6 +64,15 @@ def _logo_context():
     }
 
 
+def find_existing_user(firstname, lastname, byear, gender):
+    return sj_users.objects.filter(
+        firstname=firstname,
+        lastname=lastname,
+        byear=byear,
+        gender=gender,
+    ).first()
+
+
 # ---------- Pages ----------
 def index(request):
     event_info = get_event_info()
@@ -126,14 +135,13 @@ def register_new(request, id=''):
             else:
                 # Test if a user width the same "lastname, firstname, birthayear" exists -> then update this record
 
-                user_exists = sj_users.objects.filter(
-                    firstname = form.cleaned_data["firstname"],
-                    lastname = form.cleaned_data["lastname"],
-                    byear = form.cleaned_data["byear"],
-                    gender = form.cleaned_data["gender"],
-                    )
-                if (user_exists.count()) >= 1:
-                    member = sj_users.objects.get(uuid=user_exists[0].uuid)
+                member = find_existing_user(
+                    firstname=form.cleaned_data["firstname"],
+                    lastname=form.cleaned_data["lastname"],
+                    byear=form.cleaned_data["byear"],
+                    gender=form.cleaned_data["gender"],
+                )
+                if member:
                     form = RegisterUserForm(request.POST, instance=member)
                     form.save()
                 else:
@@ -357,6 +365,8 @@ def users(request):
         if 'save' in request.POST:
             pk = request.POST.get('save')
             logger.debug(f"User {pk} - Save form")
+            existing_user = None
+            existing_startnum = None
             if int(pk) > 0:
                 user = sj_users.objects.get(id=pk)
                 form = UserForm(request.POST, instance=user, user=request.user)
@@ -365,10 +375,31 @@ def users(request):
             
             # check whether it's valid:
             if form.is_valid():
+                if int(pk) <= 0:
+                    existing_user = find_existing_user(
+                        firstname=form.cleaned_data['firstname'],
+                        lastname=form.cleaned_data['lastname'],
+                        byear=form.cleaned_data['byear'],
+                        gender=form.cleaned_data['gender'],
+                    )
+                    if existing_user is not None:
+                        existing_startnum = sj_users.objects.filter(
+                            pk=existing_user.pk,
+                        ).values_list('startnum', flat=True).first()
+                        form = UserForm(
+                            request.POST,
+                            instance=existing_user,
+                            user=request.user,
+                        )
+                        form.is_valid()
+
                 obj = form.save(commit=False)
 
-                # Generate a unique start number if not set
-                if not obj.startnum or obj.startnum == 0:
+                # Keep the existing start number when reusing a matching user.
+                if existing_user is not None:
+                    obj.startnum = existing_startnum
+                    logger.debug(f"Reusing existing start number {obj.startnum} for user {obj.firstname} {obj.lastname}.")
+                elif not obj.startnum or obj.startnum == 0:
                     logger.debug("No start number provided, generating a new one.")
                     obj.startnum = generate_startnumber()
 
@@ -418,6 +449,11 @@ def users(request):
                 logger.warning(f"Registration -> not printed for {user.firstname} {user.lastname}: {prn_status}")
                 user.admin_state = "NOT_PRINTED"
             user.save()
+
+        elif 'delete_nomail' in request.POST:
+            pk = request.POST.get('delete_nomail')
+            if not delete_user(pk, state='NOMAIL'):
+                messages.error(request, 'Löschen fehlgeschlagen: Benutzer nicht gefunden.')
 
         elif 'delete' in request.POST:
             pk = request.POST.get('delete')

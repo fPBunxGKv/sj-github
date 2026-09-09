@@ -99,17 +99,22 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="deleteConfirmModalLabel">Teilnehmer löschen</h5>
+                                <h5 class="modal-title" id="deleteConfirmModalLabel">Was möchtest du löschen?</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                Bist du sicher, dass du
+                                Für
                                 <strong id="deleteConfirmName"></strong>
-                                (Jahrgang <span id="deleteConfirmByear"></span>) löschen möchtest?
+                                (Jahrgang <span id="deleteConfirmByear"></span>):
+                                <ul>
+                                    <li>Nur die E-Mail-Adresse, damit keine weiteren E-Mails versendet werden.</li>
+                                    <li>Alle Daten des Teilnehmers löschen. Bei vorhandenen Resultaten bleibt er als <strong>***</strong> in der Rangliste.</li>
+                                </ul>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" formnovalidate class="btn btn-danger" name="delete" id="deleteConfirmSubmit" value="">Löschen</button>
+                                <button type="submit" formnovalidate class="btn btn-warning" name="delete_nomail" id="deleteConfirmNoMail" value="">Nur E-Mail löschen</button>
+                                <button type="submit" formnovalidate class="btn btn-danger" name="delete" id="deleteConfirmSubmit" value="">Alle Daten löschen</button>
                             </div>
                         </div>
                     </div>
@@ -151,6 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('deleteConfirmName').textContent =
             `${button.dataset.firstname} ${button.dataset.lastname}`;
         document.getElementById('deleteConfirmByear').textContent = button.dataset.byear;
+        document.getElementById('deleteConfirmNoMail').value = button.dataset.id;
         document.getElementById('deleteConfirmSubmit').value = button.dataset.id;
     });
 });
